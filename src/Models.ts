@@ -2,7 +2,7 @@
 import {Action, GraphReader, Model, Vertex} from './Model';
 
 export const lineModel: Model<{}> = (g: GraphReader, _: {}): Action => {
-  const action: Action = {action: 'addVertex', connectTo: g.vertexCount-1};
+  const action: Action = {action: 'addVertex', connectTo: g.vertexCount - 1};
   return action;
 };
 
