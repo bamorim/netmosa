@@ -41,7 +41,6 @@ export class Simulation<S> implements Iterator<Edge> {
   private model: Model<S>;
   constructor(initialState: S, model: Model<S>) {
     this.graph = {edges: [], adjacencyList: [[]], size: 1};
-    addVertex(this.graph, 0);
     this.state = initialState;
     this.model = model;
   }
