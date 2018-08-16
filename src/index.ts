@@ -1,14 +1,18 @@
 import {from} from 'rxjs';
-
-import {Action, Edge, GraphReader, Model} from './Model';
+import {take} from 'rxjs/operators';
+import {Edge} from './Model';
+import {randomWalkModel} from './Models';
 import {Simulation} from './Simulator';
 
+const k = 2;
+const n = 100;
 
-const starModel: Model<number> = (g: GraphReader, _: number): Action => {
-  const action: Action = {action: 'addVertex', connectTo: 0};
-  return action;
-};
+const simulation = new Simulation({pos: 0}, randomWalkModel(k));
 
-const simulation = new Simulation(1, starModel);
-
-from(simulation).subscribe((x: Edge) => console.log(x));
+// Render as dot
+console.log('digraph G {');
+console.log('0 -> 0');
+from(simulation)
+    .pipe(take(n))
+    .subscribe((x: Edge) => console.log('' + x[0] + ' -> ' + x[1]));
+console.log('}');
