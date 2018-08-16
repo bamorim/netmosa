@@ -8,7 +8,7 @@ type Edge = [Vertex, Vertex];
 type NeighborFunc = (v: Vertex) => Vertex[];
 type GetEdgeFunc = (i: number) => Edge;
 
-interface Graph {
+interface GraphReader {
   readonly vertexCount: number;
   readonly edgeCount: number;
   readonly neighborsOf: NeighborFunc;
@@ -29,24 +29,22 @@ type Action = AddVertex|AddEdge;
 
 // Estudar como fazer S ser "event-sourced"
 
-type Model<S> = (g: Graph, s: S) => Action;
+type Model<S> = (g: GraphReader, s: S) => Action;
 
 // Simple Model
 
-const starModel: Model<number> = (g: Graph, _: number): Action => {
+const starModel: Model<number> = (g: GraphReader, _: number): Action => {
   const action: Action = {action: 'addVertex', connectTo: 0};
   return action;
 };
 
-// Persistent Graph
-
-interface PersistentGraph {
+interface Graph {
   size: number;
   edges: Edge[];
   adjacencyList: Vertex[][];
 }
 
-const addVertex = (graph: PersistentGraph, connectTo: Vertex) => {
+const addVertex = (graph: Graph, connectTo: Vertex) => {
   if (connectTo >= graph.size) return;
   if (connectTo < 0) return;
   graph.adjacencyList[connectTo].push(graph.size);
@@ -56,7 +54,7 @@ const addVertex = (graph: PersistentGraph, connectTo: Vertex) => {
 };
 
 // TODO: Should we check for edge existence?
-const connectVertices = (graph: PersistentGraph, a: Vertex, b: Vertex) => {
+const connectVertices = (graph: Graph, a: Vertex, b: Vertex) => {
   if (a >= graph.size) return;
   if (a < 0) return;
   if (b >= graph.size) return;
@@ -66,7 +64,7 @@ const connectVertices = (graph: PersistentGraph, a: Vertex, b: Vertex) => {
   graph.edges.push([a, b]);
 };
 
-const toGraph = (graph: PersistentGraph) => {
+const toGraphReader = (graph: Graph) => {
   return {
     vertexCount: graph.size,
     edgeCount: graph.edges.length,
@@ -85,7 +83,7 @@ addVertex(graph, 0);
 
 const simulation: Observable<Edge> =
     generate<Edge>([0, 1], (v: Edge) => true, (v: Edge) => {
-      const resp: Action = starModel(toGraph(graph), 1);
+      const resp: Action = starModel(toGraphReader(graph), 1);
       switch (resp.action) {
         case 'addVertex':
           addVertex(graph, resp.connectTo);
