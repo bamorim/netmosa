@@ -1,3 +1,6 @@
 {
-  "extends": "gts/tslint.json"
+  "extends": ["gts/tslint.json", "tslint-react"],
+  "rules": {
+    "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"]
+  }
 }
