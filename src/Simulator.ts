@@ -1,4 +1,4 @@
-import { Action, Edge, Model, Vertex } from './Model';
+import {Action, Edge, Model, Vertex} from './Model';
 
 interface Graph {
   size: number;
@@ -40,7 +40,7 @@ export class Simulation<S> implements IterableIterator<Edge> {
   private state: S;
   private model: Model<S>;
   constructor(initialState: S, model: Model<S>) {
-    this.graph = { edges: [], adjacencyList: [[]], size: 1 };
+    this.graph = {edges: [], adjacencyList: [[]], size: 1};
     this.state = initialState;
     this.model = model;
   }
@@ -58,7 +58,7 @@ export class Simulation<S> implements IterableIterator<Edge> {
         break;
     }
 
-    return { done: false, value: this.graph.edges[this.graph.edges.length - 1] };
+    return {done: false, value: this.graph.edges[this.graph.edges.length - 1]};
   }
 
   [Symbol.iterator](): IterableIterator<Edge> {

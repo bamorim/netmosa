@@ -20,6 +20,6 @@ export interface AddEdge {
   edge: Edge;
 }
 
-export type Action = AddVertex | AddEdge;
+export type Action = AddVertex|AddEdge;
 
 export type Model<S> = (g: GraphReader, s: S) => Action;
