@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": ".",
     "lib": ["es6", "dom"],
-    "outDir": "build"
+    "outDir": "build",
+    "strictFunctionTypes": false
   },
   "include": [
     "src/*.ts",

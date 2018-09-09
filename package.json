@@ -13,10 +13,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "check": "gts check",
     "clean": "gts clean",
-    "compile": "tsc -p .",
     "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
     "posttest": "npm run check"
   },
   "devDependencies": {
@@ -24,14 +21,16 @@
     "gts": "^0.8.0",
     "source-map-loader": "^0.2.4",
     "ts-node": "^7.0.1",
-    "typescript": "^3.0.3",
+    "typescript": "^2.8.4",
     "webpack": "^4.17.2",
     "webpack-command": "^0.4.1"
   },
   "dependencies": {
     "@cycle/dom": "^21.1.0",
     "@cycle/run": "^4.4.0",
+    "@types/d3": "^5.0.0",
     "@types/sigmajs": "^1.0.27",
+    "d3": "^5.7.0",
     "sigma": "^1.2.1",
     "xstream": "^11.7.0"
   }

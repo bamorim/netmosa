@@ -1,7 +1,7 @@
 export type Vertex = number;
 export type Edge = [Vertex, Vertex];
-type NeighborFunc = (v: Vertex) => Vertex[];
-type GetEdgeFunc = (i: number) => Edge;
+export type NeighborFunc = (v: Vertex) => Vertex[];
+export type GetEdgeFunc = (i: number) => Edge;
 
 export interface GraphReader {
   readonly vertexCount: number;
@@ -20,6 +20,6 @@ export interface AddEdge {
   edge: Edge;
 }
 
-export type Action = AddVertex|AddEdge;
+export type Action = AddVertex | AddEdge;
 
 export type Model<S> = (g: GraphReader, s: S) => Action;
