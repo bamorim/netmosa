@@ -23,9 +23,9 @@ function main(sources: Sources): Sinks {
     const dom = sources.dom;
     const sinks: Sinks = {
         dom: dom.select('.field').events('input')
-            .map(ev => (ev.target as HTMLInputElement).value)
+            .map((ev: Event) => (ev.target as HTMLInputElement).value)
             .startWith('')
-            .map(name =>
+            .map((name: string) =>
                 div('#root', [
                     label('Name:'),
                     input('.field', { attrs: { type: 'text', value: name } }),
@@ -44,7 +44,6 @@ const drivers = {
 run(main, drivers);
 
 const simulation = new Simulation({ pos: 0 }, randomWalkModel(2));
-
 
 // d3 here
 
@@ -73,7 +72,7 @@ function addLink(value: Edge) {
     const fromId = value[0].toString();
     const toId = value[1].toString();
 
-    const existingNode = nodes.find(({ id }) => id == fromId || id == toId) || {}
+    const existingNode = nodes[value[0]] || nodes[value[1]] || {};
 
     while (nodes.length <= nodeMax) {
         let newNode = Object.assign({}, existingNode, { id: nodes.length.toString() })
@@ -92,7 +91,7 @@ function run_d3() {
     const force = d3
         .forceSimulation()
         .nodes(nodes)
-        .force('charge', d3.forceManyBody().strength(-120))
+        .force('charge', d3.forceManyBody().strength(-150))
         .force('link', d3.forceLink(links).id((d: any) => d.id))
         .force('center', d3.forceCenter(width / 2, height / 2));
 
@@ -102,11 +101,11 @@ function run_d3() {
         .attr('width', width)
         .attr('height', height);
 
-    let node: d3.Selection<d3.BaseType, Node, d3.BaseType, {}> = svg
-        .append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
-
     let link: d3.Selection<d3.BaseType, Link, d3.BaseType, {}> = svg
         .append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link");
+
+    let node: d3.Selection<SVGCircleElement, Node, d3.BaseType, {}> = svg
+        .append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 
     function ticked() {
         link
@@ -118,15 +117,37 @@ function run_d3() {
         node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
     }
 
-    function render() {
+    function dragstarted(this: SVGCircleElement, d: any) {
+        d.fx = d.x;
+        d.fy = d.y;
+    }
 
+    function dragged(this: SVGCircleElement, d: any) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(this: SVGCircleElement, d: any) {
+        d.fx = null;
+        d.fy = null;
+    }
+
+    function render() {
         link = link.data(links);
         link.exit().remove();
         link = link.enter().append("line").merge(link);
 
         node = node.data(nodes);
         node.exit().remove();
-        node = node.enter().append("circle").attr("r", 8).merge(node);
+        node = node
+            .enter()
+            .append<SVGCircleElement>("circle")
+            .attr("r", 8)
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended))
+            .merge(node);
 
         force
             .nodes(nodes)
