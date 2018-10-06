@@ -1,4 +1,5 @@
-import {Action, Edge, Model, Vertex} from './Model';
+import { Action, Edge, Model, Vertex } from './Model';
+import * as uuid from "uuid";
 
 interface Graph {
   size: number;
@@ -8,6 +9,7 @@ interface Graph {
 
 export interface RenderableGraph {
   readonly edges: Edge[];
+  readonly version: String;
 }
 
 const addVertex = (graph: Graph, connectTo: Vertex) => {
@@ -43,10 +45,13 @@ export class Simulation<S> implements IterableIterator<RenderableGraph> {
   private graph: Graph;
   private state: S;
   private model: Model<S>;
+  private key: String;
+  private iterations: number = 0;
   constructor(initialState: S, model: Model<S>) {
-    this.graph = {edges: [], adjacencyList: [[]], size: 1};
+    this.graph = { edges: [], adjacencyList: [[]], size: 1 };
     this.state = initialState;
     this.model = model;
+    this.key = uuid.v4();
   }
 
   next(): IteratorResult<RenderableGraph> {
@@ -61,9 +66,13 @@ export class Simulation<S> implements IterableIterator<RenderableGraph> {
       default:
         break;
     }
+    this.iterations += 1;
 
-
-    return {done: false, value: {edges: this.graph.edges}};
+    return {
+      done: false, value: {
+        edges: this.graph.edges, version: this.key + this.iterations.toString()
+      }
+    };
   }
 
   [Symbol.iterator](): IterableIterator<RenderableGraph> {
