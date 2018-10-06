@@ -6,6 +6,10 @@ interface Graph {
   adjacencyList: Vertex[][];
 }
 
+export interface RenderableGraph {
+  readonly edges: Edge[];
+}
+
 const addVertex = (graph: Graph, connectTo: Vertex) => {
   if (connectTo >= graph.size) return;
   if (connectTo < 0) return;
@@ -35,7 +39,7 @@ const toGraphReader = (graph: Graph) => {
   };
 };
 
-export class Simulation<S> implements IterableIterator<Edge> {
+export class Simulation<S> implements IterableIterator<RenderableGraph> {
   private graph: Graph;
   private state: S;
   private model: Model<S>;
@@ -45,7 +49,7 @@ export class Simulation<S> implements IterableIterator<Edge> {
     this.model = model;
   }
 
-  next(): IteratorResult<Edge> {
+  next(): IteratorResult<RenderableGraph> {
     const resp: Action = this.model(toGraphReader(this.graph), this.state);
     switch (resp.action) {
       case 'addVertex':
@@ -58,10 +62,11 @@ export class Simulation<S> implements IterableIterator<Edge> {
         break;
     }
 
-    return {done: false, value: this.graph.edges[this.graph.edges.length - 1]};
+
+    return {done: false, value: {edges: this.graph.edges}};
   }
 
-  [Symbol.iterator](): IterableIterator<Edge> {
+  [Symbol.iterator](): IterableIterator<RenderableGraph> {
     return this;
   }
 }
