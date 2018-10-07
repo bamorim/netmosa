@@ -48,13 +48,19 @@ function main(sources: Sources): Sinks {
     .map(([paused, speed]) => ({ paused, speed }))
     .startWith({ paused: false, speed: 0 });
 
+  const configView = (state: AppState) => h('fieldset.uk-fieldset', [
+    h('label', [
+      h('input.pause.uk-checkbox', { attrs: { type: 'checkbox' } }, []),
+      state.paused ? "Unpause" : "Pause"
+    ]),
+    h('input.speed.uk-range', { attrs: { type: 'range', min: 0, max: 100, value: state.speed } }, [])
+  ])
+
   const view$ = state$.map((state) =>
-    h('div', [
-      h('div.graphview', {attrs: {style: "position: fixed; height: 100%; width: 100%"}}, []),
-      h('div', { attrs: { style: "position: fixed" } }, [
-        h('input.pause', { attrs: { type: 'checkbox' } }, []),
-        h('label', [state.paused ? "Unpause" : "Pause"]),
-        h('input.speed', { attrs: { type: 'range', min: 0, max: 100, value: state.speed } }, [])
+    h('div.wrapper', [
+      h('div.graphview', []),
+      h('div.menu', [
+        configView(state)
       ])
     ])
   );
