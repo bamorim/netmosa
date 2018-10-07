@@ -1,10 +1,9 @@
 import * as d3 from 'd3';
-import { max } from 'd3';
-import {RenderableGraph} from "./Simulator";
+import {IReadGraph} from "./Model";
 
 interface Node extends d3.SimulationNodeDatum {
   id: string;
-  color?: string;
+  attributes: Map<string, string>
 }
 
 interface Link extends d3.SimulationLinkDatum<Node> {
@@ -55,9 +54,10 @@ export class GraphView {
     this.update();
   }
 
-  updateGraph(graph: RenderableGraph) {
+  updateGraph(graph: IReadGraph) {
     let maxNode = 0
     let newNodes : {[index: number]: number} = {}
+
     graph.edges.map((e) => [Math.min(...e), Math.max(...e)]).forEach(([min, max]) => {
       if(!newNodes[min]) newNodes[min] = min
       if(!newNodes[max]) newNodes[max] = min
@@ -67,19 +67,20 @@ export class GraphView {
     let nodeCount = maxNode + 1
 
     // Sync Nodes
-    while (this.nodes.length != nodeCount) {
-      if(this.nodes.length < nodeCount) {
-        const existingNode = this.nodes[newNodes[this.nodes.length]] || {}
-        const newNode = { id: this.nodes.length.toString(), x: existingNode.x, y: existingNode.y }
-        this.nodes.push(newNode)
+    graph.vertices.forEach((vertex) => {
+      if(!this.nodes[vertex.id]) {
+        let neighborId = vertex.neighbors.find((v) => v < vertex.id) || vertex.neighbors[0]
+        let neighbor = neighborId && this.nodes[neighborId]
+        let copiedProps = neighbor ? {x: neighbor.x, y: neighbor.y} : {}
+        this.nodes[vertex.id] = {
+          ...copiedProps,
+          id: vertex.id.toString(),
+          attributes: new Map(vertex.attributes)
+        }
       } else {
-        //this.nodes.pop()
+        this.nodes[vertex.id].attributes = new Map(vertex.attributes)
       }
-    }
-
-    // Sync colors
-    this.nodes.forEach((node) => delete node.color)
-    graph.colorings.forEach(([node, color]) => this.nodes[node].color = color)
+    })
 
     // Sync Edges
     this.links = graph.edges.map(([from, to], index) => ({
@@ -89,8 +90,6 @@ export class GraphView {
       id: index.toString()
     }));
 
-
-    Object.assign(window, {links: this.links, nodes: this.nodes});
     this.update();
   }
 
@@ -110,7 +109,7 @@ export class GraphView {
     this.nodeSelection
       .attr('cx', (d: Node) => d.x || 0)
       .attr('cy', (d: Node) => d.y || 0)
-      .attr('fill', (node: Node) => node.color || "white");
+      .attr('fill', (node: Node) => node.attributes.get('color') || "white");
   }
 
   dragstarted = (d: Node) => {

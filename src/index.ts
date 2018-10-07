@@ -1,22 +1,24 @@
 import { h, MainDOMSource, makeDOMDriver, VNode } from '@cycle/dom';
 import { run } from '@cycle/run';
-import { adapt } from '@cycle/run/lib/adapt';
 import { Stream, Listener } from 'xstream';
+import * as sha256 from "fast-sha256";
 import xs from 'xstream';
 
 import { randomWalkModel } from './Models';
-import { Simulation, RenderableGraph } from './Simulator';
+import { Graph, IGraph, IVertex, Model } from './Model';
 import { GraphView } from "./GraphView";
+import { Action } from './Simulation';
+import * as simulation from "./Simulation";
 
 interface Sources {
   dom: MainDOMSource;
-  simulation: Stream<RenderableGraph>;
+  simulation: Stream<IGraph>;
 }
 
 interface Sinks {
   dom: Stream<VNode>;
-  graphView: Stream<{ container: Element, state: RenderableGraph | null }>;
-  simulation: Stream<any>;
+  graphView: Stream<{ container: Element, state: IGraph | null }>;
+  simulation: Stream<Action>;
 }
 
 interface AppState {
@@ -74,14 +76,16 @@ function main(sources: Sources): Sinks {
 
   const periodFromSpeed = (speed: number) => 200 + 8 * (100 - speed)
 
-  const simulationTick$ = state$
+  const simulationAction$ = state$
     .map(({ paused, speed }) => paused ? xs.empty() : xs.periodic(periodFromSpeed(speed)))
     .flatten()
+    .mapTo<Action>(simulation.tick)
+    .startWith(simulation.startSimulation(randomWalkModel, [2]))
 
   const sinks: Sinks = {
     dom: view$,
     graphView: graphView$,
-    simulation: simulationTick$
+    simulation: simulationAction$
   };
   return sinks;
 }
@@ -89,33 +93,22 @@ function main(sources: Sources): Sinks {
 const drivers = {
   dom: makeDOMDriver('#app'),
   graphView: graphDriver,
-  simulation: simulationDriver
+  simulation: simulation.simulationDriver
 };
 
 run(main, drivers);
 
-function simulationDriver(input$: Stream<any>) {
-  const simulation = new Simulation({ pos: 0 }, randomWalkModel(2));
-  let inputListener: Partial<Listener<any>> | null = null;
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
 
-  return adapt(xs.create({
-    start: function(listener) {
-      inputListener = {
-        next: (received) => {
-          listener.next(simulation.next().value)
-        }
-      }
-      input$.addListener(inputListener)
-    },
-    stop: () => {
-      if (inputListener != null) input$.removeListener(inputListener)
-    }
-  }))
-}
+const graphKey = (graph: IGraph) => decoder.decode(sha256.hash(encoder.encode(JSON.stringify({
+  edges: graph.edges,
+  nodes: graph.vertices.map(({attributes}) => Array.from(attributes))
+}))))
 
-function graphDriver(input$: Stream<{ container: Element, state: RenderableGraph | null }>) {
+function graphDriver(input$: Stream<{ container: Element, state: IGraph | null }>) {
   let graphView: GraphView | null;
-  let lastVersion: String = "";
+  let lastKey: String = "";
   input$.subscribe({
     next: ({ container, state }) => {
       if (!container) {
@@ -125,8 +118,10 @@ function graphDriver(input$: Stream<{ container: Element, state: RenderableGraph
         graphView = new GraphView(container);
       }
 
-      if (state && lastVersion != state.version) {
-        lastVersion = state.version
+      let nextKey = state ? graphKey(state) : ""
+
+      if (lastKey != nextKey) {
+        lastKey = nextKey
         if (state != null) {
           graphView.updateGraph(state)
         } else {
@@ -136,4 +131,3 @@ function graphDriver(input$: Stream<{ container: Element, state: RenderableGraph
     }
   })
 }
-

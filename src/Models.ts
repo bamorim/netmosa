@@ -1,31 +1,40 @@
 
-import {Action, GraphReader, GraphDecorator, Model, Vertex} from './Model';
+import {IGraph, Model} from './Model';
 
-export const lineModel: Model<{}> = (g: GraphReader, _: {}): Action => {
-  const action: Action = {action: 'addVertex', connectTo: g.vertexCount - 1};
-  return action;
-};
 
-export const starModel: Model<{}> = (g: GraphReader, _: {}): Action => {
-  const action: Action = {action: 'addVertex', connectTo: 0};
-  return action;
-};
-
-export interface RandomWalkState {
-  pos: Vertex;
+export const lineModel : Model = function*(graph: IGraph) {
+  let vertexId = graph.addVertex()
+  while(true) {
+    let lastId = vertexId
+    vertexId = graph.addVertex()
+    graph.connectVertices(vertexId, lastId)
+    yield graph
+  }
 }
 
-// This is the model with the self-lopp
-export const randomWalkModel: (_: number) => Model<RandomWalkState> =
-    (k: number) => (g: GraphReader, d: GraphDecorator, state: RandomWalkState): Action => {
-      for (let i = 0; i < k; i++) {
-        const neighbors = g.neighborsOf(state.pos);
-        const possibleNextStates =
-            state.pos === 0 ? neighbors.concat([0]) : neighbors;
-        const selection = Math.floor(Math.random() * possibleNextStates.length);
-        state.pos = possibleNextStates[selection];
-        d.setColors([[state.pos, "red"]])
-      }
+export const startModel : Model = function*(graph: IGraph) {
+  let firstId = graph.addVertex()
+  while(true) {
+    graph.connectVertices(firstId, graph.addVertex())
+    yield graph
+  }
+}
 
-      return {action: 'addVertex', connectTo: state.pos};
-    };
+export const randomWalkModel : Model = function*(graph: IGraph, k: number) {
+  let pos = graph.addVertex()
+  graph.connectVertices(pos, pos)
+  graph.vertices[pos]!.attributes.set('color', 'red')
+
+  while(true) {
+    for (let i = 0; i < k; i++) {
+      graph.vertices[pos]!.attributes.delete('color')
+      const neighbors = graph.vertices[pos]!.neighbors;
+      const selection = Math.floor(Math.random() * neighbors.length);
+      pos = neighbors[selection];
+      graph.vertices[pos]!.attributes.set('color', 'red')
+      yield graph
+    }
+    graph.connectVertices(pos, graph.addVertex())
+    yield graph
+  }
+}
