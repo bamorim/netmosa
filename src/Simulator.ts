@@ -1,4 +1,4 @@
-import { Action, Edge, Model, Vertex } from './Model';
+import { Action, Edge, Model, Vertex, Colorings, GraphDecorator } from './Model';
 import * as uuid from "uuid";
 
 interface Graph {
@@ -9,6 +9,7 @@ interface Graph {
 
 export interface RenderableGraph {
   readonly edges: Edge[];
+  readonly colorings: Colorings;
   readonly version: String;
 }
 
@@ -43,10 +44,13 @@ const toGraphReader = (graph: Graph) => {
 
 export class Simulation<S> implements IterableIterator<RenderableGraph> {
   private graph: Graph;
+  private colorings: Colorings = [];
   private state: S;
   private model: Model<S>;
   private key: String;
   private iterations: number = 0;
+  private renderableBuffer: RenderableGraph[] = [];
+
   constructor(initialState: S, model: Model<S>) {
     this.graph = { edges: [], adjacencyList: [[]], size: 1 };
     this.state = initialState;
@@ -55,7 +59,33 @@ export class Simulation<S> implements IterableIterator<RenderableGraph> {
   }
 
   next(): IteratorResult<RenderableGraph> {
-    const resp: Action = this.model(toGraphReader(this.graph), this.state);
+    if(this.renderableBuffer.length == 0) this.runSimulation();
+
+    let value = this.renderableBuffer.shift()!
+    console.log(value)
+    return {
+      done: false,
+      value: value
+    }
+  }
+
+  [Symbol.iterator](): IterableIterator<RenderableGraph> {
+    return this;
+  }
+
+  private runSimulation() {
+    let coloringChanges: Colorings[] = []
+    let graphReader = toGraphReader(this.graph)
+    let graphDecorator: GraphDecorator = {
+      setColors: (colorings) => coloringChanges.push(colorings)
+    }
+    const resp: Action = this.model(graphReader, graphDecorator ,this.state);
+
+    coloringChanges.forEach((colorings) => {
+      this.colorings = colorings;
+      this.pushRenderableState()
+    })
+
     switch (resp.action) {
       case 'addVertex':
         addVertex(this.graph, resp.connectTo);
@@ -66,16 +96,17 @@ export class Simulation<S> implements IterableIterator<RenderableGraph> {
       default:
         break;
     }
-    this.iterations += 1;
 
-    return {
-      done: false, value: {
-        edges: this.graph.edges, version: this.key + this.iterations.toString()
-      }
-    };
+    this.pushRenderableState()
   }
 
-  [Symbol.iterator](): IterableIterator<RenderableGraph> {
-    return this;
+  private pushRenderableState() {
+    this.iterations += 1
+
+    this.renderableBuffer.push({
+      edges: this.graph.edges.slice(),
+      version: this.key + this.iterations.toString(),
+      colorings: this.colorings.slice()
+    })
   }
 }

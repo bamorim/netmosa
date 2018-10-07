@@ -1,10 +1,9 @@
 import { h, MainDOMSource, makeDOMDriver, VNode } from '@cycle/dom';
 import { run } from '@cycle/run';
 import { adapt } from '@cycle/run/lib/adapt';
-import { Stream, MemoryStream, Listener } from 'xstream';
+import { Stream, Listener } from 'xstream';
 import xs from 'xstream';
 
-import { Edge } from './Model';
 import { randomWalkModel } from './Models';
 import { Simulation, RenderableGraph } from './Simulator';
 import { GraphView } from "./GraphView";

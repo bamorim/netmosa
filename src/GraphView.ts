@@ -4,6 +4,7 @@ import {RenderableGraph} from "./Simulator";
 
 interface Node extends d3.SimulationNodeDatum {
   id: string;
+  color?: string;
 }
 
 interface Link extends d3.SimulationLinkDatum<Node> {
@@ -76,6 +77,10 @@ export class GraphView {
       }
     }
 
+    // Sync colors
+    this.nodes.forEach((node) => delete node.color)
+    graph.colorings.forEach(([node, color]) => this.nodes[node].color = color)
+
     // Sync Edges
     this.links = graph.edges.map(([from, to], index) => ({
       ...(this.links[index] || {}),
@@ -96,12 +101,16 @@ export class GraphView {
   }
 
   ticked = () => {
-    this.linkSelection.attr('x1', (d: Link) => isNode(d.source) ? d.source.x || 0 : 0)
+    this.linkSelection
+      .attr('x1', (d: Link) => isNode(d.source) ? d.source.x || 0 : 0)
       .attr('y1', (d: Link) => isNode(d.source) ? d.source.y || 0 : 0)
       .attr('x2', (d: Link) => isNode(d.target) ? d.target.x || 0 : 0)
       .attr('y2', (d: Link) => isNode(d.target) ? d.target.y || 0 : 0);
 
-    this.nodeSelection.attr('cx', (d: Node) => d.x || 0).attr('cy', (d: Node) => d.y || 0);
+    this.nodeSelection
+      .attr('cx', (d: Node) => d.x || 0)
+      .attr('cy', (d: Node) => d.y || 0)
+      .attr('fill', (node: Node) => node.color || "white");
   }
 
   dragstarted = (d: Node) => {
@@ -136,6 +145,7 @@ export class GraphView {
       .enter()
       .append<SVGCircleElement>('circle')
       .attr('r', 8)
+      .attr('stroke', 'black')
       .call(d3.drag()
         .on('start', this.dragstarted)
         .on('drag', this.dragged)
