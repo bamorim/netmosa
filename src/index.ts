@@ -26,12 +26,11 @@ interface AppState {
 }
 
 function main(sources: Sources): Sinks {
-  const pauseChange$: Stream<boolean> =
-    sources.dom
-      .select('input.pause')
-      .events('change')
-      .map(ev => (ev.target as HTMLInputElement).checked)
-      .startWith(false)
+  const pauseClick$ = sources.dom
+    .select('button.pause')
+    .events('click')
+
+  const paused$ = pauseClick$.fold((paused, _) => !paused, false)
 
   const speedChange$: Stream<number> =
     sources.dom
@@ -44,16 +43,20 @@ function main(sources: Sources): Sinks {
       })
       .startWith(0)
 
-  const state$: Stream<AppState> = xs.combine(pauseChange$, speedChange$)
+  const state$: Stream<AppState> = xs.combine(paused$, speedChange$)
     .map(([paused, speed]) => ({ paused, speed }))
     .startWith({ paused: false, speed: 0 });
 
-  const configView = (state: AppState) => h('fieldset.uk-fieldset', [
-    h('label', [
-      h('input.pause.uk-checkbox', { attrs: { type: 'checkbox' } }, []),
-      state.paused ? "Unpause" : "Pause"
-    ]),
-    h('input.speed.uk-range', { attrs: { type: 'range', min: 0, max: 100, value: state.speed } }, [])
+  const configView = (state: AppState) => h('div.ui.form', [
+    h('button.pause.ui.icon.basic.violet.labeled.button',
+      state.paused ? [h('i.play.icon'), "Play"] : [h('i.pause.icon'), "Pause"]
+    ),
+    h('div.field', [
+      h('label', ["Speed"]),
+      h('input.speed', {
+        attrs: { type: 'range', min: 0, max: 100, value: state.speed }
+      }, [])
+    ])
   ])
 
   const view$ = state$.map((state) =>
