@@ -17,6 +17,8 @@ interface AppState {
 interface Intents {
   pause$: Stream<any>,
   play$: Stream<any>,
+  stop$: Stream<any>,
+  start$: Stream<any>,
   changeSpeed$: Stream<number>
 }
 
@@ -30,15 +32,25 @@ function model(intents: Intents): Stream<AppState> {
 
   const speed$ = intents.changeSpeed$.startWith(0)
 
-  const runningSimulation$ = xs.of(randomWalkModel(new Graph(), 2))
+  const simulationAction$ = xs.merge(
+    intents.start$.mapTo('start'),
+    intents.stop$.mapTo('stop')
+  )
+
+  const runningSimulation$ = simulationAction$.map((action) => (
+    action == 'start' ? randomWalkModel(new Graph(), 2) : undefined
+  )).startWith(undefined)
 
   const tick$ = xs.combine(paused$, speed$)
     .map(([paused, speed]) => paused ? xs.empty() : xs.periodic(periodFromSpeed(speed)))
     .flatten()
 
-  const graph$ = xs
-    .combine(runningSimulation$, tick$)
-    .map<IReadGraph>(([runningSimulation, _]) => runningSimulation.next().value)
+  const simulationStep$ = (simulation: IterableIterator<IReadGraph>) =>
+    tick$.map<IReadGraph>(() => simulation.next().value)
+
+  const graph$ = runningSimulation$
+    .map((simulation) => simulation ? simulationStep$(simulation) : xs.of(undefined))
+    .flatten()
 
   return xs
     .combine(paused$, speed$, runningSimulation$, graph$)
@@ -57,24 +69,29 @@ interface View {
 function view(dom: MainDOMSource, state$: Stream<AppState>): View {
   const container$ = dom.select('.graphview').element()
 
-  const configView = (state: AppState) => h('div.ui.form', [
-    state.paused ? (
+  const configView = (paused: boolean, speed: number) => h('div.ui.form', [
+    paused ? (
       h('button.ui.icon.basic.violet.labeled.button.intent-play', [h('i.play.icon'), "Play"])
     ) : (
         h('button.ui.icon.basic.violet.labeled.button.intent-pause', [h('i.pause.icon'), "Pause"])
       ),
+    h('button.ui.icon.basic.violet.labeled.button.intent-stop', [h('i.stop.icon'), "Stop"]),
     h('div.field', [
       h('label', ["Speed"]),
       h('input.speed', {
-        attrs: { type: 'range', min: 0, max: 100, value: state.speed }
+        attrs: { type: 'range', min: 0, max: 100, value: speed }
       }, [])
     ])
+  ])
+
+  const startView = () => h('div.ui.form', [
+    h('button.ui.icon.basic.violet.labeled.button.intent-start', [h('i.play.icon'), "Start"])
   ])
 
   const view$ = state$.map((state) => h('div.wrapper', [
     h('div.graphview', []),
     h('div.menu', [
-      configView(state)
+      state.runningSimulation ? configView(state.paused, state.speed) : startView()
     ])
   ]));
 
@@ -104,6 +121,12 @@ function intent(dom: MainDOMSource): Intents {
       .events('click'),
     play$: dom
       .select('.intent-play')
+      .events('click'),
+    start$: dom
+      .select('.intent-start')
+      .events('click'),
+    stop$: dom
+      .select('.intent-stop')
       .events('click')
   }
 }
