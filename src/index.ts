@@ -1,57 +1,68 @@
 import { h, MainDOMSource, makeDOMDriver, VNode } from '@cycle/dom';
 import { run } from '@cycle/run';
-import { Stream, Listener } from 'xstream';
-import * as sha256 from "fast-sha256";
+import { Stream } from 'xstream';
 import xs from 'xstream';
 
 import { randomWalkModel } from './Models';
-import { Graph, IGraph, IVertex, Model } from './Model';
-import { GraphView } from "./GraphView";
-import { Action } from './Simulation';
-import * as simulation from "./Simulation";
-
-interface Sources {
-  dom: MainDOMSource;
-  simulation: Stream<IGraph>;
-}
-
-interface Sinks {
-  dom: Stream<VNode>;
-  graphView: Stream<{ container: Element, state: IGraph | null }>;
-  simulation: Stream<Action>;
-}
+import * as graphView from "./GraphView";
+import { IReadGraph, Graph } from './Model';
 
 interface AppState {
   paused: boolean,
-  speed: number
+  speed: number,
+  runningSimulation?: IterableIterator<IReadGraph>,
+  currentGraph?: IReadGraph
 }
 
-function main(sources: Sources): Sinks {
-  const pauseClick$ = sources.dom
-    .select('button.pause')
-    .events('click')
+interface Intents {
+  pause$: Stream<any>,
+  play$: Stream<any>,
+  changeSpeed$: Stream<number>
+}
 
-  const paused$ = pauseClick$.fold((paused, _) => !paused, false)
+const periodFromSpeed = (speed: number) => 200 + 6 * (100 - speed)
 
-  const speedChange$: Stream<number> =
-    sources.dom
-      .select('input.speed')
-      .events('change')
-      .map(ev => {
-        let x = parseInt((ev.target as HTMLInputElement).value)
-        console.log(x)
-        return x;
-      })
-      .startWith(0)
+function model(intents: Intents): Stream<AppState> {
+  const paused$ = xs.merge(
+    intents.play$.mapTo(false),
+    intents.pause$.mapTo(true)
+  ).startWith(false)
 
-  const state$: Stream<AppState> = xs.combine(paused$, speedChange$)
-    .map(([paused, speed]) => ({ paused, speed }))
-    .startWith({ paused: false, speed: 0 });
+  const speed$ = intents.changeSpeed$.startWith(0)
+
+  const runningSimulation$ = xs.of(randomWalkModel(new Graph(), 2))
+
+  const tick$ = xs.combine(paused$, speed$)
+    .map(([paused, speed]) => paused ? xs.empty() : xs.periodic(periodFromSpeed(speed)))
+    .flatten()
+
+  const graph$ = xs
+    .combine(runningSimulation$, tick$)
+    .map<IReadGraph>(([runningSimulation, _]) => runningSimulation.next().value)
+
+  return xs
+    .combine(paused$, speed$, runningSimulation$, graph$)
+    .map(([paused, speed, runningSimulation, currentGraph]) => ({
+      paused, speed, runningSimulation, currentGraph
+    }))
+}
+
+// View
+
+interface View {
+  dom: Stream<VNode>;
+  graphView: graphView.Input;
+}
+
+function view(dom: MainDOMSource, state$: Stream<AppState>): View {
+  const container$ = dom.select('.graphview').element()
 
   const configView = (state: AppState) => h('div.ui.form', [
-    h('button.pause.ui.icon.basic.violet.labeled.button',
-      state.paused ? [h('i.play.icon'), "Play"] : [h('i.pause.icon'), "Pause"]
-    ),
+    state.paused ? (
+      h('button.ui.icon.basic.violet.labeled.button.intent-play', [h('i.play.icon'), "Play"])
+    ) : (
+        h('button.ui.icon.basic.violet.labeled.button.intent-pause', [h('i.pause.icon'), "Pause"])
+      ),
     h('div.field', [
       h('label', ["Speed"]),
       h('input.speed', {
@@ -60,74 +71,58 @@ function main(sources: Sources): Sinks {
     ])
   ])
 
-  const view$ = state$.map((state) =>
-    h('div.wrapper', [
-      h('div.graphview', []),
-      h('div.menu', [
-        configView(state)
-      ])
+  const view$ = state$.map((state) => h('div.wrapper', [
+    h('div.graphview', []),
+    h('div.menu', [
+      configView(state)
     ])
-  );
+  ]));
 
-  const container$ = sources.dom.select('.graphview').element()
+  const graphView$ = xs.combine(state$, container$)
+    .map(([state, container]) => ({ graph: state.currentGraph, container }))
 
-  const graphView$ = xs.combine(sources.simulation, container$)
-    .map(([state, container]) => ({ state, container }))
-
-  const periodFromSpeed = (speed: number) => 200 + 8 * (100 - speed)
-
-  const simulationAction$ = state$
-    .map(({ paused, speed }) => paused ? xs.empty() : xs.periodic(periodFromSpeed(speed)))
-    .flatten()
-    .mapTo<Action>(simulation.tick)
-    .startWith(simulation.startSimulation(randomWalkModel, [2]))
-
-  const sinks: Sinks = {
+  return {
     dom: view$,
-    graphView: graphView$,
-    simulation: simulationAction$
-  };
-  return sinks;
+    graphView: graphView$
+  }
+}
+
+// Intent
+
+function intent(dom: MainDOMSource): Intents {
+  return {
+    changeSpeed$: dom
+      .select('input.speed')
+      .events('change')
+      .map(ev => {
+        let x = parseInt((ev.target as HTMLInputElement).value)
+        return x;
+      })
+      .startWith(0),
+    pause$: dom
+      .select('.intent-pause')
+      .events('click'),
+    play$: dom
+      .select('.intent-play')
+      .events('click')
+  }
+}
+
+// Program
+
+interface Sources {
+  dom: MainDOMSource;
+}
+
+type Sinks = View
+
+function main(sources: Sources): Sinks {
+  return view(sources.dom, model(intent(sources.dom)));
 }
 
 const drivers = {
   dom: makeDOMDriver('#app'),
-  graphView: graphDriver,
-  simulation: simulation.simulationDriver
+  graphView: graphView.driver
 };
 
 run(main, drivers);
-
-const encoder = new TextEncoder()
-const decoder = new TextDecoder()
-
-const graphKey = (graph: IGraph) => decoder.decode(sha256.hash(encoder.encode(JSON.stringify({
-  edges: graph.edges,
-  nodes: graph.vertices.map(({attributes}) => Array.from(attributes))
-}))))
-
-function graphDriver(input$: Stream<{ container: Element, state: IGraph | null }>) {
-  let graphView: GraphView | null;
-  let lastKey: String = "";
-  input$.subscribe({
-    next: ({ container, state }) => {
-      if (!container) {
-        graphView = null;
-        return;
-      } else if (!graphView) {
-        graphView = new GraphView(container);
-      }
-
-      let nextKey = state ? graphKey(state) : ""
-
-      if (lastKey != nextKey) {
-        lastKey = nextKey
-        if (state != null) {
-          graphView.updateGraph(state)
-        } else {
-          graphView.reset()
-        }
-      }
-    }
-  })
-}

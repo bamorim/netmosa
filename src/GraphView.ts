@@ -1,5 +1,43 @@
 import * as d3 from 'd3';
 import {IReadGraph} from "./Model";
+import { Stream } from 'xstream';
+import * as sha256 from "fast-sha256";
+
+export type Input = Stream<{ container: Element, graph?: IReadGraph}>
+
+export function driver(input$: Stream<{ container: Element, graph?: IReadGraph }>) {
+  let graphView: GraphView | null;
+  let lastKey: String = "";
+  input$.subscribe({
+    next: ({ container, graph }) => {
+      if (!container) {
+        graphView = null;
+        return;
+      } else if (!graphView) {
+        graphView = new GraphView(container);
+      }
+
+      let nextKey = graph ? graphKey(graph) : ""
+
+      if (lastKey != nextKey) {
+        lastKey = nextKey
+        if (graph != null) {
+          graphView.updateGraph(graph)
+        } else {
+          graphView.reset()
+        }
+      }
+    }
+  })
+}
+
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
+
+const graphKey = (graph: IReadGraph) => decoder.decode(sha256.hash(encoder.encode(JSON.stringify({
+  edges: graph.edges,
+  nodes: graph.vertices.map(({attributes}) => Array.from(attributes))
+}))))
 
 interface Node extends d3.SimulationNodeDatum {
   id: string;
@@ -14,7 +52,7 @@ function isNode(node: Node | string | number | {} | undefined): node is Node {
   return node !== undefined && (node as Node).id !== undefined;
 }
 
-export class GraphView {
+class GraphView {
   private nodes: Node[] = [];
   private links: Link[] = [];
   private force: d3.Simulation<any, any>;
@@ -70,7 +108,7 @@ export class GraphView {
     graph.vertices.forEach((vertex) => {
       if(!this.nodes[vertex.id]) {
         let neighborId = vertex.neighbors.find((v) => v < vertex.id) || vertex.neighbors[0]
-        let neighbor = neighborId && this.nodes[neighborId]
+        let neighbor = this.nodes[neighborId || 0]
         let copiedProps = neighbor ? {x: neighbor.x, y: neighbor.y} : {}
         this.nodes[vertex.id] = {
           ...copiedProps,

@@ -1,6 +1,4 @@
-
 import {IGraph, Model} from './Model';
-
 
 export const lineModel : Model = function*(graph: IGraph) {
   let vertexId = graph.addVertex()
