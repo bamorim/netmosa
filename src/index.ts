@@ -143,13 +143,10 @@ function view(dom: MainDOMSource, state$: Stream<AppState>): View {
     h('button.ui.icon.basic.violet.labeled.button.intent-start', [h('i.play.icon'), "Start"])
   ])
 
-  const view$ = state$.map((state) => h('div.wrapper', [
+  const view$ = state$.map((state) => state.runningSimulation ? h('div.wrapper', [
     h('div.graphview', []),
-    h('div.menu', [
-      state.runningSimulation ? configView(state.paused, state.speed) : ""
-    ]),
-    state.runningSimulation ? "" : h('div.setup', [startView(state.script)])
-  ]));
+    h('div.menu', [configView(state.paused, state.speed)])
+  ]) : h('div.setup', [startView(state.script)]));
 
   const graphView$ = xs.combine(state$, container$)
     .map(([state, container]) => ({ graph: state.currentGraph, container }))
