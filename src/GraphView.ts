@@ -3,8 +3,12 @@ import * as sha256 from 'fast-sha256';
 import {Stream} from 'xstream';
 
 import {ReadGraph} from './Model';
+import { body } from '@cycle/dom';
 
 export type Input = Stream<{container: Element, graph?: ReadGraph}>;
+
+const linkStrength = 2000;
+const bodyStrength = -100;
 
 export function driver(
     input$: Stream<{container: Element, graph?: ReadGraph}>) {
@@ -65,6 +69,7 @@ class GraphView {
   private links: Link[] = [];
   private force: d3.Simulation<{}, Link>;
   private svg: d3.Selection<d3.BaseType, {}, null, undefined>;
+  private transformationGroup: d3.Selection<d3.BaseType, {}, null, undefined>;
   private linkSelection: d3.Selection<SVGLineElement, Link, d3.BaseType, {}>;
   private nodeSelection: d3.Selection<SVGCircleElement, Node, d3.BaseType, {}>;
 
@@ -74,10 +79,11 @@ class GraphView {
 
     this.force = d3.forceSimulation()
                      .nodes(this.nodes)
-                     .force('charge', d3.forceManyBody().strength(-150))
+                     .force('charge', d3.forceManyBody().strength(bodyStrength))
                      .force(
                          'link',
                          d3.forceLink(this.links)
+                            .strength(linkStrength)
                              .id((d: Node|{}) => isNode(d) ? d.id : ''))
                      .force('center', d3.forceCenter(width / 2, height / 2));
 
@@ -86,12 +92,14 @@ class GraphView {
                    .attr('width', '100%')
                    .attr('height', '100%');
 
-    this.linkSelection = this.svg.append('g')
+    this.transformationGroup = this.svg.append('g');
+
+    this.linkSelection = this.transformationGroup.append('g')
                              .attr('stroke', '#000')
                              .attr('stroke-width', 1.5)
                              .selectAll('.link');
 
-    this.nodeSelection = this.svg.append('g')
+    this.nodeSelection = this.transformationGroup.append('g')
                              .attr('stroke', '#fff')
                              .attr('stroke-width', 1.5)
                              .selectAll('.node');
@@ -160,6 +168,7 @@ class GraphView {
             .attr(
                 'fill',
                 (node: Node) => node.attributes.get('color') || 'white');
+        this.fit()
       }
 
   dragstarted =
@@ -182,6 +191,27 @@ class GraphView {
         d.fx = null;
         d.fy = null;
       }
+
+  private fit() {
+    const rootNode = this.transformationGroup.node() as SVGGraphicsElement
+    const bounds = rootNode.getBBox();
+    const parent = rootNode.parentElement;
+    const fullWidth = parent!.clientWidth,
+        fullHeight = parent!.clientHeight;
+    const width = bounds.width,
+        height = bounds.height;
+    const midX = bounds.x + width / 2,
+        midY = bounds.y + height / 2;
+    if (width == 0 || height == 0) return; // nothing to fit
+    const scale = Math.min(1, 0.95 / Math.max(width / fullWidth, height / fullHeight));
+    const translationX = fullWidth / 2 - scale * midX;
+    const translationY = fullHeight / 2 - scale * midY;
+    this.transformationGroup.attr(
+      "transform",
+      "translate(" + translationX + "," + translationY + ")scale(" + scale + ")"
+    );
+
+  }
 
   private update() {
     const linkData = this.linkSelection.data(this.links);
