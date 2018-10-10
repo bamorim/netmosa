@@ -39,7 +39,7 @@ export const luaModel: (code: string) => Model =
       stdlib.set('getAttributes', (L: {}) => {
         const pos = lua.lua_tonumber(L, 1) - 1;
         const key = fengari.to_jsstring(lua.lua_tostring(L, 2));
-        const attr = graph.vertices[pos].attributes.get(key) || "";
+        const attr = graph.vertices[pos].attributes.get(key) || '';
         lua.lua_pushstring(L, fengari.to_luastring(attr));
         return 0;
       });
@@ -70,7 +70,7 @@ export const luaModel: (code: string) => Model =
 
       stdlib.set('getEdge', (L: {}) => {
         const idx = lua.lua_tonumber(L, 1) - 1;
-        let [a, b] = graph.edges[idx];
+        const [a, b] = graph.edges[idx];
         lua.lua_pushnumber(L, a + 1);
         lua.lua_pushnumber(L, b + 1);
         return 2;
