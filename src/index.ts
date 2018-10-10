@@ -1,11 +1,11 @@
-import { h, MainDOMSource, makeDOMDriver, VNode } from '@cycle/dom';
-import { run } from '@cycle/run';
-import { Stream } from 'xstream';
-import xs from 'xstream';
+import { h, MainDOMSource, makeDOMDriver, VNode } from '@cycle/dom'
+import { run } from '@cycle/run'
+import { Stream } from 'xstream'
+import xs from 'xstream'
 
-import { randomWalkModel, luaModel, lineModelLua, lineModel } from './Models';
-import * as graphView from "./GraphView";
-import { IReadGraph, Graph } from './Model';
+import { luaModel } from './Models'
+import * as graphView from "./GraphView"
+import { IReadGraph, Graph } from './Model'
 import * as codeEditor from "./CodeEditor"
 
 interface AppState {
@@ -81,7 +81,7 @@ function intent({ dom, codeEditor }: Sources): Intents {
       .events('change')
       .map(ev => {
         let x = parseInt((ev.target as HTMLInputElement).value)
-        return x;
+        return x
       })
       .startWith(0),
     changeScript$: codeEditor.startWith(""),
@@ -157,7 +157,7 @@ function view(dom: MainDOMSource, state$: Stream<AppState>): View {
         simulationView(state.paused, state.speed)
         :
         homeView
-    );
+    )
 
   const graphViewContainer$ = dom.select('.graphview').element()
   const graphView$ = xs.combine(state$, graphViewContainer$)
@@ -187,13 +187,13 @@ interface Sources {
 type Sinks = View
 
 function main(sources: Sources): Sinks {
-  return view(sources.dom, model(intent(sources)));
+  return view(sources.dom, model(intent(sources)))
 }
 
 const drivers = {
   dom: makeDOMDriver('#app'),
   graphView: graphView.driver,
   codeEditor: codeEditor.driver
-};
+}
 
-run(main, drivers);
+run(main, drivers)
