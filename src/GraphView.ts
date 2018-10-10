@@ -1,9 +1,9 @@
+import {body} from '@cycle/dom';
 import * as d3 from 'd3';
 import * as sha256 from 'fast-sha256';
 import {Stream} from 'xstream';
 
 import {ReadGraph} from './Model';
-import { body } from '@cycle/dom';
 
 export type Input = Stream<{container: Element, graph?: ReadGraph}>;
 
@@ -83,7 +83,7 @@ class GraphView {
                      .force(
                          'link',
                          d3.forceLink(this.links)
-                            .strength(linkStrength)
+                             .strength(linkStrength)
                              .id((d: Node|{}) => isNode(d) ? d.id : ''))
                      .force('center', d3.forceCenter(width / 2, height / 2));
 
@@ -168,7 +168,7 @@ class GraphView {
             .attr(
                 'fill',
                 (node: Node) => node.attributes.get('color') || 'white');
-        this.fit()
+        this.fit();
       }
 
   dragstarted =
@@ -193,24 +193,21 @@ class GraphView {
       }
 
   private fit() {
-    const rootNode = this.transformationGroup.node() as SVGGraphicsElement
+    const rootNode = this.transformationGroup.node() as SVGGraphicsElement;
     const bounds = rootNode.getBBox();
     const parent = rootNode.parentElement;
-    const fullWidth = parent!.clientWidth,
-        fullHeight = parent!.clientHeight;
-    const width = bounds.width,
-        height = bounds.height;
-    const midX = bounds.x + width / 2,
-        midY = bounds.y + height / 2;
-    if (width == 0 || height == 0) return; // nothing to fit
-    const scale = Math.min(1, 0.95 / Math.max(width / fullWidth, height / fullHeight));
+    const fullWidth = parent!.clientWidth, fullHeight = parent!.clientHeight;
+    const width = bounds.width, height = bounds.height;
+    const midX = bounds.x + width / 2, midY = bounds.y + height / 2;
+    if (width === 0 || height === 0) return;  // nothing to fit
+    const scale =
+        Math.min(1, 0.95 / Math.max(width / fullWidth, height / fullHeight));
     const translationX = fullWidth / 2 - scale * midX;
     const translationY = fullHeight / 2 - scale * midY;
     this.transformationGroup.attr(
-      "transform",
-      "translate(" + translationX + "," + translationY + ")scale(" + scale + ")"
-    );
-
+        'transform',
+        'translate(' + translationX + ',' + translationY + ')scale(' + scale +
+            ')');
   }
 
   private update() {
