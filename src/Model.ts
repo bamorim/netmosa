@@ -50,7 +50,7 @@ export class Graph implements IGraph {
     if (v2 >= this.vertices.length) return;
     if (v2 < 0) return;
     this.vertices[v1].neighbors.push(v2);
-    this.vertices[v2].neighbors.push(v1);
+    if(v1 != v2) this.vertices[v2].neighbors.push(v1);
     this.edges.push([v1, v2]);
   }
 }

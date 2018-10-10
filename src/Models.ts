@@ -88,8 +88,8 @@ export const luaModel: Model = function* (graph: IGraph, code: string) {
   const stdlib : Map<string, (L: any) => number> = new Map()
 
   stdlib.set('addVertex', (L: any) => {
-      lua.lua_pushnumber(L, graph.addVertex() + 1)
-      return 1;
+    lua.lua_pushnumber(L, graph.addVertex() + 1)
+    return 1;
   })
 
   stdlib.set('connectVertices', (L: any) => {
@@ -105,6 +105,20 @@ export const luaModel: Model = function* (graph: IGraph, code: string) {
     const val = fengari.to_jsstring(lua.lua_tostring(L, 3));
     graph.vertices[pos].attributes.set(key, val)
     return 0;
+  })
+
+  stdlib.set('getNeighbor', (L: any) => {
+    const pos = lua.lua_tonumber(L, 1) - 1;
+    const neighborIndex = lua.lua_tonumber(L, 2) - 1;
+    const neighborPos = graph.vertices[pos].neighbors[neighborIndex]
+    lua.lua_pushnumber(L, neighborPos + 1)
+    return 1;
+  })
+
+  stdlib.set('getNeighborCount', (L: any) => {
+    const pos = lua.lua_tonumber(L, 1) - 1;
+    lua.lua_pushnumber(L, graph.vertices[pos].neighbors.length)
+    return 1;
   })
 
   const L = lauxlib.luaL_newstate()

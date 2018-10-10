@@ -30,6 +30,7 @@ const periodFromSpeed = (speed: number) => 200 + 6 * (100 - speed)
 function model(intents: Intents): Stream<AppState> {
   const paused$ = xs.merge(
     intents.play$.mapTo(false),
+    intents.start$.mapTo(false),
     intents.pause$.mapTo(true)
   ).startWith(false)
 
@@ -42,11 +43,11 @@ function model(intents: Intents): Stream<AppState> {
 
   const runningSimulation$ = xs
     .combine(simulationAction$, intents.changeScript$)
-    .fold<IterableIterator<IReadGraph>|undefined>((runningSimulation, [action, code]) => {
-      if(runningSimulation) {
-        if(action == 'stop') return undefined
+    .fold<IterableIterator<IReadGraph> | undefined>((runningSimulation, [action, code]) => {
+      if (runningSimulation) {
+        if (action == 'stop') return undefined
       } else {
-        if(action == 'start') return luaModel(new Graph(), code)
+        if (action == 'start') return luaModel(new Graph(), code)
       }
       return runningSimulation
     }, undefined)
@@ -71,7 +72,7 @@ function model(intents: Intents): Stream<AppState> {
 
 // Intent
 
-function intent({dom, codeEditor}: Sources): Intents {
+function intent({ dom, codeEditor }: Sources): Intents {
   const scriptInput = dom.select('textarea.script-input')
 
   return {
@@ -107,16 +108,17 @@ interface View {
   codeEditor: codeEditor.Input
 }
 
-function view(dom: MainDOMSource, state$: Stream<AppState>): View {
+function simulationView(paused: boolean, speed: number): VNode {
+  const pauseUnpauseButton =
+    paused
+      ? h('div.item.intent-play', [h('i.violet.play.icon'), "Play"])
+      : h('div.item.intent-pause', [h('i.violet.pause.icon'), "Pause"])
 
-  const configView = (paused: boolean, speed: number) => h('div.ui.form', [
-    paused ? (
-      h('button.ui.icon.basic.violet.labeled.button.intent-play', [h('i.play.icon'), "Play"])
-    ) : (
-        h('button.ui.icon.basic.violet.labeled.button.intent-pause', [h('i.pause.icon'), "Pause"])
-      ),
-    h('button.ui.icon.basic.violet.labeled.button.intent-stop', [h('i.stop.icon'), "Stop"]),
-    h('div.field', [
+  const stopButton =
+    h('div.item.intent-stop', [h('i.violet.stop.icon'), "Stop"])
+
+  const speedSlider = h('div.ui.form', [
+    h('div.field', {attrs: {style: 'text-align: center'}}, [
       h('label', ["Speed"]),
       h('input.speed', {
         attrs: { type: 'range', min: 0, max: 100, value: speed }
@@ -124,15 +126,38 @@ function view(dom: MainDOMSource, state$: Stream<AppState>): View {
     ])
   ])
 
-  const startView = (script: string) => h('div.ui.form', [
-    h('div.code-editor', []),
-    h('button.ui.icon.basic.violet.labeled.button.intent-start', [h('i.play.icon'), "Start"])
+  const controls = h('div.ui.top.mini.labeled.icon.menu', [
+    h('div.right.menu',[
+      pauseUnpauseButton,
+      stopButton,
+      h('div.item', [speedSlider])
+    ])
   ])
 
-  const view$ = state$.map((state) => state.runningSimulation ? h('div.wrapper', [
-    h('div.graphview', []),
-    h('div.menu', [configView(state.paused, state.speed)])
-  ]) : h('div.setup', [startView(state.script)]));
+  return h('div.main', [
+    controls,
+    h('div.graphview', [])
+  ])
+}
+
+function view(dom: MainDOMSource, state$: Stream<AppState>): View {
+  const homeControlBar = h('div.home-control-bar', [
+    h('button.ui.icon.labeled.button.intent-start', [h('i.play.icon'), "Start"])
+  ])
+
+  const homeView = h('div.main', [
+    homeControlBar,
+    h('div.code-editor', [])
+  ])
+
+  const view$ = state$
+    .map((state) =>
+      state.runningSimulation
+        ?
+        simulationView(state.paused, state.speed)
+        :
+        homeView
+    );
 
   const graphViewContainer$ = dom.select('.graphview').element()
   const graphView$ = xs.combine(state$, graphViewContainer$)
@@ -143,7 +168,7 @@ function view(dom: MainDOMSource, state$: Stream<AppState>): View {
     .element()
     .map((c: HTMLElement) => c)
 
-  const codeEditor$ = xs.combine(codeEditorContainer$).map(([container]) => ({container}))
+  const codeEditor$ = xs.combine(codeEditorContainer$).map(([container]) => ({ container }))
 
   return {
     dom: view$,
