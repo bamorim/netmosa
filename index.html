@@ -1,49 +1,53 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>Hello React!</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.css"/>
-        <style>
-            html, body {
-                height: 100%;
-            }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.css"/>
+    <style>
+      html, body {
+        height: 100%;
+      }
 
-            body {
-                display: flex;
-            }
+      body {
+        display: flex;
+      }
 
-            #app, .wrapper, .graphview {
-                display: flex;
-                flex: auto;
-            }
+      #app, .wrapper, .graphview {
+        display: flex;
+        flex: auto;
+      }
 
-            .menu {
-                flex: auto;
-                flex-grow: 0;
-                width: 300px;
-                box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
-                padding: 20px;
-            }
-            .setup {
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                padding: 20px;
-                background: white;
-            }
+      .menu {
+        flex: auto;
+        flex-grow: 0;
+        width: 300px;
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
+        padding: 20px;
+      }
+      .setup {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        padding: 20px;
+        background: white;
+      }
 
-            .setup .form {
-                max-width: 1000px;
-                margin: 0 auto;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="app"></div>
-        <script src="./build/bundle.js"></script>
-    </body>
+      .setup .form {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .code-editor {
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./build/app.bundle.js"></script>
+  </body>
 </html>

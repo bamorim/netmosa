@@ -6,6 +6,7 @@ import xs from 'xstream';
 import { randomWalkModel, luaModel, lineModelLua, lineModel } from './Models';
 import * as graphView from "./GraphView";
 import { IReadGraph, Graph } from './Model';
+import * as codeEditor from "./CodeEditor"
 
 interface AppState {
   paused: boolean,
@@ -70,14 +71,8 @@ function model(intents: Intents): Stream<AppState> {
 
 // Intent
 
-function intent(dom: MainDOMSource): Intents {
+function intent({dom, codeEditor}: Sources): Intents {
   const scriptInput = dom.select('textarea.script-input')
-
-  const scriptInputEvent$ = xs.merge(
-    scriptInput.events('change'),
-    scriptInput.events('keyup'),
-    scriptInput.events('keypress')
-  )
 
   return {
     changeSpeed$: dom
@@ -88,9 +83,7 @@ function intent(dom: MainDOMSource): Intents {
         return x;
       })
       .startWith(0),
-    changeScript$: scriptInputEvent$
-      .map(ev => (ev.target as HTMLInputElement).value)
-      .startWith(lineModelLua),
+    changeScript$: codeEditor.startWith(""),
     pause$: dom
       .select('.intent-pause')
       .events('click'),
@@ -109,12 +102,12 @@ function intent(dom: MainDOMSource): Intents {
 // View
 
 interface View {
-  dom: Stream<VNode>;
-  graphView: graphView.Input;
+  dom: Stream<VNode>
+  graphView: graphView.Input
+  codeEditor: codeEditor.Input
 }
 
 function view(dom: MainDOMSource, state$: Stream<AppState>): View {
-  const container$ = dom.select('.graphview').element()
 
   const configView = (paused: boolean, speed: number) => h('div.ui.form', [
     paused ? (
@@ -132,14 +125,7 @@ function view(dom: MainDOMSource, state$: Stream<AppState>): View {
   ])
 
   const startView = (script: string) => h('div.ui.form', [
-    h('div.field',[
-      h('label', ["Script"]),
-      h('textarea.script-input', {
-        attrs: {
-          rows: script.split("\n").length
-        }
-      }, [ script ])
-    ]),
+    h('div.code-editor', []),
     h('button.ui.icon.basic.violet.labeled.button.intent-start', [h('i.play.icon'), "Start"])
   ])
 
@@ -148,30 +134,41 @@ function view(dom: MainDOMSource, state$: Stream<AppState>): View {
     h('div.menu', [configView(state.paused, state.speed)])
   ]) : h('div.setup', [startView(state.script)]));
 
-  const graphView$ = xs.combine(state$, container$)
+  const graphViewContainer$ = dom.select('.graphview').element()
+  const graphView$ = xs.combine(state$, graphViewContainer$)
     .map(([state, container]) => ({ graph: state.currentGraph, container }))
+
+  const codeEditorContainer$ = dom
+    .select('div.code-editor')
+    .element()
+    .map((c: HTMLElement) => c)
+
+  const codeEditor$ = xs.combine(codeEditorContainer$).map(([container]) => ({container}))
 
   return {
     dom: view$,
-    graphView: graphView$
+    graphView: graphView$,
+    codeEditor: codeEditor$
   }
 }
 
 // Program
 
 interface Sources {
-  dom: MainDOMSource;
+  dom: MainDOMSource
+  codeEditor: Stream<string>
 }
 
 type Sinks = View
 
 function main(sources: Sources): Sinks {
-  return view(sources.dom, model(intent(sources.dom)));
+  return view(sources.dom, model(intent(sources)));
 }
 
 const drivers = {
   dom: makeDOMDriver('#app'),
-  graphView: graphView.driver
+  graphView: graphView.driver,
+  codeEditor: codeEditor.driver
 };
 
 run(main, drivers);

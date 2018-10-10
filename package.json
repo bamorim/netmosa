@@ -19,8 +19,11 @@
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "babel-core": "^6.26.3",
+    "css-loader": "^1.0.0",
     "gts": "^0.8.0",
+    "monaco-editor-webpack-plugin": "^1.5.4",
     "source-map-loader": "^0.2.4",
+    "style-loader": "^0.23.1",
     "ts-node": "^7.0.1",
     "typescript": "^2.8.4",
     "webpack": "^4.17.2",
@@ -36,6 +39,7 @@
     "fast-sha256": "^1.1.0",
     "fengari": "^0.1.2",
     "fengari-web": "^0.1.2",
+    "monaco-editor": "^0.14.3",
     "node-uuid": "^1.4.8",
     "sigma": "^1.2.1",
     "xstream": "^11.7.0"

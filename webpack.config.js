@@ -1,36 +1,42 @@
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
 module.exports = {
-    entry: "./src/index.ts",
-    output: {
-        filename: "bundle.js",
-        path: __dirname + "/build"
-    },
-    mode: 'development',
+  entry: {
+    "app": "./src/index.ts",
+    "editor.worker": 'monaco-editor/esm/vs/editor/editor.worker.js'
+  },
+  output: {
+    globalObject: 'self',
+    filename: "build/[name].bundle.js",
+    path: __dirname
+  },
+  mode: 'development',
 
-    // Enable sourcemaps for debugging webpack's output.
-    //devtool: "source-map",
+  resolve: {
+    extensions: [".ts", ".js", ".json"]
+  },
 
-    resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".ts", ".js", ".json"]
-    },
+  module: {
+    rules: [{
+        exclude: /node_modules/,
+        test: /\.ts?$/,
+        loader: "awesome-typescript-loader",
+        options: {
+          useCache: true,
+          useBabel: true
+        }
+      },
 
-    module: {
-        rules: [{
-                exclude: /node_modules/,
-                test: /\.ts?$/,
-                loader: "awesome-typescript-loader",
-                options: {
-                    useCache: true,
-                    useBabel: true
-                }
-            },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      }
+    ]
+  },
 
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            /*{
-                enforce: "pre",
-                test: /\.js$/,
-                loader: "source-map-loader"
-            }*/
-        ]
-    }
+  plugins: [
+    new MonacoWebpackPlugin({
+      languages: ['lua']
+    })
+  ]
 };
