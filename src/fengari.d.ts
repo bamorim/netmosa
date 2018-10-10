@@ -17,6 +17,7 @@ declare module "fengari-web" {
     lua_newthread: (L: lua_State) => lua_State
     lua_pushcfunction: (L: lua_State, f: lua_CFunction) => void
     lua_pushnumber: (L: lua_State, n: number) =>  void
+    lua_pushstring: (L: lua_State, n: lua_String) =>  void
   }
 
   interface lualib {

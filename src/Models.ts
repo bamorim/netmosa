@@ -36,6 +36,14 @@ export const luaModel: (code: string) => Model =
         return 0;
       });
 
+      stdlib.set('getAttributes', (L: {}) => {
+        const pos = lua.lua_tonumber(L, 1) - 1;
+        const key = fengari.to_jsstring(lua.lua_tostring(L, 2));
+        const attr = graph.vertices[pos].attributes.get(key) || "";
+        lua.lua_pushstring(L, fengari.to_luastring(attr));
+        return 0;
+      });
+
       stdlib.set('getNeighbor', (L: {}) => {
         const pos = lua.lua_tonumber(L, 1) - 1;
         const neighborIndex = lua.lua_tonumber(L, 2) - 1;
@@ -48,6 +56,24 @@ export const luaModel: (code: string) => Model =
         const pos = lua.lua_tonumber(L, 1) - 1;
         lua.lua_pushnumber(L, graph.vertices[pos].neighbors.length);
         return 1;
+      });
+
+      stdlib.set('getVertexCount', (L: {}) => {
+        lua.lua_pushnumber(L, graph.vertices.length);
+        return 1;
+      });
+
+      stdlib.set('getEdgeCount', (L: {}) => {
+        lua.lua_pushnumber(L, graph.edges.length);
+        return 1;
+      });
+
+      stdlib.set('getEdge', (L: {}) => {
+        const idx = lua.lua_tonumber(L, 1) - 1;
+        let [a, b] = graph.edges[idx];
+        lua.lua_pushnumber(L, a + 1);
+        lua.lua_pushnumber(L, b + 1);
+        return 2;
       });
 
       const L = lauxlib.luaL_newstate();
