@@ -1,14 +1,16 @@
-import { Stream, Listener } from 'xstream'
-import xs from 'xstream'
-import * as monaco from "monaco-editor"
-import 'monaco-editor/esm/vs/basic-languages/lua/lua.contribution';
-import {adapt} from '@cycle/run/lib/adapt';
 
-export type Input = Stream<{ container: HTMLElement }>
+import 'monaco-editor';
+import 'monaco-editor/esm/vs/basic-languages/lua/lua.contribution';
+
+import {adapt} from '@cycle/run/lib/adapt';
+import * as monaco from 'monaco-editor';
+import {Listener, Stream} from 'xstream';
+import xs from 'xstream';
+
+export type Input = Stream<{container: HTMLElement}>;
 
 function luaModel(): monaco.editor.ITextModel {
-
-  let value = [
+  const value = [
     '-- Number of steps',
     'k = 2',
     '',
@@ -35,48 +37,44 @@ function luaModel(): monaco.editor.ITextModel {
     '  connectVertices(pos, addVertex())',
     '  coroutine.yield()',
     'end'
-  ].join("\n")
+  ].join('\n');
 
-  let model = monaco.editor.createModel(value, 'lua')
+  const model = monaco.editor.createModel(value, 'lua');
 
   return model;
 }
 
 export function driver(input$: Input) {
-  let editor : monaco.editor.IStandaloneCodeEditor | null
-  let lastContainer : Element | null
-  let model = luaModel();
+  let editor: monaco.editor.IStandaloneCodeEditor|null;
+  let lastContainer: Element|null;
+  const model = luaModel();
 
   input$.subscribe({
-    next: ({ container }) => {
+    next: ({container}) => {
       if (!container || !document.body.contains(container)) {
-        if(editor) editor.dispose()
-        editor = null
-        return
+        if (editor) editor.dispose();
+        editor = null;
+        return;
       }
 
-      if (!editor || container != lastContainer) {
-        lastContainer = container
-        editor = monaco.editor.create(container, {
-          theme: 'vs-dark',
-          model: model,
-          minimap: {
-            enabled: false
-          }
-        })
+      if (!editor || container !== lastContainer) {
+        lastContainer = container;
+        editor = monaco.editor.create(
+            container, {theme: 'vs-dark', model, minimap: {enabled: false}});
       }
     }
-  })
+  });
 
 
-  let output$ = xs.create({
+  const output$ = xs.create({
     start: (listener: Listener<string>) => {
-      listener.next(model.getLinesContent().join("\n"))
+      listener.next(model.getLinesContent().join('\n'));
 
-      model.onDidChangeContent(() => listener.next(model.getLinesContent().join("\n")))
+      model.onDidChangeContent(
+          () => listener.next(model.getLinesContent().join('\n')));
     },
     stop: () => {}
-  })
+  });
 
-  return adapt(output$)
+  return adapt(output$);
 }
