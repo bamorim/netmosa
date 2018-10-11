@@ -6,7 +6,7 @@ import xs from 'xstream';
 import * as codeEditor from './CodeEditor';
 import * as graphView from './GraphView';
 import {AdjacencyListGraph, ReadGraph} from './Model';
-import {luaModel} from './Models';
+import {luaModel} from './LuaModel';
 
 interface AppState {
   paused: boolean;

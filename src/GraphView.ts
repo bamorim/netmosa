@@ -108,19 +108,6 @@ class GraphView {
   }
 
   updateGraph(graph: ReadGraph) {
-    let maxNode = 0;
-    const newNodes: {[index: number]: number} = {};
-
-    graph.edges.map((e) => [Math.min(...e), Math.max(...e)]).forEach(([
-                                                                       min, max
-                                                                     ]) => {
-      if (!newNodes[min]) newNodes[min] = min;
-      if (!newNodes[max]) newNodes[max] = min;
-      if (maxNode < min) maxNode = min;
-      if (maxNode < max) maxNode = max;
-    });
-    const nodeCount = maxNode + 1;
-
     // Sync Nodes
     graph.vertices.forEach((vertex) => {
       if (!this.nodes[vertex.id]) {
