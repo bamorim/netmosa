@@ -1,6 +1,4 @@
-import {body} from '@cycle/dom';
 import * as d3 from 'd3';
-import * as sha256 from 'fast-sha256';
 import {Stream} from 'xstream';
 
 import {ReadGraph} from './Model';
@@ -14,7 +12,6 @@ export function driver(
     input$: Stream<{container: Element, graph?: ReadGraph}>) {
   let graphView: GraphView|undefined;
   let lastContainer: Element|undefined;
-  let lastKey = '';
   input$.subscribe({
     next: ({container, graph}) => {
       if (!container || !document.body.contains(container)) {
@@ -24,32 +21,17 @@ export function driver(
 
       if (!graphView || container !== lastContainer) {
         lastContainer = container;
-        lastKey = '';
         graphView = new GraphView(container);
       }
 
-      const nextKey = graph ? graphKey(graph) : '';
-
-      if (lastKey !== nextKey) {
-        lastKey = nextKey;
-        if (graph !== undefined) {
-          graphView.updateGraph(graph);
-        } else {
-          graphView.reset();
-        }
+      if(graph === undefined) {
+        graphView.reset();
+      } else {
+        graphView.updateGraph(graph);
       }
     }
   });
 }
-
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
-
-const graphKey = (graph: ReadGraph) =>
-    decoder.decode(sha256.hash(encoder.encode(JSON.stringify({
-      edges: graph.edges,
-      nodes: graph.vertices.map(({attributes}) => Array.from(attributes))
-    }))));
 
 interface Node extends d3.SimulationNodeDatum {
   id: string;
@@ -65,6 +47,8 @@ function isNode(node: Node|string|number|{}|undefined): node is Node {
 }
 
 class GraphView {
+  private lastId: string = '';
+  private lastChange: number = 0;
   private nodes: Node[] = [];
   private links: Link[] = [];
   private force: d3.Simulation<{}, Link>;
@@ -108,30 +92,38 @@ class GraphView {
   }
 
   updateGraph(graph: ReadGraph) {
-    // Sync Nodes
-    graph.vertices.forEach((vertex) => {
-      if (!this.nodes[vertex.id]) {
-        const neighborId =
-            vertex.neighbors.find((v) => v < vertex.id) || vertex.neighbors[0];
-        const neighbor = this.nodes[neighborId || 0];
-        const copiedProps = neighbor ? {x: neighbor.x, y: neighbor.y} : {};
-        this.nodes[vertex.id] = {
-          ...copiedProps,
-          id: vertex.id.toString(),
-          attributes: new Map(vertex.attributes)
-        };
-      } else {
-        this.nodes[vertex.id].attributes = new Map(vertex.attributes);
+    if(this.lastId === graph.id && this.lastChange === graph.changes.length) return;
+    if(this.lastId !== graph.id) this.reset();
+
+    graph.changes.slice(this.lastChange).forEach((change) => {
+      switch (change.type) {
+        case 'AddedVertex':
+          const vertex = graph.vertices[change.id];
+          const neighborId = vertex.neighbors[0];
+          const neighbor = this.nodes[neighborId || 0];
+          const copiedProps = neighbor ? {x: neighbor.x, y: neighbor.y} : {};
+          this.nodes[vertex.id] = {
+            ...copiedProps,
+            id: vertex.id.toString(),
+            attributes: new Map()
+          };
+          break;
+        case 'AddedEdge':
+          const [a, b] = graph.edges[change.id];
+          this.links[change.id] = {
+            source: this.nodes[a],
+            target: this.nodes[b],
+            id: change.id.toString()
+          };
+          break;
+        case 'SetAttribute':
+          this.nodes[change.id].attributes.set(change.key, change.value);
+          break;
       }
     });
 
-    // Sync Edges
-    this.links = graph.edges.map(([from, to], index) => ({
-                                   ...(this.links[index] || {}),
-                                   source: this.nodes[from],
-                                   target: this.nodes[to],
-                                   id: index.toString()
-                                 }));
+    this.lastId = graph.id;
+    this.lastChange = graph.changes.length;
 
     this.update();
   }
@@ -139,6 +131,8 @@ class GraphView {
   reset() {
     this.links = [];
     this.nodes = [];
+    this.lastChange = 0;
+    this.lastId = '';
     this.update();
   }
 
@@ -199,12 +193,12 @@ class GraphView {
 
   private update() {
     const linkData = this.linkSelection.data(this.links);
-    linkData.exit().remove();
+    //linkData.exit().remove();
     this.linkSelection = linkData.enter().append<SVGLineElement>('line').merge(
         this.linkSelection);
 
     const nodeData = this.nodeSelection.data(this.nodes);
-    nodeData.exit().remove();
+    //nodeData.exit().remove();
     this.nodeSelection = nodeData.enter()
                              .append<SVGCircleElement>('circle')
                              .attr('r', 8)

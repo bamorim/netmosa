@@ -25,7 +25,7 @@ interface Intents {
   changeScript$: Stream<string>;
 }
 
-const periodFromSpeed = (speed: number) => 100 + 4 * (100 - speed);
+const periodFromSpeed = (speed: number) => 10 + 4 * (100 - speed);
 
 function model(intents: Intents): Stream<AppState> {
   const paused$ = xs.merge(

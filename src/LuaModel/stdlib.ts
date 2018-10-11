@@ -61,7 +61,7 @@ define(
     const pos = lua.lua_tonumber(L, 1) - 1;
     const key = fengari.to_jsstring(lua.lua_tostring(L, 2));
     const val = fengari.to_jsstring(lua.lua_tostring(L, 3));
-    graph.vertices[pos].attributes.set(key, val);
+    graph.setAttribute(pos, key, val);
     return 0;
   }
 );
