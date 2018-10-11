@@ -193,12 +193,12 @@ class GraphView {
 
   private update() {
     const linkData = this.linkSelection.data(this.links);
-    //linkData.exit().remove();
+    linkData.exit().remove();
     this.linkSelection = linkData.enter().append<SVGLineElement>('line').merge(
         this.linkSelection);
 
     const nodeData = this.nodeSelection.data(this.nodes);
-    //nodeData.exit().remove();
+    nodeData.exit().remove();
     this.nodeSelection = nodeData.enter()
                              .append<SVGCircleElement>('circle')
                              .attr('r', 8)
