@@ -14,6 +14,7 @@
     "check": "gts check",
     "clean": "gts clean",
     "fix": "gts fix",
+    "start": "webpack-dev-server",
     "posttest": "npm run check"
   },
   "devDependencies": {
@@ -27,7 +28,9 @@
     "ts-node": "^7.0.1",
     "typescript": "^2.8.4",
     "webpack": "^4.17.2",
-    "webpack-command": "^0.4.1"
+    "webpack-cli": "^3.1.2",
+    "webpack-command": "^0.4.1",
+    "webpack-dev-server": "^3.1.9"
   },
   "dependencies": {
     "@cycle/dom": "^21.1.0",

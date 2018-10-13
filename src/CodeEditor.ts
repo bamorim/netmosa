@@ -66,7 +66,6 @@ export function driver(input$: Input) {
     }
   });
 
-
   const output$ = xs.create({
     start: (listener: Listener<string>) => {
       listener.next(model.getLinesContent().join('\n'));
