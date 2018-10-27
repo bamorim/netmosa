@@ -9,16 +9,12 @@
         height: 100%;
       }
 
-      body {
-        display: flex;
-      }
-
-      #app, .main, .graphview {
+      body, #app, .hlayout, .vlayout, .graphview {
         display: flex;
         flex: 1;
       }
 
-      .main {
+      .vlayout {
         flex-direction: column;
       }
 
@@ -32,6 +28,8 @@
         flex: 1;
       }
     </style>
+    <script src="./components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="./components/google-chart/google-chart.html">
   </head>
   <body>
     <div id="app"></div>

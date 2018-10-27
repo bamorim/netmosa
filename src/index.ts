@@ -1,181 +1,128 @@
-import {h, MainDOMSource, makeDOMDriver, VNode} from '@cycle/dom';
-import {run} from '@cycle/run';
-import {Stream} from 'xstream';
+import { h, MainDOMSource, makeDOMDriver, VNode } from '@cycle/dom';
+import { run } from '@cycle/run';
+import { Stream } from 'xstream';
 import xs from 'xstream';
 
 import * as codeEditor from './CodeEditor';
 import * as graphView from './GraphView';
-import {AdjacencyListGraph, ReadGraph} from './Model';
-import {luaModel} from './LuaModel';
+import { AdjacencyListGraph, ReadGraph, Model } from './Model';
+import { luaModel } from './LuaModel';
+import Visualization, { State } from "./Visualization";
 
 interface AppState {
-  paused: boolean;
-  speed: number;
-  runningSimulation?: IterableIterator<ReadGraph>;
-  currentGraph?: ReadGraph;
+    script: string;
+    runningModel?: Model
+}
+
+interface Start { type: "Start" }
+interface Stop { type: "Stop"; }
+
+interface ChangeScript {
+  type: "ChangeScript";
   script: string;
 }
 
-interface Intents {
-  pause$: Stream<{}>;
-  play$: Stream<{}>;
-  stop$: Stream<{}>;
-  start$: Stream<{}>;
-  changeSpeed$: Stream<number>;
-  changeScript$: Stream<string>;
-}
+type Action = Start | Stop | ChangeScript;
 
-const periodFromSpeed = (speed: number) => 10 + 4 * (100 - speed);
+function model(action$: Stream<Action>): Stream<AppState> {
+    const script$ = action$
+        .filter((a) => a.type == "ChangeScript")
+        .map(({script}: ChangeScript) => script)
+        .startWith('')
 
-function model(intents: Intents): Stream<AppState> {
-  const paused$ = xs.merge(
-                        intents.play$.mapTo(false), intents.start$.mapTo(false),
-                        intents.pause$.mapTo(true))
-                      .startWith(false);
+    const start$ = action$.filter((a) => a.type == "Start")
 
-  const speed$ = intents.changeSpeed$.startWith(0);
+    const notRunningModel$ = action$.filter((a) => a.type == "Stop").mapTo(undefined)
+    const runningModel$ = xs.combine(script$, start$).map(([script, _]) => luaModel(script))
+    const maybeRunningModel$ = xs.merge(runningModel$, notRunningModel$).startWith(undefined)
 
-  const simulationAction$ =
-      xs.merge(intents.start$.mapTo('start'), intents.stop$.mapTo('stop'));
-
-  const runningSimulation$ =
-      xs.combine(simulationAction$, intents.changeScript$)
-          .fold<IterableIterator<ReadGraph>|undefined>(
-              (runningSimulation, [action, code]) => {
-                if (runningSimulation) {
-                  if (action === 'stop') {
-                    return undefined;
-                  }
-                } else {
-                  if (action === 'start') {
-                    return luaModel(code)(new AdjacencyListGraph());
-                  }
-                }
-                return runningSimulation;
-              },
-              undefined);
-
-  const tick$ =
-      xs.combine(paused$, speed$)
-          .map(
-              ([paused, speed]) =>
-                  paused ? xs.empty() : xs.periodic(periodFromSpeed(speed)))
-          .flatten();
-
-  const simulationStep$ = (simulation: IterableIterator<ReadGraph>) =>
-      tick$.map<ReadGraph>(() => simulation.next().value);
-
-  const graph$ =
-      runningSimulation$
-          .map(
-              (simulation) =>
-                  simulation ? simulationStep$(simulation) : xs.of(undefined))
-          .flatten();
-
-  return xs
-      .combine(
-          paused$, speed$, runningSimulation$, graph$, intents.changeScript$)
-      .map(
-          ([paused, speed, runningSimulation, currentGraph, script]) =>
-              ({paused, speed, runningSimulation, currentGraph, script}));
-}
-
-// Intent
-
-function intent({dom, codeEditor}: Sources): Intents {
-  const scriptInput = dom.select('textarea.script-input');
-
-  return {
-    changeSpeed$: dom.select('input.speed')
-                      .events('change')
-                      .map(ev => {
-                        const x = +(ev.target as HTMLInputElement).value;
-                        return x;
-                      })
-                      .startWith(0),
-    changeScript$: codeEditor.startWith(''),
-    pause$: dom.select('.intent-pause').events('click'),
-    play$: dom.select('.intent-play').events('click'),
-    start$: dom.select('.intent-start').events('click'),
-    stop$: dom.select('.intent-stop').events('click')
-  };
+    return xs
+        .combine(maybeRunningModel$, script$)
+        .map<AppState>(([runningModel, script]) => ({runningModel, script}))
 }
 
 // View
 
-interface View {
-  dom: Stream<VNode>;
-  graphView: graphView.Input;
-  codeEditor: codeEditor.Input;
+function view(state$: Stream<AppState>, visView$: Stream<VNode>): Stream<VNode> {
+    const homeControlBar =
+        h('div.home-control-bar', [h('button.ui.icon.labeled.button.intent-start',
+            [h('i.play.icon'), 'Start'])]);
+
+    const homeView = h('div.vlayout', [homeControlBar, h('div.code-editor', [])]);
+
+    return state$.map((state) => {
+        if(state.runningModel) {
+            return visView$
+        } else {
+            return xs.of(homeView)
+        }
+    })
+    .flatten()
+
 }
 
-function simulationView(paused: boolean, speed: number): VNode {
-  const pauseUnpauseButton = paused ?
-      h('div.item.intent-play', [h('i.violet.play.icon'), 'Play']) :
-      h('div.item.intent-pause', [h('i.violet.pause.icon'), 'Pause']);
+// Intent
 
-  const stopButton =
-      h('div.item.intent-stop', [h('i.violet.stop.icon'), 'Stop']);
+function intent({ DOM, codeEditor }: Sources): Stream<Action> {
+    const changeSpeed$ = codeEditor
+        .map<ChangeScript>((script) => ({type: "ChangeScript", script}))
 
-  const speedSlider =
-      h('div.ui.form', [h('div.field', {attrs: {style: 'text-align: center'}}, [
-          h('label', ['Speed']),
-          h('input.speed',
-            {attrs: {type: 'range', min: 0, max: 100, value: speed}}, [])
-        ])]);
+    const start$ = DOM.select('.intent-start').events('click').mapTo<Start>({type: "Start"})
+    const stop$ = DOM.select('.intent-stop').events('click').mapTo<Stop>({type: "Stop"})
 
-  const controls =
-      h('div.ui.top.mini.labeled.icon.menu',
-        [h('div.right.menu',
-           [pauseUnpauseButton, stopButton, h('div.item', [speedSlider])])]);
-
-  return h('div.main', [controls, h('div.graphview', [])]);
-}
-
-function view(dom: MainDOMSource, state$: Stream<AppState>): View {
-  const homeControlBar =
-      h('div.home-control-bar', [h('button.ui.icon.labeled.button.intent-start',
-                                   [h('i.play.icon'), 'Start'])]);
-
-  const homeView = h('div.main', [homeControlBar, h('div.code-editor', [])]);
-
-  const view$ = state$.map(
-      (state) => state.runningSimulation ?
-          simulationView(state.paused, state.speed) :
-          homeView);
-
-  const graphViewContainer$ = dom.select('.graphview').element();
-  const graphView$ =
-      xs.combine(state$, graphViewContainer$)
-          .map(
-              ([state, container]) => ({graph: state.currentGraph, container}));
-
-  const codeEditorContainer$ =
-      dom.select('div.code-editor').element().map((c: HTMLElement) => c);
-
-  const codeEditor$ =
-      xs.combine(codeEditorContainer$).map(([container]) => ({container}));
-
-  return {dom: view$, graphView: graphView$, codeEditor: codeEditor$};
+    return xs.merge(changeSpeed$, start$, stop$)
 }
 
 // Program
 
 interface Sources {
-  dom: MainDOMSource;
-  codeEditor: Stream<string>;
+    DOM: MainDOMSource;
+    codeEditor: Stream<string>;
 }
 
-type Sinks = View;
+interface Sinks {
+    DOM: Stream<VNode>;
+    graphView: graphView.Input;
+    codeEditor: codeEditor.Input;
+}
 
 function main(sources: Sources): Sinks {
-  return view(sources.dom, model(intent(sources)));
+    const action$ = intent(sources);
+    const state$ = model(action$);
+
+    const visSources = {
+        DOM: sources.DOM,
+        props$: state$
+            .filter(({runningModel}) => runningModel !== undefined)
+            .map(({runningModel}) => ({model: runningModel!}))
+    }
+
+    const vis = Visualization(visSources)
+
+    const view$ = view(state$, vis.DOM)
+
+    const codeEditorContainer$ =
+        sources.DOM.select('div.code-editor').element().map((c: HTMLElement) => c);
+    const codeEditor$ =
+        xs.combine(codeEditorContainer$).map(([container]) => ({ container }));
+
+
+    const graphView$ =
+    xs.combine(vis.state$, vis.graphViewContainer$)
+        .map(
+            ([{graph}, container]) => ({ graph, container }));
+
+    return {
+        DOM: view$,
+        graphView: graphView$,
+        codeEditor: codeEditor$
+    };
 }
 
 const drivers = {
-  dom: makeDOMDriver('#app'),
-  graphView: graphView.driver,
-  codeEditor: codeEditor.driver
+    DOM: makeDOMDriver('#app'),
+    graphView: graphView.driver,
+    codeEditor: codeEditor.driver
 };
 
 run(main, drivers);
