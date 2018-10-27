@@ -50,15 +50,7 @@ function view(state$: Stream<AppState>, visView$: Stream<VNode>): Stream<VNode> 
 
     const homeView = h('div.vlayout', [homeControlBar, h('div.code-editor', [])]);
 
-    return state$.map((state) => {
-        if(state.runningModel) {
-            return visView$
-        } else {
-            return xs.of(homeView)
-        }
-    })
-    .flatten()
-
+    return state$.map((state) => state.runningModel ? visView$ : xs.of(homeView)).flatten()
 }
 
 // Intent
