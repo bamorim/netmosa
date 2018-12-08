@@ -1,0 +1,43 @@
+{
+  "name": "rggvis",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@jpavon/react-scripts-ts": "0.11.0",
+    "@material-ui/core": "^3.6.1",
+    "@types/d3": "^5.0.1",
+    "@types/uuid": "^3.4.4",
+    "d3": "^5.7.0",
+    "fengari": "^0.1.4",
+    "fengari-web": "^0.1.4",
+    "monaco-editor-webpack-plugin": "^1.7.0",
+    "node-uuid": "^1.4.8",
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2",
+    "react-monaco-editor": "^0.22.0"
+  },
+  "scripts": {
+    "start": "react-app-rewired start --scripts-version @jpavon/react-scripts-ts",
+    "build": "react-app-rewired build --scripts-version @jpavon/react-scripts-ts",
+    "test": "react-app-rewired test --scripts-version @jpavon/react-scripts-ts --env=jsdom",
+    "eject": "react-scripts-ts eject"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.12",
+    "@types/react": "^16.7.13",
+    "@types/react-dom": "^16.0.11",
+    "raw-loader": "^0.5.1",
+    "react-app-rewired": "^1.6.2",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.2.2"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

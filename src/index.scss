@@ -1,0 +1,16 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+}
+
+#root, .v-fill {
+  flex: 1;
+  display: flex;
+}
+
+.v-fill {
+  flex-direction: column;
+}
