@@ -20,10 +20,10 @@ export default class AdjacencyListGraph implements Graph {
   };
 
   public connectVertices = (v1: VertexId, v2: VertexId) => {
-    if (v1 >= this.vertices.length) return;
-    if (v1 < 0) return;
-    if (v2 >= this.vertices.length) return;
-    if (v2 < 0) return;
+    if (v1 >= this.vertices.length) { return; }
+    if (v1 < 0) { return; }
+    if (v2 >= this.vertices.length) { return; }
+    if (v2 < 0) { return; }
 
     const edgeId = this.edges.length;
     this.edges.push([v1, v2]);
@@ -32,6 +32,6 @@ export default class AdjacencyListGraph implements Graph {
 
   public setAttribute = (id: VertexId, key: string, value: string) => {
     this.vertices[id].attributes.set(key, value);
-    this.subject.next({type: 'SetAttribute', id: id, key: key, value: value});
+    this.subject.next({type: 'SetAttribute', id, key, value});
   }
 }
