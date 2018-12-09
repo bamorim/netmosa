@@ -1,32 +1,7 @@
-
-import * as d3 from 'd3';
 import * as React from 'react';
-
-import { ReadGraph, Model, AdjacencyListGraph } from './Model';
-import {  useLayoutEffect, useRef } from 'react';
-
-interface Props {
-  model: Model
-}
-
-export const Visualization = (props: Props) => {
-  const container = useRef(null)
-
-  useLayoutEffect(() => {
-    const simulation = props.model(new AdjacencyListGraph())
-    const graphView = new GraphView(container.current!)
-    graphView.updateGraph(simulation.next().value)
-    const interval = setInterval(() => {
-      graphView.updateGraph(simulation.next().value)
-    }, 100)
-
-    return () => {
-      clearInterval(interval);
-    }
-  })
-
-  return <div className="v-fill" ref={container}></div>
-}
+import * as d3 from 'd3';
+import { ReadGraph, Change } from 'Model';
+import { useLayoutEffect, useRef } from 'react';
 
 const linkStrength = 2000;
 const bodyStrength = -100;
@@ -44,9 +19,31 @@ function isNode(node: Node | string | number | {} | undefined): node is Node {
   return node !== undefined && (node as Node).id !== undefined;
 }
 
-class GraphView {
-  private lastId: string = '';
-  private lastChange: number = 0;
+interface Props {
+  graph: ReadGraph
+}
+
+const GraphView = ({graph} : Props) => {
+  const container = useRef(null)
+
+  useLayoutEffect(() => {
+    const graphView = new GraphViewD3(container.current!, graph)
+    const subscription = graph.subject.subscribe((change) => {
+      graphView.onChange(change)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  })
+
+  return <div className="v-fill" ref={container}></div>
+}
+
+export default GraphView;
+
+class GraphViewD3 {
+  private graph: ReadGraph;
   private nodes: Node[] = [];
   private links: Link[] = [];
   private force: d3.Simulation<{}, Link>;
@@ -55,7 +52,8 @@ class GraphView {
   private linkSelection: d3.Selection<SVGLineElement, Link, d3.BaseType, {}>;
   private nodeSelection: d3.Selection<SVGCircleElement, Node, d3.BaseType, {}>;
 
-  constructor(container: Element) {
+  constructor(container: Element, graph: ReadGraph) {
+    this.graph = graph;
     const width = container.clientWidth;
     const height = container.clientHeight;
 
@@ -90,48 +88,32 @@ class GraphView {
     this.update();
   }
 
-  updateGraph(graph: ReadGraph) {
-    if (this.lastId === graph.id && this.lastChange === graph.changes.length) return;
-    if (this.lastId !== graph.id) this.reset();
+  onChange(change: Change) {
+    switch (change.type) {
+      case 'AddedVertex':
+        const vertex = this.graph.vertices[change.id];
+        const neighborId = vertex.neighbors[0];
+        const neighbor = this.nodes[neighborId || 0];
+        const copiedProps = neighbor ? { x: neighbor.x, y: neighbor.y } : {};
+        this.nodes[vertex.id] = {
+          ...copiedProps,
+          id: vertex.id.toString(),
+          attributes: new Map()
+        };
+        break;
+      case 'AddedEdge':
+        const [a, b] = this.graph.edges[change.id];
+        this.links[change.id] = {
+          source: this.nodes[a],
+          target: this.nodes[b],
+          id: change.id.toString()
+        };
+        break;
+      case 'SetAttribute':
+        this.nodes[change.id].attributes.set(change.key, change.value);
+        break;
+    }
 
-    graph.changes.slice(this.lastChange).forEach((change) => {
-      switch (change.type) {
-        case 'AddedVertex':
-          const vertex = graph.vertices[change.id];
-          const neighborId = vertex.neighbors[0];
-          const neighbor = this.nodes[neighborId || 0];
-          const copiedProps = neighbor ? { x: neighbor.x, y: neighbor.y } : {};
-          this.nodes[vertex.id] = {
-            ...copiedProps,
-            id: vertex.id.toString(),
-            attributes: new Map()
-          };
-          break;
-        case 'AddedEdge':
-          const [a, b] = graph.edges[change.id];
-          this.links[change.id] = {
-            source: this.nodes[a],
-            target: this.nodes[b],
-            id: change.id.toString()
-          };
-          break;
-        case 'SetAttribute':
-          this.nodes[change.id].attributes.set(change.key, change.value);
-          break;
-      }
-    });
-
-    this.lastId = graph.id;
-    this.lastChange = graph.changes.length;
-
-    this.update();
-  }
-
-  reset() {
-    this.links = [];
-    this.nodes = [];
-    this.lastChange = 0;
-    this.lastId = '';
     this.update();
   }
 
