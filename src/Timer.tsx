@@ -1,8 +1,10 @@
+import { clearInterval, setInterval } from "timers";
+
 /** A speed-configurable and pausable timer */
 export default class Timer {
   private period: number
   private callback: () => void
-  private interval: number
+  private interval: NodeJS.Timeout
   private running: boolean = false
   private shouldReschedule: boolean = false
 
@@ -24,6 +26,7 @@ export default class Timer {
   public pause() {
     this.running = false
     clearInterval(this.interval)
+    clearInterval
   }
 
   public setSpeed(speed: number) {

@@ -1,30 +1,26 @@
-import { useState, useEffect } from 'react';
 import * as React from 'react';
-import {barabasiAlbert} from 'examples';
-import EditorPage from 'pages/EditorPage';
-import VisualizationPage from 'pages/VisualizationPage';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core';
+import Router from 'Router';
 
-const App = () => {
-  const [code, setCode] = useState("");
-  const [running, setRunning] = useState(false);
+const theme = createMuiTheme({
+  palette: {
+    type: 'dark',
+    primary: {
+      main: '#212121',
+      light: '#484848',
+      dark: '#000000'
+    },
+    secondary: {
+      main: '#006064',
+      light: '#428e92',
+      dark: '#00363a'
+    }
+  },
+});
 
-  // Run only once to load the barabasiAlbert
-  useEffect(() => {
-    barabasiAlbert.load().then((value: string) => setCode(value))
-  }, [])
-
-  if(running) {
-    return <VisualizationPage
-      code={code}
-      stop={() => setRunning(false)}
-    />
-  } else {
-    return <EditorPage
-      code={code}
-      setCode={setCode}
-      start={() => setRunning(true)}
-    />
-  }
-}
-
+const App = () => (
+  <MuiThemeProvider theme={theme}>
+    <Router/>
+  </MuiThemeProvider>
+)
 export default App;
