@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as d3 from 'd3';
-import { ReadGraph, Change } from 'Model';
+import { ReadGraph, Change } from 'graph';
 import { useLayoutEffect, useRef } from 'react';
 
 const linkStrength = 2000;
@@ -37,7 +37,7 @@ const GraphView = ({graph} : Props) => {
     }
   })
 
-  return <div className="v-fill" ref={container}></div>
+  return <div className="v-fill" ref={container}/>
 }
 
 export default GraphView;
@@ -88,7 +88,7 @@ class GraphViewD3 {
     this.update();
   }
 
-  onChange(change: Change) {
+  public onChange(change: Change) {
     switch (change.type) {
       case 'AddedVertex':
         const vertex = this.graph.vertices[change.id];
@@ -117,7 +117,7 @@ class GraphViewD3 {
     this.update();
   }
 
-  ticked =
+  private ticked =
     () => {
       this.linkSelection.attr('d', (d: Link) => {
         const isSelfLoop = isNode(d.source) && isNode(d.target) && d.source.id === d.target.id;
@@ -141,22 +141,26 @@ class GraphViewD3 {
       this.fit();
     }
 
-  dragstarted =
+  private dragstarted =
     (d: Node) => {
-      if (!d3.event.active) this.force.alphaTarget(0.3).restart();
+      if (!d3.event.active) {
+        this.force.alphaTarget(0.3).restart();
+      }
       d.fx = d.x;
       d.fy = d.y;
     }
 
-  dragged =
+  private dragged =
     (d: Node) => {
       d.fx = d3.event.x;
       d.fy = d3.event.y;
     }
 
-  dragended =
+  private dragended =
     (d: Node) => {
-      if (!d3.event.active) this.force.alphaTarget(0);
+      if (!d3.event.active) {
+        this.force.alphaTarget(0);
+      }
 
       d.fx = null;
       d.fy = null;
@@ -166,10 +170,15 @@ class GraphViewD3 {
     const rootNode = this.transformationGroup.node() as SVGGraphicsElement;
     const bounds = rootNode.getBBox();
     const parent = rootNode.parentElement;
-    const fullWidth = parent!.clientWidth, fullHeight = parent!.clientHeight;
-    const width = bounds.width, height = bounds.height;
-    const midX = bounds.x + width / 2, midY = bounds.y + height / 2;
-    if (width === 0 || height === 0) return;  // nothing to fit
+    const fullWidth = parent!.clientWidth;
+    const fullHeight = parent!.clientHeight;
+    const width = bounds.width;
+    const height = bounds.height;
+    const midX = bounds.x + width / 2;
+    const midY = bounds.y + height / 2;
+    if (width === 0 || height === 0) {
+      return;  // nothing to fit
+    }
     const scale =
       Math.min(1, 0.95 / Math.max(width / fullWidth, height / fullHeight));
     const translationX = fullWidth / 2 - scale * midX;

@@ -5,8 +5,8 @@ import { Button } from '@material-ui/core';
 
 interface Props {
   code: string;
-  setCode: (code: string) => any;
-  start: () => any;
+  setCode: (code: string) => void;
+  start: () => void;
 }
 
 const EditorPage = ({ code, setCode, start }: Props) => <Layout actions={

@@ -1,7 +1,7 @@
-import { Change, GraphObserver, ReadGraph } from "Model";
+import { Change, ReadGraph } from "./graph";
 
-export default class DegreeDistributionCollector implements GraphObserver {
-  distribution: number[] = [];
+export default class DegreeDistributionCollector {
+  public distribution: number[] = [];
   private graph: ReadGraph;
 
   constructor(graph: ReadGraph) {
@@ -9,7 +9,7 @@ export default class DegreeDistributionCollector implements GraphObserver {
     this.graph.subject.subscribe(this.onChange);
   }
 
-  onChange = (change: Change) => {
+  public onChange = (change: Change) => {
     switch(change.type) {
       case 'AddedVertex':
         this.changeDist(0, 1);

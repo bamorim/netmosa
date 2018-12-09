@@ -1,7 +1,7 @@
 import * as fengari from 'fengari-web';
 
-import {Graph, Model} from '../Model';
-import {openStdLib} from "./stdlib";
+import { Graph } from 'graph';
+import { openStdLib } from "./stdlib";
 
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
@@ -17,7 +17,7 @@ function main()
 end
 `;
 
-export const luaModel: (code: string) => Model = (code: string) => function*(graph: Graph) {
+export const luaModel: (code: string) => (graph: Graph) => IterableIterator<Graph> = (code: string) => function* (graph: Graph) {
   const L = lauxlib.luaL_newstate();
   lualib.luaL_openlibs(L);
   openStdLib(L, graph);
@@ -30,6 +30,8 @@ export const luaModel: (code: string) => Model = (code: string) => function*(gra
   while (true) {
     const resp = lua.lua_resume(L2, null, 0);
     yield graph;
-    if (resp === 0) break;
+    if (resp === 0) {
+      break;
+    }
   }
 };

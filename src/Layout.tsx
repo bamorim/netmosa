@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ReactNode } from 'react';
-import { Toolbar, Typography, AppBar, Button, createStyles, withStyles } from '@material-ui/core';
+import { Toolbar, Typography, AppBar, createStyles, withStyles } from '@material-ui/core';
 
 const styles = createStyles({
   grow: {

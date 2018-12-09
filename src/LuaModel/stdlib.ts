@@ -1,7 +1,7 @@
 import * as fengari from 'fengari-web';
 const lua = fengari.lua;
 
-import { Graph } from '../Model';
+import { Graph } from 'graph';
 
 type StdLibFunction = (graph: Graph) => (L: {}) => number;
 
@@ -11,7 +11,7 @@ export interface StdLibEntry {
   docs: string;
 }
 
-const stdlib: Array<StdLibEntry> = [];
+const stdlib: StdLibEntry[] = [];
 
 const define = (name: string, docs: string, fn: StdLibFunction) => {
   stdlib.push({ name, fn, docs })

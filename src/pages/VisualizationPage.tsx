@@ -5,12 +5,12 @@ import { useEffect } from 'react';
 import { Button } from '@material-ui/core';
 
 import { luaModel } from 'LuaModel';
-import { AdjacencyListGraph } from 'Model';
+import { AdjacencyListGraph } from 'graph';
 import GraphView from 'GraphView';
 
 interface Props {
   code: string;
-  stop: () => any;
+  stop: () => void;
 }
 
 const VisualizationPage = ({ code, stop }: Props) => {
