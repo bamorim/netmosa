@@ -1,11 +1,11 @@
-import * as React from "react"
-import Layout from "Layout"
-import { Button } from "@material-ui/core"
-import { useLayoutEffect } from "react"
+import * as React from 'react'
+import Layout from 'Layout'
+import { Button } from '@material-ui/core'
+import { useLayoutEffect } from 'react'
 
-import GraphView from "GraphView"
-import useSimulation from "useSimulation"
-import useTimer from "useTimer"
+import GraphView from 'GraphView'
+import useSimulation from 'useSimulation'
+import useTimer from 'useTimer'
 
 interface Props {
   code: string

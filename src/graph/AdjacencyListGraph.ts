@@ -1,6 +1,6 @@
-import { ReplaySubject } from "rxjs"
-import { VertexId, Graph, Vertex, Edge, Change, EdgeId } from "./types"
-import AdjacencyListVertex from "./AdjacencyListVertex"
+import { ReplaySubject } from 'rxjs'
+import { VertexId, Graph, Vertex, Edge, Change, EdgeId } from './types'
+import AdjacencyListVertex from './AdjacencyListVertex'
 
 export default class AdjacencyListGraph implements Graph {
   public edges: Edge[] = []
@@ -14,7 +14,7 @@ export default class AdjacencyListGraph implements Graph {
   public addVertex = () => {
     const vertex = new AdjacencyListVertex(this.vertices.length)
     this.vertices.push(vertex)
-    this.subject.next({ type: "AddedVertex", id: vertex.id })
+    this.subject.next({ type: 'AddedVertex', id: vertex.id })
 
     return vertex.id
   }
@@ -35,7 +35,7 @@ export default class AdjacencyListGraph implements Graph {
 
     const edgeId = this.edges.length
     this.edges.push([v1, v2])
-    this.subject.next({ type: "AddedEdge", id: edgeId })
+    this.subject.next({ type: 'AddedEdge', id: edgeId })
     this.vertices[v1].neighbors.push(v2)
     if (v1 !== v2) {
       this.vertices[v2].neighbors.push(v1)
@@ -44,6 +44,6 @@ export default class AdjacencyListGraph implements Graph {
 
   public setAttribute = (id: VertexId, key: string, value: string) => {
     this.vertices[id].attributes.set(key, value)
-    this.subject.next({ type: "SetAttribute", id, key, value })
+    this.subject.next({ type: 'SetAttribute', id, key, value })
   }
 }

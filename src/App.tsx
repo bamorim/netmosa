@@ -1,19 +1,19 @@
-import * as React from "react"
-import { createMuiTheme, MuiThemeProvider } from "@material-ui/core"
-import Router from "Router"
+import * as React from 'react'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core'
+import Router from 'Router'
 
 const theme = createMuiTheme({
   palette: {
-    type: "dark",
+    type: 'dark',
     primary: {
-      main: "#212121",
-      light: "#484848",
-      dark: "#000000"
+      main: '#212121',
+      light: '#484848',
+      dark: '#000000'
     },
     secondary: {
-      main: "#006064",
-      light: "#428e92",
-      dark: "#00363a"
+      main: '#006064',
+      light: '#428e92',
+      dark: '#00363a'
     }
   }
 })

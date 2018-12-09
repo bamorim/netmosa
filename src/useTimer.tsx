@@ -1,5 +1,5 @@
-import { useState } from "react"
-import Timer from "Timer"
+import { useState } from 'react'
+import Timer from 'Timer'
 
 const useTimer = (initialSpeed: number, callback: () => void) => {
   const [timer] = useState(new Timer(initialSpeed, callback))

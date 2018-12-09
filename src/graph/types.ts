@@ -1,4 +1,4 @@
-import { ReplaySubject } from "rxjs"
+import { ReplaySubject } from 'rxjs'
 
 export type VertexId = number
 export type EdgeId = number
@@ -16,17 +16,17 @@ export interface Vertex extends ReadVertex {
 }
 
 export interface AddedVertex {
-  type: "AddedVertex"
+  type: 'AddedVertex'
   id: VertexId
 }
 
 export interface AddedEdge {
-  type: "AddedEdge"
+  type: 'AddedEdge'
   id: EdgeId
 }
 
 export interface SetAttribute {
-  type: "SetAttribute"
+  type: 'SetAttribute'
   id: VertexId
   key: string
   value: string

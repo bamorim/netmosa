@@ -1,8 +1,8 @@
-import * as fengari from "fengari-web"
+import * as fengari from 'fengari-web'
 
-import { Graph, AdjacencyListGraph } from "graph"
-import { openStdLib } from "./stdlib"
-import Simulation from "Simulation"
+import { Graph, AdjacencyListGraph } from 'graph'
+import { openStdLib } from './stdlib'
+import Simulation from 'Simulation'
 
 const lua = fengari.lua
 const lauxlib = fengari.lauxlib
@@ -26,7 +26,7 @@ function* run(code: string, graph: Graph) {
   lauxlib.luaL_loadstring(L, fengari.to_luastring(wrapCode(code)))
   lua.lua_pcall(L, 0, 0, 0)
   const L2 = lua.lua_newthread(L)
-  lua.lua_getglobal(L2, "main")
+  lua.lua_getglobal(L2, 'main')
 
   while (true) {
     const resp = lua.lua_resume(L2, null, 0)

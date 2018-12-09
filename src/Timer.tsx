@@ -1,4 +1,4 @@
-import { clearInterval, setInterval } from "timers"
+import { clearInterval, setInterval } from 'timers'
 
 /** A speed-configurable and pausable timer */
 export default class Timer {

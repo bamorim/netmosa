@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react"
-import * as React from "react"
-import { barabasiAlbert } from "examples"
-import EditorPage from "pages/EditorPage"
-import VisualizationPage from "pages/VisualizationPage"
+import { useState, useEffect } from 'react'
+import * as React from 'react'
+import { barabasiAlbert } from 'examples'
+import EditorPage from 'pages/EditorPage'
+import VisualizationPage from 'pages/VisualizationPage'
 
 const Router = () => {
-  const [code, setCode] = useState("")
+  const [code, setCode] = useState('')
   const [running, setRunning] = useState(false)
 
   // Run only once to load the barabasiAlbert

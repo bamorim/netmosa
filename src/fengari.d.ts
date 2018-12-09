@@ -1,4 +1,4 @@
-declare module "fengari-web" {
+declare module 'fengari-web' {
   type int = number
   type lua_State = any
   type lua_CFunction = (L: lua_State) => int

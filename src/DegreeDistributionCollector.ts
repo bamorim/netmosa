@@ -1,4 +1,4 @@
-import { Change, ReadGraph } from "./graph"
+import { Change, ReadGraph } from './graph'
 
 export default class DegreeDistributionCollector {
   public distribution: number[] = []
@@ -11,10 +11,10 @@ export default class DegreeDistributionCollector {
 
   public onChange = (change: Change) => {
     switch (change.type) {
-      case "AddedVertex":
+      case 'AddedVertex':
         this.changeDist(0, 1)
         break
-      case "AddedEdge":
+      case 'AddedEdge':
         const [v1, v2] = this.graph.edges[change.id]
         const neighborCount1 = this.graph.vertices[v1].neighbors.length
         const neighborCount2 = this.graph.vertices[v2].neighbors.length

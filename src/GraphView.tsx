@@ -1,7 +1,7 @@
-import * as React from "react"
-import * as d3 from "d3"
-import { ReadGraph, Change } from "graph"
-import { useLayoutEffect, useRef } from "react"
+import * as React from 'react'
+import * as d3 from 'd3'
+import { ReadGraph, Change } from 'graph'
+import { useLayoutEffect, useRef } from 'react'
 
 const linkStrength = 2000
 const bodyStrength = -100
@@ -63,43 +63,43 @@ class GraphViewD3 {
     this.force = d3
       .forceSimulation()
       .nodes(this.nodes)
-      .force("charge", d3.forceManyBody().strength(bodyStrength))
+      .force('charge', d3.forceManyBody().strength(bodyStrength))
       .force(
-        "link",
+        'link',
         d3
           .forceLink(this.links)
           .strength(linkStrength)
-          .id((d: Node | {}) => (isNode(d) ? d.id : ""))
+          .id((d: Node | {}) => (isNode(d) ? d.id : ''))
       )
-      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force('center', d3.forceCenter(width / 2, height / 2))
 
     this.svg = d3
       .select(container)
-      .append("svg")
-      .attr("width", "100%")
-      .attr("height", "100%")
+      .append('svg')
+      .attr('width', '100%')
+      .attr('height', '100%')
 
-    this.transformationGroup = this.svg.append("g")
+    this.transformationGroup = this.svg.append('g')
 
     this.linkSelection = this.transformationGroup
-      .append("g")
-      .attr("stroke", "#000")
-      .attr("stroke-width", 1.5)
-      .attr("fill", "transparent")
-      .selectAll(".link")
+      .append('g')
+      .attr('stroke', '#000')
+      .attr('stroke-width', 1.5)
+      .attr('fill', 'transparent')
+      .selectAll('.link')
 
     this.nodeSelection = this.transformationGroup
-      .append("g")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5)
-      .selectAll(".node")
+      .append('g')
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5)
+      .selectAll('.node')
 
     this.update()
   }
 
   public onChange(change: Change) {
     switch (change.type) {
-      case "AddedVertex":
+      case 'AddedVertex':
         const vertex = this.graph.vertices[change.id]
         const neighborId = vertex.neighbors[0]
         const neighbor = this.nodes[neighborId || 0]
@@ -110,7 +110,7 @@ class GraphViewD3 {
           attributes: new Map()
         }
         break
-      case "AddedEdge":
+      case 'AddedEdge':
         const [a, b] = this.graph.edges[change.id]
         this.links[change.id] = {
           source: this.nodes[a],
@@ -118,7 +118,7 @@ class GraphViewD3 {
           id: change.id.toString()
         }
         break
-      case "SetAttribute":
+      case 'SetAttribute':
         this.nodes[change.id].attributes.set(change.key, change.value)
         break
     }
@@ -127,7 +127,7 @@ class GraphViewD3 {
   }
 
   private ticked = () => {
-    this.linkSelection.attr("d", (d: Link) => {
+    this.linkSelection.attr('d', (d: Link) => {
       const isSelfLoop =
         isNode(d.source) && isNode(d.target) && d.source.id === d.target.id
       const x1 = isNode(d.source) ? d.source.x || 0 : 0
@@ -143,9 +143,9 @@ class GraphViewD3 {
     })
 
     this.nodeSelection
-      .attr("cx", (d: Node) => d.x || 0)
-      .attr("cy", (d: Node) => d.y || 0)
-      .attr("fill", (node: Node) => node.attributes.get("color") || "white")
+      .attr('cx', (d: Node) => d.x || 0)
+      .attr('cy', (d: Node) => d.y || 0)
+      .attr('fill', (node: Node) => node.attributes.get('color') || 'white')
     this.fit()
   }
 
@@ -191,8 +191,8 @@ class GraphViewD3 {
     const translationX = fullWidth / 2 - scale * midX
     const translationY = fullHeight / 2 - scale * midY
     this.transformationGroup.attr(
-      "transform",
-      "translate(" + translationX + "," + translationY + ")scale(" + scale + ")"
+      'transform',
+      'translate(' + translationX + ',' + translationY + ')scale(' + scale + ')'
     )
   }
 
@@ -201,27 +201,27 @@ class GraphViewD3 {
     linkData.exit().remove()
     this.linkSelection = linkData
       .enter()
-      .append<SVGLineElement>("path")
+      .append<SVGLineElement>('path')
       .merge(this.linkSelection)
 
     const nodeData = this.nodeSelection.data(this.nodes)
     nodeData.exit().remove()
     this.nodeSelection = nodeData
       .enter()
-      .append<SVGCircleElement>("circle")
-      .attr("r", 8)
-      .attr("stroke", "black")
+      .append<SVGCircleElement>('circle')
+      .attr('r', 8)
+      .attr('stroke', 'black')
       .call(
         d3
           .drag()
-          .on("start", this.dragstarted)
-          .on("drag", this.dragged)
-          .on("end", this.dragended)
+          .on('start', this.dragstarted)
+          .on('drag', this.dragged)
+          .on('end', this.dragended)
       )
       .merge(this.nodeSelection)
 
-    this.force.nodes(this.nodes).on("tick", this.ticked)
-    this.force.force("link", d3.forceLink(this.links))
+    this.force.nodes(this.nodes).on('tick', this.ticked)
+    this.force.force('link', d3.forceLink(this.links))
     this.force.restart()
     this.force.alpha(0.1)
   }

@@ -1,4 +1,4 @@
-import { VertexId, VertexAttributes, Vertex } from "./types"
+import { VertexId, VertexAttributes, Vertex } from './types'
 
 export default class AdjacencyListVertex implements Vertex {
   public id: VertexId
