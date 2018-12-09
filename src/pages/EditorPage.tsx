@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useState} from 'react';
+import { useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import Layout from 'Layout';
 import { Button, Menu, MenuItem } from '@material-ui/core';
@@ -19,35 +19,35 @@ const EditorPage = ({ code, setCode, start }: Props) => {
     setMenuAnchor(null)
   }
 
-return <Layout actions={
-  <div>
-    <Button onClick={({currentTarget}) => setMenuAnchor(currentTarget)}>
-      Load Example
+  return <Layout actions={
+    <div>
+      <Button onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>
+        Load Example
     </Button>
-    <Menu anchorEl={menuAnchor} open={menuAnchor !== null} onClose={() => setMenuAnchor(null)}>
-      {examples.map((example, i) => (
-        <MenuItem
-          key={i}
-          onClick={() => example.load().then(setCodeAndClose)}
-        >
-          {example.name}
-        </MenuItem>
+      <Menu anchorEl={menuAnchor} open={menuAnchor !== null} onClose={() => setMenuAnchor(null)}>
+        {examples.map((example, i) => (
+          <MenuItem
+            key={i}
+            onClick={() => example.load().then(setCodeAndClose)}
+          >
+            {example.name}
+          </MenuItem>
         )
-      )}
-    </Menu>
-    <Button onClick={start} color="inherit">Start</Button>
-  </div>
-}>
-  <MonacoEditor
-    language="lua"
-    theme="vs-dark"
-    value={code}
-    onChange={setCode}
-    options={{
-      minimap: { enabled: false }
-    }}
-  />
-</Layout>
+        )}
+      </Menu>
+      <Button onClick={start} color="inherit">Start</Button>
+    </div>
+  }>
+    <MonacoEditor
+      language="lua"
+      theme="vs-dark"
+      value={code}
+      onChange={setCode}
+      options={{
+        minimap: { enabled: false }
+      }}
+    />
+  </Layout>
 }
 
 export default EditorPage;
