@@ -35,7 +35,7 @@ const GraphView = ({graph} : Props) => {
     return () => {
       subscription.unsubscribe()
     }
-  })
+  }, [graph])
 
   return <div className="v-fill" ref={container}/>
 }

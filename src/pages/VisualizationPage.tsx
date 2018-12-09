@@ -1,39 +1,45 @@
+import * as React from 'react'
+import Layout from 'Layout'
+import { Button } from '@material-ui/core'
+import { useLayoutEffect } from 'react'
 
-import * as React from 'react';
-import Layout from 'Layout';
-import { useEffect } from 'react';
-import { Button } from '@material-ui/core';
-
-import { luaModel } from 'LuaModel';
-import { AdjacencyListGraph } from 'graph';
-import GraphView from 'GraphView';
+import GraphView from 'GraphView'
+import useSimulation from 'useSimulation'
+import useTimer from 'useTimer'
 
 interface Props {
-  code: string;
-  stop: () => void;
+  code: string
+  stop: () => void
 }
 
 const VisualizationPage = ({ code, stop }: Props) => {
-  const graph = new AdjacencyListGraph();
-  const simulation = luaModel(code)(graph);
-  simulation.next();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      simulation.next()
-    }, 100)
+  const {tick, graph} = useSimulation(code)
+  const {play, pause, paused} = useTimer(0, tick)
+  useLayoutEffect(() => {
+    play()
     return () => {
-      clearInterval(interval);
+      pause()
     }
-  })
+  }, [])
+
+  let pauseOrPlayButton
+
+  if(paused){
+    pauseOrPlayButton = <Button onClick={() => play()} color="inherit">Resume</Button>
+  } else {
+    pauseOrPlayButton = <Button onClick={() => pause()} color="inherit">Pause</Button>
+  }
 
   return (
     <Layout actions={
-      <Button onClick={stop} color="inherit">Stop</Button>
+      <div>
+        {pauseOrPlayButton}
+        <Button onClick={stop} color="inherit">Stop</Button>
+      </div>
     }>
       <GraphView graph={graph} />
     </Layout>
   )
 }
 
-export default VisualizationPage;
+export default VisualizationPage

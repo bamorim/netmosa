@@ -1,7 +1,8 @@
 import * as fengari from 'fengari-web';
 
-import { Graph } from 'graph';
+import { Graph, AdjacencyListGraph } from 'graph';
 import { openStdLib } from "./stdlib";
+import Simulation from 'Simulation';
 
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
@@ -17,7 +18,7 @@ function main()
 end
 `;
 
-export const luaModel: (code: string) => (graph: Graph) => IterableIterator<Graph> = (code: string) => function* (graph: Graph) {
+function* run(code: string, graph: Graph) {
   const L = lauxlib.luaL_newstate();
   lualib.luaL_openlibs(L);
   openStdLib(L, graph);
@@ -29,9 +30,23 @@ export const luaModel: (code: string) => (graph: Graph) => IterableIterator<Grap
 
   while (true) {
     const resp = lua.lua_resume(L2, null, 0);
-    yield graph;
+    yield;
     if (resp === 0) {
       break;
     }
   }
 };
+
+export default class LuaSimulation implements Simulation {
+  public graph: Graph
+  public iterator: IterableIterator<undefined>
+
+  constructor(code: string) {
+    this.graph = new AdjacencyListGraph()
+    this.iterator = run(code, this.graph)
+  }
+
+  public tick() {
+    this.iterator.next()
+  }
+}
