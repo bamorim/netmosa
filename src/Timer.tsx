@@ -1,3 +1,4 @@
+/** A speed-configurable and pausable timer */
 export default class Timer {
   private period: number
   private callback: () => void

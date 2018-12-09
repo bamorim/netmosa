@@ -5,10 +5,14 @@ export type EdgeId = number;
 export type Edge = [VertexId, VertexId];
 export type VertexAttributes = Map<string, string>;
 
-export interface Vertex {
+export interface ReadVertex {
   readonly id: VertexId;
-  readonly neighbors: VertexId[];
+  readonly neighbors: ReadonlyArray<VertexId>;
   readonly attributes: VertexAttributes;
+}
+
+export interface Vertex extends ReadVertex {
+  readonly neighbors: VertexId[];
 }
 
 export interface AddedVertex {
@@ -31,8 +35,8 @@ export interface SetAttribute {
 export type Change = AddedVertex | AddedEdge | SetAttribute
 
 export interface ReadGraph {
-  readonly vertices: Vertex[];
-  readonly edges: Edge[];
+  readonly vertices: ReadonlyArray<ReadVertex>;
+  readonly edges: ReadonlyArray<Edge>;
   readonly subject: ReplaySubject<Change>;
 }
 

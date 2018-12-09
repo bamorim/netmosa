@@ -21,12 +21,10 @@ export default class DegreeDistributionCollector {
 
         this.changeDist(neighborCount1, -1);
         this.changeDist(neighborCount1 + 1, +1);
-        this.graph.vertices[v1].neighbors.push(v2);
 
         if(v1 !== v2) {
           this.changeDist(neighborCount2, -1);
           this.changeDist(neighborCount2 + 1, +1);
-          this.graph.vertices[v2].neighbors.push(v1);
         }
         break;
       default:
