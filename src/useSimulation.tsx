@@ -1,11 +1,8 @@
-import { useState } from "react";
-import LuaSimulation from "./LuaSimulation";
+import { useState } from "react"
+import LuaSimulation from "./LuaSimulation"
 
 const useSimulation = (code: string) => {
-  const [simulation, setSimulation] = useState(() => {
-    const simulation = new LuaSimulation(code)
-    return simulation
-  })
+  const [simulation, setSimulation] = useState(() => new LuaSimulation(code))
 
   const tick = () => {
     simulation.tick()
@@ -13,7 +10,7 @@ const useSimulation = (code: string) => {
     setSimulation(simulation)
   }
 
-  return {tick, graph: simulation.graph};
+  return { tick, graph: simulation.graph }
 }
 
-export default useSimulation;
+export default useSimulation

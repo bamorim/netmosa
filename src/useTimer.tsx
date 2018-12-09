@@ -19,7 +19,7 @@ const useTimer = (initialSpeed: number, callback: () => void) => {
     timer.setSpeed(speed)
   }
 
-  return {play, pause, setSpeed, paused}
+  return { play, pause, setSpeed, paused }
 }
 
 export default useTimer

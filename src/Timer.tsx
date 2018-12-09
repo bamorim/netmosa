@@ -1,4 +1,4 @@
-import { clearInterval, setInterval } from "timers";
+import { clearInterval, setInterval } from "timers"
 
 /** A speed-configurable and pausable timer */
 export default class Timer {
@@ -8,7 +8,7 @@ export default class Timer {
   private running: boolean = false
   private shouldReschedule: boolean = false
 
-  constructor(initialSpeed: number, callback: () => void){
+  constructor(initialSpeed: number, callback: () => void) {
     this.callback = callback
     this.setSpeed(initialSpeed)
   }
@@ -18,7 +18,7 @@ export default class Timer {
   }
 
   public play() {
-    if(!this.running) {
+    if (!this.running) {
       this.reschedule()
     }
   }
@@ -42,7 +42,7 @@ export default class Timer {
 
   private handler = () => {
     this.callback()
-    if(this.shouldReschedule) {
+    if (this.shouldReschedule) {
       this.reschedule()
     }
   }

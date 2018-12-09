@@ -1,11 +1,11 @@
-import * as React from 'react'
-import Layout from 'Layout'
-import { Button } from '@material-ui/core'
-import { useLayoutEffect } from 'react'
+import * as React from "react"
+import Layout from "Layout"
+import { Button } from "@material-ui/core"
+import { useLayoutEffect } from "react"
 
-import GraphView from 'GraphView'
-import useSimulation from 'useSimulation'
-import useTimer from 'useTimer'
+import GraphView from "GraphView"
+import useSimulation from "useSimulation"
+import useTimer from "useTimer"
 
 interface Props {
   code: string
@@ -13,8 +13,8 @@ interface Props {
 }
 
 const VisualizationPage = ({ code, stop }: Props) => {
-  const {tick, graph} = useSimulation(code)
-  const {play, pause, paused} = useTimer(0, tick)
+  const { tick, graph } = useSimulation(code)
+  const { play, pause, paused } = useTimer(0, tick)
   useLayoutEffect(() => {
     play()
     return () => {
@@ -24,19 +24,31 @@ const VisualizationPage = ({ code, stop }: Props) => {
 
   let pauseOrPlayButton
 
-  if(paused){
-    pauseOrPlayButton = <Button onClick={() => play()} color="inherit">Resume</Button>
+  if (paused) {
+    pauseOrPlayButton = (
+      <Button onClick={() => play()} color="inherit">
+        Resume
+      </Button>
+    )
   } else {
-    pauseOrPlayButton = <Button onClick={() => pause()} color="inherit">Pause</Button>
+    pauseOrPlayButton = (
+      <Button onClick={() => pause()} color="inherit">
+        Pause
+      </Button>
+    )
   }
 
   return (
-    <Layout actions={
-      <div>
-        {pauseOrPlayButton}
-        <Button onClick={stop} color="inherit">Stop</Button>
-      </div>
-    }>
+    <Layout
+      actions={
+        <div>
+          {pauseOrPlayButton}
+          <Button onClick={stop} color="inherit">
+            Stop
+          </Button>
+        </div>
+      }
+    >
       <GraphView graph={graph} />
     </Layout>
   )

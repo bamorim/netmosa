@@ -1,6 +1,12 @@
-import * as React from 'react';
-import { ReactNode } from 'react';
-import { Toolbar, Typography, AppBar, createStyles, withStyles } from '@material-ui/core';
+import * as React from "react"
+import { ReactNode } from "react"
+import {
+  Toolbar,
+  Typography,
+  AppBar,
+  createStyles,
+  withStyles
+} from "@material-ui/core"
 
 const styles = createStyles({
   grow: {
@@ -9,8 +15,8 @@ const styles = createStyles({
 })
 
 interface Props {
-  classes: Record<keyof typeof styles, string>,
-  actions: ReactNode,
+  classes: Record<keyof typeof styles, string>
+  actions: ReactNode
   children: ReactNode
 }
 
@@ -19,15 +25,19 @@ const Layout = (props: Props) => (
     <div>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" color="inherit" className={props.classes.grow}>
+          <Typography
+            variant="h6"
+            color="inherit"
+            className={props.classes.grow}
+          >
             rggvis
-        </Typography>
+          </Typography>
           {props.actions}
         </Toolbar>
       </AppBar>
     </div>
     {props.children}
   </div>
-);
+)
 
-export default withStyles(styles)(Layout);
+export default withStyles(styles)(Layout)
