@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Layout from 'Layout'
-import { Button, createStyles, withStyles, IconButton } from '@material-ui/core'
+import { createStyles, withStyles, IconButton } from '@material-ui/core'
 import { useLayoutEffect } from 'react'
 import Slider from '@material-ui/lab/Slider'
 import PlayIcon from '@material-ui/icons/PlayArrow'
