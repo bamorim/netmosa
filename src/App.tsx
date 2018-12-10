@@ -3,6 +3,9 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core'
 import Router from 'Router'
 
 const theme = createMuiTheme({
+  typography: {
+    useNextVariants: true
+  },
   palette: {
     type: 'dark',
     primary: {

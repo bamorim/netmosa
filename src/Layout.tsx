@@ -30,7 +30,7 @@ const Layout = (props: Props) => (
             color="inherit"
             className={props.classes.grow}
           >
-            rggvis
+            GraphSim
           </Typography>
           {props.actions}
         </Toolbar>

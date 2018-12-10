@@ -52,7 +52,8 @@ const EditorPage = ({ code, setCode, start }: Props) => {
         value={code}
         onChange={setCode}
         options={{
-          minimap: { enabled: false }
+          minimap: { enabled: false },
+          automaticLayout: true
         }}
       />
     </Layout>

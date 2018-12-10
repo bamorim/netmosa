@@ -9,6 +9,7 @@ html, body {
 #root, .v-fill {
   flex: 1;
   display: flex;
+  max-width: 100%;
 }
 
 .v-fill {

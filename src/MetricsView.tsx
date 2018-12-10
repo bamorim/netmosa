@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { useReducer, useEffect } from 'react'
 import { ReadGraph, Change } from 'graph'
-import { withStyles, createStyles } from '@material-ui/core'
+import { withStyles, createStyles, Grid } from '@material-ui/core'
+import { VictoryChart, VictoryLine } from 'victory'
 
 interface Props {
   show: boolean
@@ -20,8 +21,19 @@ const styles = createStyles({
   }
 })
 
+interface DCProps {
+  distribution: number[]
+}
+const DistributionChart = ({ distribution }: DCProps) => {
+  return (
+    <VictoryChart>
+      <VictoryLine data={distribution.map((v, i) => ({ x: i, y: v || 0 }))} />
+    </VictoryChart>
+  )
+}
+
 const MetricsView = ({ show, graph, classes }: Props) => {
-  const [rootDistanceDist, dispatchToRootDistance] = useReducer(
+  const [rootDistanceState, dispatchToRootDistance] = useReducer(
     distanceToRootDistributionReducer(graph),
     { distance: [], distribution: [] }
   )
@@ -47,8 +59,14 @@ const MetricsView = ({ show, graph, classes }: Props) => {
 
   return (
     <div className={className}>
-      {JSON.stringify(degreeDist)}
-      {JSON.stringify(rootDistanceDist)}
+      <Grid container spacing={24}>
+        <Grid item xs={6}>
+          <DistributionChart distribution={degreeDist} />
+        </Grid>
+        <Grid item xs={6}>
+          <DistributionChart distribution={rootDistanceState.distribution} />
+        </Grid>
+      </Grid>
     </div>
   )
 }
