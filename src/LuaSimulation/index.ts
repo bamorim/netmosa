@@ -15,6 +15,11 @@ end
 
 function main()
   ${code}
+
+  -- Ensure the model hangs on the end
+  while true do
+    render()
+  end
 end
 `
 

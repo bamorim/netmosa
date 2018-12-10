@@ -7,7 +7,7 @@ connectVertices(pos, pos)
 setAttributes(pos, "color", "red")
 
 -- Give a chance to render
-coroutine.yield()
+render()
 
 -- Main Loop
 while true do
@@ -18,10 +18,10 @@ while true do
     setAttributes(pos, "color", "red")
 
     -- Give a chance to render
-    coroutine.yield()
+    render()
   end
   connectVertices(pos, addVertex())
 
   -- Give a chance to render
-  coroutine.yield()
+  render()
 end

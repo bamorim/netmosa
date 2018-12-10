@@ -22,5 +22,5 @@ while true do
   end
 
   -- Give a chance to render
-  coroutine.yield()
+  render()
 end
