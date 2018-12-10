@@ -1,9 +1,11 @@
 import * as React from 'react'
 import Layout from 'Layout'
-import { Button, createStyles, withStyles } from '@material-ui/core'
+import { Button, createStyles, withStyles, IconButton } from '@material-ui/core'
 import { useLayoutEffect } from 'react'
 import Slider from '@material-ui/lab/Slider'
-import '@material-ui/lab'
+import PlayIcon from '@material-ui/icons/PlayArrow'
+import PauseIcon from '@material-ui/icons/Pause'
+import StopIcon from '@material-ui/icons/Stop'
 
 import GraphView from 'GraphView'
 import useSimulation from 'useSimulation'
@@ -43,15 +45,15 @@ const VisualizationPage = ({ code, stop, classes }: Props) => {
 
   if (paused) {
     pauseOrPlayButton = (
-      <Button onClick={() => play()} color="inherit">
-        Resume
-      </Button>
+      <IconButton onClick={() => play()} color="inherit">
+        <PlayIcon />
+      </IconButton>
     )
   } else {
     pauseOrPlayButton = (
-      <Button onClick={() => pause()} color="inherit">
-        Pause
-      </Button>
+      <IconButton onClick={() => pause()} color="inherit">
+        <PauseIcon />
+      </IconButton>
     )
   }
 
@@ -67,9 +69,9 @@ const VisualizationPage = ({ code, stop, classes }: Props) => {
             />
           </div>
           {pauseOrPlayButton}
-          <Button onClick={stop} color="inherit">
-            Stop
-          </Button>
+          <IconButton onClick={stop} color="inherit">
+            <StopIcon />
+          </IconButton>
         </div>
       }
     >
