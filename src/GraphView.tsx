@@ -2,6 +2,47 @@ import * as React from 'react'
 import * as d3 from 'd3'
 import { ReadGraph, Change } from 'graph'
 import { useLayoutEffect, useRef } from 'react'
+import { createStyles, withStyles } from '@material-ui/core';
+
+const styles = createStyles({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    flex: "1"
+  },
+  hidden: {
+    display: "none"
+  }
+})
+
+interface Props {
+  graph: ReadGraph,
+  show: boolean,
+  classes: Record<keyof typeof styles, string>
+}
+
+const GraphView = ({ graph, show, classes }: Props) => {
+  const container = useRef(null)
+  const className = show ? classes.container : `${classes.container} ${classes.hidden}`
+
+  useLayoutEffect(
+    () => {
+      const graphView = new GraphViewD3(container.current!, graph)
+      const subscription = graph.subject.subscribe(change => {
+        graphView.onChange(change)
+      })
+
+      return () => {
+        subscription.unsubscribe()
+      }
+    },
+    [graph]
+  )
+
+  return <div className={className} ref={container} />
+}
+
+export default withStyles(styles)(GraphView)
 
 const linkStrength = 2000
 const bodyStrength = -100
@@ -18,32 +59,6 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 function isNode(node: Node | string | number | {} | undefined): node is Node {
   return node !== undefined && (node as Node).id !== undefined
 }
-
-interface Props {
-  graph: ReadGraph
-}
-
-const GraphView = ({ graph }: Props) => {
-  const container = useRef(null)
-
-  useLayoutEffect(
-    () => {
-      const graphView = new GraphViewD3(container.current!, graph)
-      const subscription = graph.subject.subscribe(change => {
-        graphView.onChange(change)
-      })
-
-      return () => {
-        subscription.unsubscribe()
-      }
-    },
-    [graph]
-  )
-
-  return <div className="v-fill" ref={container} />
-}
-
-export default GraphView
 
 class GraphViewD3 {
   private graph: ReadGraph

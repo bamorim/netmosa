@@ -1,13 +1,15 @@
 import * as React from 'react'
 import Layout from 'Layout'
-import { createStyles, withStyles, IconButton } from '@material-ui/core'
-import { useLayoutEffect } from 'react'
+import { createStyles, withStyles, IconButton, Fab } from '@material-ui/core'
+import { useLayoutEffect, useState } from 'react'
 import Slider from '@material-ui/lab/Slider'
 import PlayIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import StopIcon from '@material-ui/icons/Stop'
+import ChartIcon from '@material-ui/icons/ShowChart'
 
 import GraphView from 'GraphView'
+import MetricsView from 'MetricsView';
 import useSimulation from 'useSimulation'
 import useTimer from 'useTimer'
 
@@ -22,6 +24,16 @@ const styles = createStyles({
   },
   thumb: {
     background: '#999999'
+  },
+  fab: {
+    position: "absolute",
+    right: 10,
+    top: 10
+  },
+  container: {
+    position: "relative",
+    flex: "1",
+    display: "flex"
   }
 })
 
@@ -32,6 +44,7 @@ interface Props {
 }
 
 const VisualizationPage = ({ code, stop, classes }: Props) => {
+  const [showChart, setShowChart] = useState(false)
   const { tick, graph } = useSimulation(code)
   const { play, pause, paused, setSpeed, speed } = useTimer(0, tick)
   useLayoutEffect(() => {
@@ -75,7 +88,13 @@ const VisualizationPage = ({ code, stop, classes }: Props) => {
         </div>
       }
     >
-      <GraphView graph={graph} />
+      <div className={classes.container}>
+        <GraphView graph={graph} show={!showChart} />
+        <MetricsView graph={graph} show={showChart} />
+        <Fab className={classes.fab} size="small" onClick={() => setShowChart(!showChart)}>
+          <ChartIcon/>
+        </Fab>
+      </div>
     </Layout>
   )
 }
