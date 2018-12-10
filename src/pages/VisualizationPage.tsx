@@ -9,7 +9,7 @@ import StopIcon from '@material-ui/icons/Stop'
 import ChartIcon from '@material-ui/icons/ShowChart'
 
 import GraphView from 'GraphView'
-import MetricsView from 'MetricsView';
+import MetricsView from 'MetricsView'
 import useSimulation from 'useSimulation'
 import useTimer from 'useTimer'
 
@@ -26,14 +26,14 @@ const styles = createStyles({
     background: '#999999'
   },
   fab: {
-    position: "absolute",
+    position: 'absolute',
     right: 10,
     top: 10
   },
   container: {
-    position: "relative",
-    flex: "1",
-    display: "flex"
+    position: 'relative',
+    flex: '1',
+    display: 'flex'
   }
 })
 
@@ -91,8 +91,12 @@ const VisualizationPage = ({ code, stop, classes }: Props) => {
       <div className={classes.container}>
         <GraphView graph={graph} show={!showChart} />
         <MetricsView graph={graph} show={showChart} />
-        <Fab className={classes.fab} size="small" onClick={() => setShowChart(!showChart)}>
-          <ChartIcon/>
+        <Fab
+          className={classes.fab}
+          size="small"
+          onClick={() => setShowChart(!showChart)}
+        >
+          <ChartIcon />
         </Fab>
       </div>
     </Layout>

@@ -23,7 +23,7 @@ const styles = createStyles({
 const MetricsView = ({ show, graph, classes }: Props) => {
   const [rootDistanceDist, dispatchToRootDistance] = useReducer(
     distanceToRootDistributionReducer(graph),
-    {distance: [], distribution: []}
+    { distance: [], distribution: [] }
   )
   const [degreeDist, dispatchToDegree] = useReducer(
     degreeDistributionReducer(graph),
@@ -35,7 +35,7 @@ const MetricsView = ({ show, graph, classes }: Props) => {
       graph.subject.subscribe(dispatchToRootDistance)
     ]
     return () => {
-      subscriptions.forEach((subscription) => {
+      subscriptions.forEach(subscription => {
         subscription.unsubscribe()
       })
     }
@@ -96,7 +96,7 @@ const distanceToRootDistributionReducer = (graph: ReadGraph) => (
 ) => {
   switch (change.type) {
     case 'AddedVertex':
-      if(change.id == 0) {
+      if (change.id == 0) {
         state.distance[change.id] = 0
         changeDist(state.distribution, 0, +1)
       } else {
@@ -107,20 +107,20 @@ const distanceToRootDistributionReducer = (graph: ReadGraph) => (
       const [v1, v2] = graph.edges[change.id]
       const d1 = state.distance[v1]
       const d2 = state.distance[v2]
-      if(d1 === -1 && d2 > 0){
+      if (d1 === -1 && d2 > 0) {
         state.distance[v1] = d2 + 1
-        changeDist(state.distribution, d2+1, +1)
-      } else if(d1 >= 0 && d2 === -1){
+        changeDist(state.distribution, d2 + 1, +1)
+      } else if (d1 >= 0 && d2 === -1) {
         state.distance[v2] = d1 + 1
-        changeDist(state.distribution, d1+1, +1)
-      } else if(d1 >= 0 && d2 > d1) {
+        changeDist(state.distribution, d1 + 1, +1)
+      } else if (d1 >= 0 && d2 > d1) {
         state.distance[v2] = d1 + 1
         changeDist(state.distribution, d2, -1)
-        changeDist(state.distribution, d1+1, +1)
-      } else if(d2 >= 0 && d1 > d2) {
+        changeDist(state.distribution, d1 + 1, +1)
+      } else if (d2 >= 0 && d1 > d2) {
         state.distance[v1] = d2 + 1
         changeDist(state.distribution, d1, -1)
-        changeDist(state.distribution, d2+1, +1)
+        changeDist(state.distribution, d2 + 1, +1)
       }
       break
     default:

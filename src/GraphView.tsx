@@ -2,28 +2,30 @@ import * as React from 'react'
 import * as d3 from 'd3'
 import { ReadGraph, Change } from 'graph'
 import { useLayoutEffect, useRef } from 'react'
-import { createStyles, withStyles } from '@material-ui/core';
+import { createStyles, withStyles } from '@material-ui/core'
 
 const styles = createStyles({
   container: {
-    display: "flex",
-    flexDirection: "column",
-    flex: "1"
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '1'
   },
   hidden: {
-    display: "none"
+    display: 'none'
   }
 })
 
 interface Props {
-  graph: ReadGraph,
-  show: boolean,
+  graph: ReadGraph
+  show: boolean
   classes: Record<keyof typeof styles, string>
 }
 
 const GraphView = ({ graph, show, classes }: Props) => {
   const container = useRef(null)
-  const className = show ? classes.container : `${classes.container} ${classes.hidden}`
+  const className = show
+    ? classes.container
+    : `${classes.container} ${classes.hidden}`
 
   useLayoutEffect(
     () => {
