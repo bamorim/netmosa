@@ -3,7 +3,9 @@ import Timer from 'Timer'
 
 const useTimer = (initialSpeed: number, callback: () => void) => {
   const [timer] = useState(new Timer(initialSpeed, callback))
+  const [speed, setSpeed] = useState(initialSpeed)
   const [paused, setPaused] = useState(timer.isPaused())
+  timer.setSpeed(speed)
 
   const play = () => {
     timer.play()
@@ -15,11 +17,7 @@ const useTimer = (initialSpeed: number, callback: () => void) => {
     setPaused(timer.isPaused())
   }
 
-  const setSpeed = (speed: number) => {
-    timer.setSpeed(speed)
-  }
-
-  return { play, pause, setSpeed, paused }
+  return { play, pause, setSpeed, speed, paused }
 }
 
 export default useTimer

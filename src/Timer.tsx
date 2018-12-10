@@ -26,7 +26,6 @@ export default class Timer {
   public pause() {
     this.running = false
     clearInterval(this.interval)
-    clearInterval
   }
 
   public setSpeed(speed: number) {
