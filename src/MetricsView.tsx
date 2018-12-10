@@ -91,12 +91,28 @@ const degreeDistributionReducer = (graph: ReadGraph) => (
       const neighborCount1 = graph.vertices[v1].neighbors.length
       const neighborCount2 = graph.vertices[v2].neighbors.length
 
-      changeDist(state, neighborCount1, -1)
-      changeDist(state, neighborCount1 + 1, +1)
+      changeDist(
+        state,
+        neighborCount1 - 1,
+        -1
+      )
+      changeDist(
+        state,
+        neighborCount1,
+        +1
+      )
 
       if (v1 !== v2) {
-        changeDist(state, neighborCount2, -1)
-        changeDist(state, neighborCount2 + 1, +1)
+        changeDist(
+          state,
+          neighborCount2 - 1,
+          -1
+        )
+        changeDist(
+          state,
+          neighborCount2,
+          +1
+        )
       }
       break
     default:

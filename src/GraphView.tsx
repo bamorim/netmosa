@@ -46,47 +46,42 @@ const GraphView = ({ graph, show, classes }: Props) => {
 
 export default withStyles(styles)(GraphView)
 
-const linkStrength = 2000
-const bodyStrength = -100
-
 interface Node extends d3.SimulationNodeDatum {
-  id: string
-  attributes: Map<string, string>
+  index: number
 }
 
 interface Link extends d3.SimulationLinkDatum<Node> {
-  id: string
-}
-
-function isNode(node: Node | string | number | {} | undefined): node is Node {
-  return node !== undefined && (node as Node).id !== undefined
+  index: number
+  source: Node
+  target: Node
 }
 
 class GraphViewD3 {
   private graph: ReadGraph
   private nodes: Node[] = []
   private links: Link[] = []
-  private force: d3.Simulation<{}, Link>
+  private force: d3.Simulation<Node, Link>
   private svg: d3.Selection<d3.BaseType, {}, null, undefined>
   private transformationGroup: d3.Selection<d3.BaseType, {}, null, undefined>
-  private linkSelection: d3.Selection<SVGLineElement, Link, d3.BaseType, {}>
-  private nodeSelection: d3.Selection<SVGCircleElement, Node, d3.BaseType, {}>
+  private linkLines: d3.Selection<SVGLineElement, Link, d3.BaseType, {}>
+  private nodeCircles: d3.Selection<SVGCircleElement, Node, d3.BaseType, {}>
 
   constructor(container: Element, graph: ReadGraph) {
     this.graph = graph
     const width = container.clientWidth
     const height = container.clientHeight
+    const bodyStrength = -100
+    const linkStrength = 0.5
 
     this.force = d3
-      .forceSimulation()
+      .forceSimulation<Node, Link>()
       .nodes(this.nodes)
+      .on('tick', this.ticked)
       .force('charge', d3.forceManyBody().strength(bodyStrength))
-      .force(
-        'link',
+      .force('link',
         d3
-          .forceLink(this.links)
-          .strength(linkStrength)
-          .id((d: Node | {}) => (isNode(d) ? d.id : ''))
+        .forceLink<Node, Link>(this.links)
+        .strength(linkStrength)
       )
       .force('center', d3.forceCenter(width / 2, height / 2))
 
@@ -98,14 +93,14 @@ class GraphViewD3 {
 
     this.transformationGroup = this.svg.append('g')
 
-    this.linkSelection = this.transformationGroup
+    this.linkLines = this.transformationGroup
       .append('g')
       .attr('stroke', '#000')
       .attr('stroke-width', 1.5)
       .attr('fill', 'transparent')
       .selectAll('.link')
 
-    this.nodeSelection = this.transformationGroup
+    this.nodeCircles = this.transformationGroup
       .append('g')
       .attr('stroke', '#fff')
       .attr('stroke-width', 1.5)
@@ -120,11 +115,10 @@ class GraphViewD3 {
         const vertex = this.graph.vertices[change.id]
         const neighborId = vertex.neighbors[0]
         const neighbor = this.nodes[neighborId || 0]
-        const copiedProps = neighbor ? { x: neighbor.x, y: neighbor.y } : {}
-        this.nodes[vertex.id] = {
+        const copiedProps = neighbor ? { x: neighbor.x || 0, y: neighbor.y || 0 } : {x: 0, y: 0}
+        this.nodes[change.id] = {
           ...copiedProps,
-          id: vertex.id.toString(),
-          attributes: new Map()
+          index: change.id
         }
         break
       case 'AddedEdge':
@@ -132,25 +126,23 @@ class GraphViewD3 {
         this.links[change.id] = {
           source: this.nodes[a],
           target: this.nodes[b],
-          id: change.id.toString()
+          index: change.id
         }
         break
-      case 'SetAttribute':
-        this.nodes[change.id].attributes.set(change.key, change.value)
-        break
+      default:
     }
 
     this.update()
   }
 
   private ticked = () => {
-    this.linkSelection.attr('d', (d: Link) => {
-      const isSelfLoop =
-        isNode(d.source) && isNode(d.target) && d.source.id === d.target.id
-      const x1 = isNode(d.source) ? d.source.x || 0 : 0
-      const y1 = isNode(d.source) ? d.source.y || 0 : 0
-      const x2 = isNode(d.target) ? d.target.x || 0 : 0
-      const y2 = isNode(d.target) ? d.target.y || 0 : 0
+
+    this.linkLines.attr('d', (d: Link) => {
+      const isSelfLoop = d.source.index === d.target.index
+      const x1 = d.source.x || 0
+      const y1 = d.source.y || 0
+      const x2 = d.target.x || 0
+      const y2 = d.target.y || 0
 
       if (isSelfLoop) {
         return `M${x1},${y1} a8,8 0 1,1 1,0`
@@ -159,11 +151,46 @@ class GraphViewD3 {
       }
     })
 
-    this.nodeSelection
+    this.nodeCircles
       .attr('cx', (d: Node) => d.x || 0)
       .attr('cy', (d: Node) => d.y || 0)
-      .attr('fill', (node: Node) => node.attributes.get('color') || 'white')
+      .attr('fill', (node: Node) => this.graph.vertices[node.index].attributes.get('color') || 'white')
+
     this.fit()
+  }
+
+  private update() {
+    const linkJoin = this.linkLines.data(this.links)
+    linkJoin.exit().remove()
+    this.linkLines = linkJoin
+      .enter()
+      .append<SVGLineElement>('path')
+      .merge(this.linkLines)
+
+    const nodeJoin = this.nodeCircles.data(this.nodes)
+    nodeJoin.exit().remove()
+    this.nodeCircles = nodeJoin
+      .enter()
+      .append<SVGCircleElement>('circle')
+      .attr('r', 8)
+      .attr('stroke', 'black')
+      .call(
+        d3
+          .drag()
+          .on('start', this.dragstarted)
+          .on('drag', this.dragged)
+          .on('end', this.dragended)
+      )
+      .merge(this.nodeCircles)
+
+    this.force.force('link', d3.forceLink())
+    this.force.nodes(this.nodes)
+    const forceLink = this.force.force('link') as d3.ForceLink<Node, Link>
+
+    forceLink.links(this.links)
+
+    this.force.restart()
+    this.force.alpha(0.1)
   }
 
   private dragstarted = (d: Node) => {
@@ -174,11 +201,13 @@ class GraphViewD3 {
     d.fy = d.y
   }
 
+  //** Set fx/fy to fix the node in the mouse position */
   private dragged = (d: Node) => {
     d.fx = d3.event.x
     d.fy = d3.event.y
   }
 
+  //** Remove fx/fy after drag to stop dragging */
   private dragended = (d: Node) => {
     if (!d3.event.active) {
       this.force.alphaTarget(0)
@@ -188,6 +217,7 @@ class GraphViewD3 {
     d.fy = null
   }
 
+  //** Scale the zoom to fit everything */
   private fit() {
     const rootNode = this.transformationGroup.node() as SVGGraphicsElement
     const bounds = rootNode.getBBox()
@@ -211,35 +241,5 @@ class GraphViewD3 {
       'transform',
       'translate(' + translationX + ',' + translationY + ')scale(' + scale + ')'
     )
-  }
-
-  private update() {
-    const linkData = this.linkSelection.data(this.links)
-    linkData.exit().remove()
-    this.linkSelection = linkData
-      .enter()
-      .append<SVGLineElement>('path')
-      .merge(this.linkSelection)
-
-    const nodeData = this.nodeSelection.data(this.nodes)
-    nodeData.exit().remove()
-    this.nodeSelection = nodeData
-      .enter()
-      .append<SVGCircleElement>('circle')
-      .attr('r', 8)
-      .attr('stroke', 'black')
-      .call(
-        d3
-          .drag()
-          .on('start', this.dragstarted)
-          .on('drag', this.dragged)
-          .on('end', this.dragended)
-      )
-      .merge(this.nodeSelection)
-
-    this.force.nodes(this.nodes).on('tick', this.ticked)
-    this.force.force('link', d3.forceLink(this.links))
-    this.force.restart()
-    this.force.alpha(0.1)
   }
 }

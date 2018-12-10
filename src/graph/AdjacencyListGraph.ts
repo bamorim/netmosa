@@ -35,11 +35,11 @@ export default class AdjacencyListGraph implements Graph {
 
     const edgeId = this.edges.length
     this.edges.push([v1, v2])
-    this.subject.next({ type: 'AddedEdge', id: edgeId })
     this.vertices[v1].neighbors.push(v2)
     if (v1 !== v2) {
       this.vertices[v2].neighbors.push(v1)
     }
+    this.subject.next({ type: 'AddedEdge', id: edgeId })
   }
 
   public setAttribute = (id: VertexId, key: string, value: string) => {
