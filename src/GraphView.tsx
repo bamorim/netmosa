@@ -3,6 +3,10 @@ import * as d3 from 'd3'
 import { ReadGraph, Change } from 'graph'
 import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
+import { Subscription } from 'rxjs';
+
+import { interval } from 'rxjs';
+import { buffer } from 'rxjs/operators';
 
 const styles = createStyles({
   container: {
@@ -30,13 +34,7 @@ const GraphView = ({ graph, show, classes }: Props) => {
   useLayoutEffect(
     () => {
       const graphView = new GraphViewD3(container.current!, graph)
-      const subscription = graph.subject.subscribe(change => {
-        graphView.onChange(change)
-      })
-
-      return () => {
-        subscription.unsubscribe()
-      }
+      return () => graphView.cleanup()
     },
     [graph]
   )
@@ -61,10 +59,10 @@ class GraphViewD3 {
   private nodes: Node[] = []
   private links: Link[] = []
   private force: d3.Simulation<Node, Link>
-  private svg: d3.Selection<d3.BaseType, {}, null, undefined>
   private transformationGroup: d3.Selection<d3.BaseType, {}, null, undefined>
   private linkLines: d3.Selection<SVGLineElement, Link, d3.BaseType, {}>
   private nodeCircles: d3.Selection<SVGCircleElement, Node, d3.BaseType, {}>
+  private subscription: Subscription
 
   constructor(container: Element, graph: ReadGraph) {
     this.graph = graph
@@ -72,6 +70,7 @@ class GraphViewD3 {
     const height = container.clientHeight
     const bodyStrength = -100
     const linkStrength = 0.5
+    this.subscription = this.graph.subject.subscribe(this.onChange)
 
     this.force = d3
       .forceSimulation<Node, Link>()
@@ -85,13 +84,12 @@ class GraphViewD3 {
       )
       .force('center', d3.forceCenter(width / 2, height / 2))
 
-    this.svg = d3
-      .select(container)
-      .append('svg')
-      .attr('width', '100%')
-      .attr('height', '100%')
-
-    this.transformationGroup = this.svg.append('g')
+    this.transformationGroup = d3
+    .select(container)
+    .append('svg')
+    .attr('width', '100%')
+    .attr('height', '100%')
+    .append('g')
 
     this.linkLines = this.transformationGroup
       .append('g')
@@ -109,7 +107,11 @@ class GraphViewD3 {
     this.update()
   }
 
-  public onChange(change: Change) {
+  public cleanup() {
+    this.subscription.unsubscribe()
+  }
+
+  private onChange = (change: Change) => {
     switch (change.type) {
       case 'AddedVertex':
         const vertex = this.graph.vertices[change.id]
@@ -136,7 +138,6 @@ class GraphViewD3 {
   }
 
   private ticked = () => {
-
     this.linkLines.attr('d', (d: Link) => {
       const isSelfLoop = d.source.index === d.target.index
       const x1 = d.source.x || 0
@@ -159,16 +160,24 @@ class GraphViewD3 {
     this.fit()
   }
 
-  private update() {
+  private update = () => {
     const linkJoin = this.linkLines.data(this.links)
+
+    // Just remove old link lines
     linkJoin.exit().remove()
+
+    // Create new link lines
     this.linkLines = linkJoin
       .enter()
       .append<SVGLineElement>('path')
       .merge(this.linkLines)
 
     const nodeJoin = this.nodeCircles.data(this.nodes)
+
+    // Just remove old node circles
     nodeJoin.exit().remove()
+
+    // Create new node circles
     this.nodeCircles = nodeJoin
       .enter()
       .append<SVGCircleElement>('circle')
@@ -183,12 +192,14 @@ class GraphViewD3 {
       )
       .merge(this.nodeCircles)
 
-    this.force.force('link', d3.forceLink())
+    // Update force nodes
     this.force.nodes(this.nodes)
-    const forceLink = this.force.force('link') as d3.ForceLink<Node, Link>
 
+    // Update link force links
+    const forceLink = this.force.force('link') as d3.ForceLink<Node, Link>
     forceLink.links(this.links)
 
+    // Restart
     this.force.restart()
     this.force.alpha(0.1)
   }
