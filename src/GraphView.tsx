@@ -5,9 +5,6 @@ import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
 import { Subscription } from 'rxjs';
 
-import { interval } from 'rxjs';
-import { buffer } from 'rxjs/operators';
-
 const styles = createStyles({
   container: {
     display: 'flex',
