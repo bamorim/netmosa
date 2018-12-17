@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useReducer, useEffect } from 'react'
 import { ReadGraph, Change } from 'graph'
 import { withStyles, createStyles, Grid } from '@material-ui/core'
-import { VictoryChart, VictoryLine } from 'victory'
+import DistributionChart from 'DistributionChart';
 
 interface Props {
   show: boolean
@@ -20,17 +20,6 @@ const styles = createStyles({
     display: 'none'
   }
 })
-
-interface DCProps {
-  distribution: number[]
-}
-const DistributionChart = ({ distribution }: DCProps) => {
-  return (
-    <VictoryChart>
-      <VictoryLine data={distribution.map((v, i) => ({ x: i, y: v || 0 }))} />
-    </VictoryChart>
-  )
-}
 
 const MetricsView = ({ show, graph, classes }: Props) => {
   const [rootDistanceState, dispatchToRootDistance] = useReducer(
