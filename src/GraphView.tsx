@@ -209,13 +209,13 @@ class GraphViewD3 {
     d.fy = d.y
   }
 
-  //** Set fx/fy to fix the node in the mouse position */
+  /** Set fx/fy to fix the node in the mouse position */
   private dragged = (d: Node) => {
     d.fx = d3.event.x
     d.fy = d3.event.y
   }
 
-  //** Remove fx/fy after drag to stop dragging */
+  /** Remove fx/fy after drag to stop dragging */
   private dragended = (d: Node) => {
     if (!d3.event.active) {
       this.force.alphaTarget(0)
@@ -225,7 +225,7 @@ class GraphViewD3 {
     d.fy = null
   }
 
-  //** Scale the zoom to fit everything */
+  /** Scale the zoom to fit everything */
   private fit() {
     const rootNode = this.transformationGroup.node() as SVGGraphicsElement
     const bounds = rootNode.getBBox()

@@ -7,9 +7,7 @@ const distToData = (config: ChartConfig, distribution: number[]): Datum[] => {
   }))
 
   if (config.xLog) {
-    console.log(data)
     data = applyLog('x', data)
-    console.log(data)
   }
 
   if (config.yLog) {
@@ -38,11 +36,11 @@ const transform = (distribution: number[], transformation: Transformation) => {
 }
 
 const pdf = (distribution: number[]): number[] => {
-  let total = distribution.reduce((a, b) => a + b, 0)
+  const total = distribution.reduce((a, b) => a + b, 0)
   return distribution.map(x => x / total)
 }
 const cdf = (distribution: number[]): number[] => {
-  let result: number[] = []
+  const result: number[] = []
   pdf(distribution).forEach(x =>
     result.push((result[result.length - 1] || 0) + x)
   )

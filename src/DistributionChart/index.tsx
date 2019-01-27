@@ -1,50 +1,61 @@
 import * as React from 'react'
-import { ChartConfig, Transformation, Datum } from './types';
+import { ChartConfig, Transformation } from './types';
 import ConfigControls from './ConfigControls';
 import Chart from './Chart';
 import distToData from './distToData';
+import { Subject, Subscription } from 'rxjs';
+import {sampleTime} from 'rxjs/operators'
+import Statistics from './Statistics';
 
 export interface Props {
+  distribution: Subject<number[]>,
+  name: string
+}
+
+interface State extends ChartConfig {
   distribution: number[]
 }
 
-class DistributionChart extends React.Component<Props, ChartConfig> {
-  state: ChartConfig = {
-    transformation: 'ccdf',
+class DistributionChart extends React.Component<Props, State> {
+  private subscription: Subscription;
+
+  public state: State = {
+    distribution: [],
+    transformation: 'pdf',
     xLog: false,
     yLog: false
   }
 
-  setTransformation = (transformation: Transformation) => {
-    this.setState({transformation})
+  public componentDidMount() {
+    this.subscription =
+      this.props.distribution
+      .pipe(sampleTime(1000)) // Performance tweaking
+      .subscribe((distribution: number[]) => this.setState({distribution}))
   }
 
-  setXLog = (xLog: boolean) => {
-    this.setState({xLog})
+  public componentWillUnmount() {
+    this.subscription.unsubscribe()
   }
 
-  setYLog = (yLog: boolean) => {
-    this.setState({yLog})
-  }
-
-  render() {
-    const {distribution} = this.props
-
-    const xLogFormatter = (x: number) => Math.round(Math.exp(x))
-    const yLogFormatter = (y: number) => `${Math.round(Math.exp(y)*10000)/100}%`
-    const yLinFormatter = (y: number) => `${Math.round(y*10000)/100}%`
-
-    const xFormatter = this.state.xLog ? xLogFormatter : (x: number) => x
-    const yFormatter = this.state.yLog ? yLogFormatter : yLinFormatter
-
-    const {setYLog, setXLog, setTransformation} = this
+  public config(): ChartConfig {
     const {yLog, xLog, transformation} = this.state
-    const configProps = {setYLog, setXLog, setTransformation, xLog, yLog, transformation}
+    return {yLog, xLog, transformation}
+  }
+
+  public render() {
+    const {distribution, ...config} = this.state
+    const data = distToData(config, distribution)
 
     return (
       <div>
-        <Chart data={distToData(this.state, distribution)} xLog={xLog} yLog={yLog}/>
-        <ConfigControls {...configProps}/>
+        <Chart data={data} xLog={config.xLog} yLog={config.yLog} name={this.props.name}/>
+        <ConfigControls
+          {...config}
+          setTransformation={(transformation: Transformation) => this.setState({transformation})}
+          setXLog={(xLog: boolean) => this.setState({xLog})}
+          setYLog={(yLog: boolean) => this.setState({yLog})}
+          />
+        <Statistics distribution={distribution}/>
       </div>
     )
   }

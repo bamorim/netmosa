@@ -24,7 +24,7 @@ const styles = createStyles({
 })
 
 class ConfigControls extends React.PureComponent<Props> {
-  render() {
+  public render() {
     return (
       <FormControl>
         <FormLabel>Transformation</FormLabel>
