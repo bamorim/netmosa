@@ -48,7 +48,7 @@ const EditorPage = ({ code, setCode, start }: Props) => {
     >
       <MonacoEditor
         language="lua"
-        theme="vs-dark"
+        theme="vs-light"
         value={code}
         onChange={setCode}
         options={{
