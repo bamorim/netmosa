@@ -1,9 +1,12 @@
 import * as React from 'react'
-import { ReadGraph } from 'graph'
+import { ReadGraph } from '../graph'
 import { withStyles, createStyles, Grid } from '@material-ui/core'
-import DistributionChart from 'components/DistributionChart'
-import DegreeDistribution from 'metrics/DegreeDistribution'
-import DistanceToRootDistribution from 'metrics/DistanceToRootDistribution'
+
+import DegreeDistribution from '../metrics/DegreeDistribution'
+import DistanceToRootDistribution from '../metrics/DistanceToRootDistribution'
+
+import DistributionChart from './DistributionChart'
+import GraphGeneralStatisicsDisplay from './GraphGeneralStatisticsDisplay'
 
 interface Props {
   show: boolean
@@ -41,6 +44,9 @@ class MetricsView extends React.Component<Props> {
     return (
       <div className={className}>
         <Grid container={true} spacing={24}>
+          <Grid item={true} xs={12}>
+            <GraphGeneralStatisicsDisplay graph={this.props.graph}/>
+          </Grid>
           <Grid item={true} xs={6}>
             <DistributionChart
               distribution={this.degreeDist.subject}

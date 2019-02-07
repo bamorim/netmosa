@@ -1,4 +1,4 @@
-import { ReplaySubject } from 'rxjs'
+import { ReplaySubject, Observable } from 'rxjs'
 
 export type VertexId = number
 export type EdgeId = number
@@ -38,6 +38,7 @@ export interface ReadGraph {
   readonly vertices: ReadonlyArray<ReadVertex>
   readonly edges: ReadonlyArray<Edge>
   readonly subject: ReplaySubject<Change>
+  asObservable: () => Observable<Change>
 }
 
 export interface Graph extends ReadGraph {

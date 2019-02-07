@@ -1,4 +1,4 @@
-import { ReadGraph, Change } from 'graph'
+import { ReadGraph, Change } from '../graph'
 import { ReplaySubject, Subject } from 'rxjs'
 
 const changeDist = (dist: number[], idx: number, amt: number) => {

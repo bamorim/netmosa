@@ -1,6 +1,6 @@
 import * as fengari from 'fengari-web'
 
-import { Graph, AdjacencyListGraph } from 'graph'
+import { Graph, AdjacencyListGraph } from '../graph'
 import { openStdLib } from './stdlib'
 
 const lua = fengari.lua

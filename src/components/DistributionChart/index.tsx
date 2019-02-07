@@ -3,12 +3,12 @@ import { ChartConfig, Transformation } from './types';
 import ConfigControls from './ConfigControls';
 import Chart from './Chart';
 import distToData from './distToData';
-import { Subject, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import {sampleTime} from 'rxjs/operators'
 import Statistics from './Statistics';
 
 export interface Props {
-  distribution: Subject<number[]>,
+  distribution: Observable<number[]>,
   name: string
 }
 

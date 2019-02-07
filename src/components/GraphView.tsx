@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as d3 from 'd3'
-import { ReadGraph, Change } from 'graph'
+import { ReadGraph, Change } from '../graph'
 import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
 import { Subscription } from 'rxjs';

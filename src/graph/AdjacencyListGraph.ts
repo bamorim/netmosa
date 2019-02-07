@@ -7,6 +7,7 @@ export default class AdjacencyListGraph implements Graph {
   public vertices: Vertex[] = []
   public subject: ReplaySubject<Change> = new ReplaySubject()
 
+  public asObservable = () => this.subject.asObservable()
   public vertexCount = () => this.vertices.length
   public edgeCount = () => this.edges.length
   public vertex = (id: VertexId) => this.vertices[id]

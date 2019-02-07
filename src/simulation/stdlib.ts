@@ -1,7 +1,7 @@
 import * as fengari from 'fengari-web'
 const lua = fengari.lua
 
-import { Graph } from 'graph'
+import { Graph } from '../graph'
 
 type StdLibFunction = (graph: Graph) => (L: {}) => number
 
