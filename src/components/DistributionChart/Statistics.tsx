@@ -5,6 +5,7 @@ interface Props {
   distribution: number[]
 }
 
+// TODO: The problem here is the format of the distribution
 const Statistics = ({distribution}: Props) => (
   <div>
     Min: {reduce(min, +Infinity, distribution)}<br/>

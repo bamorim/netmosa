@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core'
-import Router from 'Router'
+import Router from 'components/Router'
 
 const theme = createMuiTheme({
   typography: {

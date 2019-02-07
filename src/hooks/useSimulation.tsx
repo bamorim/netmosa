@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import LuaSimulation from './LuaSimulation'
+import LuaSimulation from 'simulation/LuaSimulation'
 
 const useSimulation = (code: string) => {
   const [simulation, setSimulation] = useState(() => new LuaSimulation(code))

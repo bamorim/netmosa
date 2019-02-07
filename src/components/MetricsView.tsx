@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { ReadGraph } from 'graph'
 import { withStyles, createStyles, Grid } from '@material-ui/core'
-import DistributionChart from 'DistributionChart'
+import DistributionChart from 'components/DistributionChart'
 import DegreeDistribution from 'metrics/DegreeDistribution'
 import DistanceToRootDistribution from 'metrics/DistanceToRootDistribution'
 

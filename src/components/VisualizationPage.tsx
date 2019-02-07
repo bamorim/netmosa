@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Layout from 'Layout'
+import Layout from 'components/Layout'
 import { createStyles, withStyles, IconButton, Fab } from '@material-ui/core'
 import { useLayoutEffect, useState } from 'react'
 import Slider from '@material-ui/lab/Slider'
@@ -8,10 +8,10 @@ import PauseIcon from '@material-ui/icons/Pause'
 import StopIcon from '@material-ui/icons/Stop'
 import ChartIcon from '@material-ui/icons/ShowChart'
 
-import GraphView from 'GraphView'
-import MetricsView from 'MetricsView'
-import useSimulation from 'useSimulation'
-import useTimer from 'useTimer'
+import GraphView from 'components/GraphView'
+import MetricsView from 'components/MetricsView'
+import useSimulation from 'hooks/useSimulation'
+import useTimer from 'hooks/useTimer'
 
 const styles = createStyles({
   sliderWrapper: {

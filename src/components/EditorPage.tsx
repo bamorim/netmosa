@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState } from 'react'
 import MonacoEditor from 'react-monaco-editor'
-import Layout from 'Layout'
+import Layout from 'components/Layout'
 import { Button, Menu, MenuItem } from '@material-ui/core'
 
 import examples from 'examples'

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import * as React from 'react'
 import { barabasiAlbert } from 'examples'
-import EditorPage from 'pages/EditorPage'
-import VisualizationPage from 'pages/VisualizationPage'
+import EditorPage from 'components/EditorPage'
+import VisualizationPage from 'components/VisualizationPage'
 
 const Router = () => {
   const [code, setCode] = useState('')

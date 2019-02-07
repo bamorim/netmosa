@@ -2,7 +2,6 @@ import * as fengari from 'fengari-web'
 
 import { Graph, AdjacencyListGraph } from 'graph'
 import { openStdLib } from './stdlib'
-import Simulation from 'Simulation'
 
 const lua = fengari.lua
 const lauxlib = fengari.lauxlib
@@ -42,7 +41,7 @@ function* run(code: string, graph: Graph) {
   }
 }
 
-export default class LuaSimulation implements Simulation {
+export default class LuaSimulation {
   public graph: Graph
   public iterator: IterableIterator<undefined>
 
