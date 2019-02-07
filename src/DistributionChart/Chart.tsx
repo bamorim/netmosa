@@ -11,10 +11,10 @@ interface Props {
 
 class Chart extends React.PureComponent<Props> {
   public render() {
-    const xLogFormatter = (x: number) => Math.round(Math.exp(x))
+    const xLogFormatter = (x: number) => Math.round(Math.pow(10,x))
     const yLogFormatter = (y: number) =>
-      `${Math.round(Math.exp(y) * 10000) / 100}%`
-    const yLinFormatter = (y: number) => `${Math.round(y * 10000) / 100}%`
+      `${Math.round(Math.pow(10, y) * 10000) / 10000}`
+    const yLinFormatter = (y: number) => `${Math.round(y * 10000) / 10000}`
 
     const xFormatter = this.props.xLog ? xLogFormatter : (x: number) => x
     const yFormatter = this.props.yLog ? yLogFormatter : yLinFormatter

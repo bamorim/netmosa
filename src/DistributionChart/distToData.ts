@@ -22,7 +22,7 @@ export default distToData
 const applyLog = (selector: keyof Datum, data: Datum[]): Datum[] =>
   data
     .filter(datum => datum[selector] > 0)
-    .map(datum => ({ ...datum, [selector]: Math.log(datum[selector]) }))
+    .map(datum => ({ ...datum, [selector]: Math.log10(datum[selector]) }))
 
 const transform = (distribution: number[], transformation: Transformation) => {
   switch (transformation) {

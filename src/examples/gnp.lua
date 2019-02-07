@@ -1,4 +1,4 @@
-p = 0.5
+p = 0.1
 n = 50
 vertices = {}
 
@@ -9,7 +9,7 @@ end
 render()
 
 for i=1,n do
-    for j=1,n do
+    for j=i+1,n do
         if math.random() < p then
             connectVertices(vertices[i], vertices[j])
             render()
