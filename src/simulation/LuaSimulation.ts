@@ -37,7 +37,9 @@ function* run(code: string, graph: Graph) {
 
   // Hangs forever to avoid stopping the visualization
   // TODO: Stop this and handle it on the view side
-  while (true) yield
+  while (true) {
+    yield
+  }
 }
 
 export default class LuaSimulation {
