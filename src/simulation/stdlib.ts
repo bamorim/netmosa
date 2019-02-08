@@ -111,3 +111,16 @@ define('getEdge', `Get an edge by it's index. It is useful if you want to get th
   lua.lua_pushnumber(L, b + 1)
   return 2
 })
+
+define('getRandomVertex', 'Get a random vertex', (graph: Graph) => (L: {}) => {
+  lua.lua_pushnumber(L, Math.ceil(Math.random() * graph.vertices.length))
+  return 1
+})
+
+define('getRandomEdge', 'Get a random edge', (graph: Graph) => (L: {}) => {
+  const idx = Math.floor(Math.random() * graph.edges.length)
+  const [a, b] = graph.edges[idx]
+  lua.lua_pushnumber(L, a + 1)
+  lua.lua_pushnumber(L, b + 1)
+  return 2
+})

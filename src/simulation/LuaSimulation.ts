@@ -14,11 +14,6 @@ end
 
 function main()
   ${code}
-
-  -- Ensure the model hangs on the end
-  while true do
-    render()
-  end
 end
 `
 
@@ -39,6 +34,10 @@ function* run(code: string, graph: Graph) {
       break
     }
   }
+
+  // Hangs forever to avoid stopping the visualization
+  // TODO: Stop this and handle it on the view side
+  while (true) yield
 }
 
 export default class LuaSimulation {

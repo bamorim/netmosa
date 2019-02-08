@@ -1,9 +1,3 @@
-import { useState, useEffect } from 'react'
-import * as React from 'react'
-import EditorPage from 'components/EditorPage'
-import VisualizationPage from 'components/VisualizationPage'
-
-const defaultCode = `
 -- Welcome to rggvis, a visualization tool for network models
 -- Here you can write your Lua code to program your model
 -- After you code it, you can run and see it happening
@@ -36,39 +30,17 @@ for i=1,10 do
 end
 
 -- Let's add a new vertex connected to the two sides of the last edge
--- First we need to get the edge and convert it into a table
-lastEdgeVertices =  {getEdge(getEdgeCount())}
--- then we add the new node
+-- first we add the new node
 newVertex = addVertex()
 render()
+-- then get the two nodes of the edge
+vertexA, vertexB =  getEdge(getEdgeCount())
 -- and then connect to the two nodes on the edge
-connectVertices(lastEdgeVertices[1], newVertex)
+connectVertices(vertexA, newVertex)
 render()
-connectVertices(lastEdgeVertices[2], newVertex)
+connectVertices(vertexB, newVertex)
 render()
--- note that lua uses 1-indexes
 
 -- Let's connect the last and second nodes
 connectVertices(getVertexCount(),2)
 render()
-
-`.trim()
-
-const Router = () => {
-  const [code, setCode] = useState(defaultCode)
-  const [running, setRunning] = useState(false)
-
-  if (running) {
-    return <VisualizationPage code={code} stop={() => setRunning(false)} />
-  } else {
-    return (
-      <EditorPage
-        code={code}
-        setCode={setCode}
-        start={() => setRunning(true)}
-      />
-    )
-  }
-}
-
-export default Router

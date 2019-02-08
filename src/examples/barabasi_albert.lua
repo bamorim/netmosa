@@ -14,7 +14,7 @@ while true do
 
   for i=1,m do
     -- Get the edge vertices and put it on a table
-    vertices = {getEdge(math.random(getEdgeCount()))}
+    vertices = {getRandomEdge()}
 
     -- Select a random vertice from the edge
     selected[i] = vertices[math.random(1,2)]
