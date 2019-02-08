@@ -1,19 +1,19 @@
 import * as React from 'react'
-import { Subscription } from 'rxjs';
-import {sampleTime} from 'rxjs/operators'
-import {ReadGraph, Change} from '../graph'
+import { Subscription } from 'rxjs'
+import { sampleTime } from 'rxjs/operators'
+import { ReadGraph, Change } from '../graph'
 
 export interface Props {
   graph: ReadGraph
 }
 
 interface State {
-  edgeCount: number,
+  edgeCount: number
   nodeCount: number
 }
 
 class GraphGeneralStatistics extends React.Component<Props, State> {
-  private subscription: Subscription;
+  private subscription: Subscription
 
   public state: State = {
     edgeCount: 0,
@@ -21,8 +21,7 @@ class GraphGeneralStatistics extends React.Component<Props, State> {
   }
 
   public componentDidMount() {
-    this.subscription =
-      this.props.graph
+    this.subscription = this.props.graph
       .asObservable()
       .pipe(sampleTime(200)) // Performance tweaking
       .subscribe((change: Change) => {
@@ -40,7 +39,8 @@ class GraphGeneralStatistics extends React.Component<Props, State> {
   public render() {
     return (
       <div>
-        N: {this.state.nodeCount}<br/>
+        N: {this.state.nodeCount}
+        <br />
         E: {this.state.edgeCount}
       </div>
     )

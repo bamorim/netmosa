@@ -45,7 +45,7 @@ class MetricsView extends React.Component<Props> {
       <div className={className}>
         <Grid container={true} spacing={24}>
           <Grid item={true} xs={12}>
-            <GraphGeneralStatisicsDisplay graph={this.props.graph}/>
+            <GraphGeneralStatisicsDisplay graph={this.props.graph} />
           </Grid>
           <Grid item={true} xs={6}>
             <DistributionChart

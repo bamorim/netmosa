@@ -24,20 +24,22 @@ const App = () => {
   const [running, setRunning] = useState(false)
 
   useEffect(() => {
-    fetch(tutorial).then(r => r.text()).then(setCode)
+    fetch(tutorial)
+      .then(r => r.text())
+      .then(setCode)
   }, [])
 
   return (
     <MuiThemeProvider theme={theme}>
-      {
-        running ?
-        <VisualizationPage code={code} stop={() => setRunning(false)} /> :
+      {running ? (
+        <VisualizationPage code={code} stop={() => setRunning(false)} />
+      ) : (
         <EditorPage
-        code={code}
-        setCode={setCode}
-        start={() => setRunning(true)}
-      />
-      }
+          code={code}
+          setCode={setCode}
+          start={() => setRunning(true)}
+        />
+      )}
     </MuiThemeProvider>
   )
 }

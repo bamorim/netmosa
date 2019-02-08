@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { ReadGraph, Change } from '../graph'
 import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs'
 
 const styles = createStyles({
   container: {
@@ -74,19 +74,18 @@ class GraphViewD3 {
       .nodes(this.nodes)
       .on('tick', this.ticked)
       .force('charge', d3.forceManyBody().strength(bodyStrength))
-      .force('link',
-        d3
-        .forceLink<Node, Link>(this.links)
-        .strength(linkStrength)
+      .force(
+        'link',
+        d3.forceLink<Node, Link>(this.links).strength(linkStrength)
       )
       .force('center', d3.forceCenter(width / 2, height / 2))
 
     this.transformationGroup = d3
-    .select(container)
-    .append('svg')
-    .attr('width', '100%')
-    .attr('height', '100%')
-    .append('g')
+      .select(container)
+      .append('svg')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .append('g')
 
     this.linkLines = this.transformationGroup
       .append('g')
@@ -114,7 +113,9 @@ class GraphViewD3 {
         const vertex = this.graph.vertices[change.id]
         const neighborId = vertex.neighbors[0]
         const neighbor = this.nodes[neighborId || 0]
-        const copiedProps = neighbor ? { x: neighbor.x || 0, y: neighbor.y || 0 } : {x: 0, y: 0}
+        const copiedProps = neighbor
+          ? { x: neighbor.x || 0, y: neighbor.y || 0 }
+          : { x: 0, y: 0 }
         this.nodes[change.id] = {
           ...copiedProps,
           index: change.id
@@ -152,7 +153,11 @@ class GraphViewD3 {
     this.nodeCircles
       .attr('cx', (d: Node) => d.x || 0)
       .attr('cy', (d: Node) => d.y || 0)
-      .attr('fill', (node: Node) => this.graph.vertices[node.index].attributes.get('color') || 'white')
+      .attr(
+        'fill',
+        (node: Node) =>
+          this.graph.vertices[node.index].attributes.get('color') || 'white'
+      )
 
     this.fit()
   }

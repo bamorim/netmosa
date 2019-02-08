@@ -22,8 +22,13 @@ const trimmedExponential = (n: number) => {
 
 const ScientificNumber = ({ value }: SNProps) => {
   const [mantissa, exponent] = trimmedExponential(value).split('e')
-  const normalExponent = exponent.substring(0,1) === "+" ? exponent.substring(1) : exponent
-  return <span>{mantissa} 10<sup>{normalExponent}</sup></span>
+  const normalExponent =
+    exponent.substring(0, 1) === '+' ? exponent.substring(1) : exponent
+  return (
+    <span>
+      {mantissa} 10<sup>{normalExponent}</sup>
+    </span>
+  )
 }
 
 interface Props {
@@ -62,26 +67,26 @@ class Chart extends React.PureComponent<Props> {
           dataKey="x"
           domain={['dataMin', 'dataMax']}
           ticks={xConfig.ticks}
-          tickFormatter={(value) => trimmedExponential(xConfig.normalize(value))}
+          tickFormatter={value => trimmedExponential(xConfig.normalize(value))}
         />
         <YAxis
           domain={['dataMin', 'dataMax']}
           ticks={yConfig.ticks}
-          tickFormatter={(value) => trimmedExponential(yConfig.normalize(value))}
+          tickFormatter={value => trimmedExponential(yConfig.normalize(value))}
         />
         <Legend verticalAlign="top" height={36} />
         <Tooltip
-          formatter={(value: number) => <ScientificNumber value={yConfig.normalize(value)}/>}
-          labelFormatter={(value: number) => <span>
-            {this.props.name}: <ScientificNumber value={xConfig.normalize(value)}/>
-            </span>}
+          formatter={(value: number) => (
+            <ScientificNumber value={yConfig.normalize(value)} />
+          )}
+          labelFormatter={(value: number) => (
+            <span>
+              {this.props.name}:{' '}
+              <ScientificNumber value={xConfig.normalize(value)} />
+            </span>
+          )}
         />
-        <Line
-          dataKey="y"
-          stroke="#8884d8"
-          isAnimationActive={false}
-          name="P"
-        />
+        <Line dataKey="y" stroke="#8884d8" isAnimationActive={false} name="P" />
       </LineChart>
     )
   }

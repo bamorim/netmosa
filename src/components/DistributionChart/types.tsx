@@ -1,12 +1,12 @@
 export type Transformation = 'pdf' | 'cdf' | 'ccdf'
 
 export interface ChartConfig {
-  transformation: Transformation,
-  xLog: boolean,
+  transformation: Transformation
+  xLog: boolean
   yLog: boolean
 }
 
 export interface Datum {
-  x: number,
+  x: number
   y: number
 }
