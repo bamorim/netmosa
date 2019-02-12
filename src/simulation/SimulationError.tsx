@@ -5,6 +5,8 @@ export interface RuntimeError {
 
 export interface SyntaxError {
   type: 'syntax'
+  lineNo: number
+  message?: string
 }
 
 export type SimulationError = RuntimeError | SyntaxError

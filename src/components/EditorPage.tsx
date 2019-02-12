@@ -8,8 +8,18 @@ import { Button, Menu, MenuItem } from '@material-ui/core'
 import examples from 'examples'
 import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
+import { SimulationError } from 'simulation'
 
 interface Props {}
+
+const messageFor = (error: SimulationError) => {
+  switch (error.type) {
+    case 'runtime':
+      return 'Runtime Error'
+    case 'syntax':
+      return error.message || 'Syntax Error'
+  }
+}
 
 const EditorPage = (props: Props) => {
   const [
@@ -23,14 +33,14 @@ const EditorPage = (props: Props) => {
   const updateError = () => {
     const model = editor && editor.getModel()
 
-    if (model && error && error.type === 'runtime') {
+    if (model && error) {
       monaco.editor.setModelMarkers(model, 'test', [
         {
           startLineNumber: error.lineNo,
           startColumn: 1,
           endLineNumber: error.lineNo,
           endColumn: 1000,
-          message: 'Runtime Error',
+          message: messageFor(error),
           severity: monaco.MarkerSeverity.Warning
         }
       ])
