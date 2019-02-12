@@ -1,7 +1,6 @@
 import { Observable, ReplaySubject } from 'rxjs'
-import { SimulationError } from 'simulation'
+import { SimulationError, TimedSimulation } from 'simulation'
 import tutorial from 'examples/tutorial.lua'
-import { TimedSimulation } from 'simulation/TimedSimulation'
 
 export interface IAppState {
   readonly code$: Observable<string>

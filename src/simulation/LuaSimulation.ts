@@ -1,8 +1,8 @@
 import * as fengari from 'fengari-web'
 
-import { Graph, AdjacencyListGraph } from '../graph'
+import { Graph } from '../graph'
 import { openStdLib } from './stdlib'
-import { TickResult } from './TickResult'
+import { SimulationError } from './SimulationError'
 
 const lua = fengari.lua
 const lauxlib = fengari.lauxlib
@@ -20,20 +20,15 @@ const sufix = 'end'
 
 const wrapCode = (code: string) => [prefix, code, sufix].join('\n')
 
-const ended = (): TickResult => ({
-  type: 'ended'
+const runtimeError = (lineNo: number): SimulationError => ({
+  type: 'runtime',
+  lineNo
 })
 
-const ticked = (): TickResult => ({
-  type: 'ticked'
-})
-
-const runtimeError = (lineNo: number): TickResult => ({
-  type: 'failed',
-  error: { type: 'runtime', lineNo }
-})
-
-function* run(code: string, graph: Graph): IterableIterator<TickResult> {
+export default function* luaSimulation(
+  code: string,
+  graph: Graph
+): IterableIterator<void | SimulationError> {
   const L = lauxlib.luaL_newstate()
   lualib.luaL_openlibs(L)
   openStdLib(L, graph)
@@ -46,7 +41,7 @@ function* run(code: string, graph: Graph): IterableIterator<TickResult> {
   while (true) {
     try {
       const resp = lua.lua_resume(L2, null, 0)
-      yield ticked()
+      yield
       if (resp === 0) {
         break
       }
@@ -59,23 +54,5 @@ function* run(code: string, graph: Graph): IterableIterator<TickResult> {
     }
   }
 
-  return ended()
-}
-
-export default class LuaSimulation {
-  public graph: Graph
-  public iterator: IterableIterator<TickResult>
-  private lastResult: IteratorResult<TickResult> | null
-
-  constructor(code: string) {
-    this.graph = new AdjacencyListGraph()
-    this.iterator = run(code, this.graph)
-  }
-
-  public tick(): TickResult {
-    if (!this.lastResult || !this.lastResult.done) {
-      this.lastResult = this.iterator.next()
-    }
-    return this.lastResult.value
-  }
+  return
 }

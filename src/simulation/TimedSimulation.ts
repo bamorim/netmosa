@@ -1,28 +1,31 @@
 import { SimulationError } from './SimulationError'
-import { ReadGraph } from 'graph'
+import { ReadGraph, AdjacencyListGraph } from 'graph'
 import { Subject, ReplaySubject } from 'rxjs'
 import Timer from 'Timer'
-import { LuaSimulation } from 'simulation'
+import luaSimulation from './luaSimulation'
 
 type ErrorCallback = (error: SimulationError) => void
 
-export class TimedSimulation {
+export default class TimedSimulation {
   public graph: ReadGraph
   public paused$: Subject<boolean> = new ReplaySubject(1)
   public speed$: Subject<number> = new ReplaySubject(1)
 
   private timer: Timer
-  private simulation: LuaSimulation
+  private iterator: IterableIterator<void | SimulationError>
   private onError: ErrorCallback
 
   constructor(code: string, onError: ErrorCallback) {
     const initialSpeed = 0
     this.onError = onError
 
+    const graph = new AdjacencyListGraph()
+    this.graph = graph
+    this.iterator = luaSimulation(code, graph)
+
     this.timer = new Timer(initialSpeed, this.tick)
-    this.simulation = new LuaSimulation(code)
-    this.graph = this.simulation.graph
-    this.paused$.next(true)
+
+    this.paused$.next(this.timer.isPaused())
     this.speed$.next(initialSpeed)
   }
 
@@ -46,16 +49,15 @@ export class TimedSimulation {
   }
 
   private tick = () => {
-    const result = this.simulation.tick()
-    switch (result.type) {
-      case 'failed':
-        this.pause()
-        this.onError(result.error)
-        break
-      case 'ended':
-        this.pause()
-        break
-      default:
+    const result = this.iterator.next()
+
+    if (result.done) {
+      this.pause()
+    }
+
+    // If returned anything, than it is an error
+    if (result.value) {
+      this.onError(result.value)
     }
   }
 }

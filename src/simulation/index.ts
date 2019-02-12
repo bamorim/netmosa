@@ -1,3 +1,2 @@
-export { default as LuaSimulation } from './LuaSimulation'
-export { TickResult, Ticked, Ended, Failed } from './TickResult'
+export { default as TimedSimulation } from './TimedSimulation'
 export { SimulationError, RuntimeError, SyntaxError } from './SimulationError'

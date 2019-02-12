@@ -10,9 +10,9 @@ import ChartIcon from '@material-ui/icons/ShowChart'
 
 import GraphView from 'components/GraphView'
 import MetricsView from 'components/MetricsView'
-import { appState } from 'state'
+import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
-import { TimedSimulation } from 'simulation/TimedSimulation'
+import { TimedSimulation } from 'simulation'
 
 const styles = createStyles({
   sliderWrapper: {
