@@ -12,6 +12,7 @@
     "d3-scale": "^2.1.2",
     "fengari": "^0.1.4",
     "fengari-web": "^0.1.4",
+    "luaparse": "^0.2.1",
     "monaco-editor-webpack-plugin": "^1.7.0",
     "ramda": "^0.26.1",
     "react": "^16.7.0-alpha.2",

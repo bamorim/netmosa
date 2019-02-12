@@ -6,6 +6,10 @@ declare module 'fengari-web' {
   type lua_KFunction = (L: lua_State, status: int, ctx: lua_KContext) => int
   type lua_String = any
 
+  class Debug {
+    public currentline: number
+  }
+
   interface lua {
     lua_pcall: (L: lua_State, nargs: int, nresults: int, msgh: int) => int
     lua_getglobal: (L: lua_State, name: string) => int
@@ -18,6 +22,9 @@ declare module 'fengari-web' {
     lua_pushcfunction: (L: lua_State, f: lua_CFunction) => void
     lua_pushnumber: (L: lua_State, n: number) => void
     lua_pushstring: (L: lua_State, n: lua_String) => void
+    lua_Debug: typeof Debug
+    lua_getstack: (L: lua_State, index: int, d: Debug) => int
+    lua_getinfo: (L: lua_State, flags: lua_String, d: Debug) => int
   }
 
   interface lualib {
@@ -33,7 +40,7 @@ declare module 'fengari-web' {
     lua: lua
     lualib: lualib
     lauxlib: lauxlib
-    to_luastring: (string: string) => lua_String
+    to_luastring: (string: string, config?: boolean) => lua_String
     to_jsstring: (string: lua_String) => string
   }
 

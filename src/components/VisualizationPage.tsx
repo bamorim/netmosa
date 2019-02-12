@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Layout from 'components/Layout'
 import { createStyles, withStyles, IconButton, Fab } from '@material-ui/core'
-import { useLayoutEffect, useState } from 'react'
+import { useState } from 'react'
 import Slider from '@material-ui/lab/Slider'
 import PlayIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
@@ -10,8 +10,9 @@ import ChartIcon from '@material-ui/icons/ShowChart'
 
 import GraphView from 'components/GraphView'
 import MetricsView from 'components/MetricsView'
-import useSimulation from 'hooks/useSimulation'
-import useTimer from 'hooks/useTimer'
+import { appState } from 'state'
+import useObservable from 'hooks/useObservable'
+import { TimedSimulation } from 'simulation/TimedSimulation'
 
 const styles = createStyles({
   sliderWrapper: {
@@ -38,33 +39,26 @@ const styles = createStyles({
 })
 
 interface Props {
-  code: string
-  stop: () => void
+  runningSimulation: TimedSimulation
   classes: Record<keyof typeof styles, string>
 }
 
-const VisualizationPage = ({ code, stop, classes }: Props) => {
+const VisualizationPage = ({ runningSimulation, classes }: Props) => {
   const [showChart, setShowChart] = useState(false)
-  const { tick, graph } = useSimulation(code)
-  const { play, pause, paused, setSpeed, speed } = useTimer(0, tick)
-  useLayoutEffect(() => {
-    play()
-    return () => {
-      pause()
-    }
-  }, [])
+  const paused = useObservable(runningSimulation.paused$, true)
+  const speed = useObservable(runningSimulation.speed$, 0)
 
   let pauseOrPlayButton
 
   if (paused) {
     pauseOrPlayButton = (
-      <IconButton onClick={() => play()} color="inherit">
+      <IconButton onClick={() => runningSimulation.play()} color="inherit">
         <PlayIcon />
       </IconButton>
     )
   } else {
     pauseOrPlayButton = (
-      <IconButton onClick={() => pause()} color="inherit">
+      <IconButton onClick={() => runningSimulation.pause()} color="inherit">
         <PauseIcon />
       </IconButton>
     )
@@ -78,19 +72,19 @@ const VisualizationPage = ({ code, stop, classes }: Props) => {
             <Slider
               classes={{ track: classes.track, thumb: classes.thumb }}
               value={speed}
-              onChange={(e, v) => setSpeed(v)}
+              onChange={(e, v) => runningSimulation.setSpeed(v)}
             />
           </div>
           {pauseOrPlayButton}
-          <IconButton onClick={stop} color="inherit">
+          <IconButton onClick={appState.stop} color="inherit">
             <StopIcon />
           </IconButton>
         </div>
       }
     >
       <div className={classes.container}>
-        <GraphView graph={graph} show={!showChart} />
-        <MetricsView graph={graph} show={showChart} />
+        <GraphView graph={runningSimulation.graph} show={!showChart} />
+        <MetricsView graph={runningSimulation.graph} show={showChart} />
         <Fab
           className={classes.fab}
           size="small"

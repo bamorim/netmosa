@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { useState, useEffect } from 'react'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core'
 import EditorPage from 'components/EditorPage'
 import VisualizationPage from 'components/VisualizationPage'
-import tutorial from 'examples/tutorial.lua'
+import useObservable from 'hooks/useObservable'
+import { appState } from 'state'
 
 const theme = createMuiTheme({
   typography: {
@@ -20,25 +20,17 @@ const theme = createMuiTheme({
 })
 
 const App = () => {
-  const [code, setCode] = useState('')
-  const [running, setRunning] = useState(false)
-
-  useEffect(() => {
-    fetch(tutorial)
-      .then(r => r.text())
-      .then(setCode)
-  }, [])
+  const runningSimulation = useObservable(
+    appState.runningSimulation$,
+    undefined
+  )
 
   return (
     <MuiThemeProvider theme={theme}>
-      {running ? (
-        <VisualizationPage code={code} stop={() => setRunning(false)} />
+      {runningSimulation ? (
+        <VisualizationPage runningSimulation={runningSimulation} />
       ) : (
-        <EditorPage
-          code={code}
-          setCode={setCode}
-          start={() => setRunning(true)}
-        />
+        <EditorPage />
       )}
     </MuiThemeProvider>
   )

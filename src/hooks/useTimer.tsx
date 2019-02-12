@@ -5,7 +5,6 @@ const useTimer = (initialSpeed: number, callback: () => void) => {
   const [timer] = useState(new Timer(initialSpeed, callback))
   const [speed, setSpeed] = useState(initialSpeed)
   const [paused, setPaused] = useState(timer.isPaused())
-  timer.setSpeed(speed)
 
   const play = () => {
     timer.play()
