@@ -62,6 +62,7 @@ class GraphViewD3 {
   private subscription: Subscription
 
   constructor(container: Element, graph: ReadGraph) {
+    window['container'] = container
     this.graph = graph
     const width = container.clientWidth
     const height = container.clientHeight
@@ -235,8 +236,14 @@ class GraphViewD3 {
     const rootNode = this.transformationGroup.node() as SVGGraphicsElement
     const bounds = rootNode.getBBox()
     const parent = rootNode.parentElement
-    const fullWidth = parent!.clientWidth
-    const fullHeight = parent!.clientHeight
+    const fullWidth = (parent && (parent.clientWidth || (parent.parentElement && parent.parentElement.clientWidth)))
+    const fullHeight = (parent && (parent.clientHeight || (parent.parentElement && parent.parentElement.clientHeight)))
+
+    if(!fullWidth || !fullHeight){
+      console.debug("Could not get parent dimensions")
+      return
+    }
+
     const width = bounds.width
     const height = bounds.height
     const midX = bounds.x + width / 2

@@ -2,9 +2,17 @@ import * as React from 'react'
 import { Subscription } from 'rxjs'
 import { sampleTime } from 'rxjs/operators'
 import { ReadGraph, Change } from '../graph'
+import { Chip, Avatar, withStyles } from '@material-ui/core'
 
 export interface Props {
   graph: ReadGraph
+  classes: Record<keyof typeof styles, string>
+}
+
+const styles = {
+  chip: {
+    margin: '5px'
+  }
 }
 
 interface State {
@@ -38,13 +46,12 @@ class GraphGeneralStatistics extends React.Component<Props, State> {
 
   public render() {
     return (
-      <div>
-        N: {this.state.nodeCount}
-        <br />
-        E: {this.state.edgeCount}
-      </div>
+      <>
+        <Chip className={this.props.classes.chip} avatar={<Avatar>{this.state.nodeCount}</Avatar>} label="Vertices" />
+        <Chip className={this.props.classes.chip} avatar={<Avatar>{this.state.edgeCount}</Avatar>} label="Edges" />
+      </>
     )
   }
 }
 
-export default GraphGeneralStatistics
+export default withStyles(styles)(GraphGeneralStatistics)

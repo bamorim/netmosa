@@ -10,26 +10,7 @@ import {
 } from 'recharts'
 import { Datum } from './types'
 import { maxBy, minBy, reduce, range } from 'ramda'
-
-interface SNProps {
-  value: number
-}
-
-const trimmedExponential = (n: number) => {
-  const [mantissa, exponent] = n.toExponential().split('e')
-  return `${mantissa.substring(0, 4)}e${exponent}`
-}
-
-const ScientificNumber = ({ value }: SNProps) => {
-  const [mantissa, exponent] = trimmedExponential(value).split('e')
-  const normalExponent =
-    exponent.substring(0, 1) === '+' ? exponent.substring(1) : exponent
-  return (
-    <span>
-      {mantissa} 10<sup>{normalExponent}</sup>
-    </span>
-  )
-}
+import ScientificNotation, { trimmedExponential } from 'simulation/ScientificNotation';
 
 interface Props {
   xLog: boolean
@@ -77,12 +58,12 @@ class Chart extends React.PureComponent<Props> {
         <Legend verticalAlign="top" height={36} />
         <Tooltip
           formatter={(value: number) => (
-            <ScientificNumber value={yConfig.normalize(value)} />
+            <ScientificNotation value={yConfig.normalize(value)} />
           )}
           labelFormatter={(value: number) => (
             <span>
               {this.props.name}:{' '}
-              <ScientificNumber value={xConfig.normalize(value)} />
+              <ScientificNotation value={xConfig.normalize(value)} />
             </span>
           )}
         />

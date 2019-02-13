@@ -18,10 +18,14 @@ const styles = createStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    flex: '1'
+    flex: '1',
+    padding: '10px'
   },
   hidden: {
     display: 'none'
+  },
+  centered: {
+    textAlign: 'center'
   }
 })
 
@@ -44,7 +48,7 @@ class MetricsView extends React.Component<Props> {
     return (
       <div className={className}>
         <Grid container={true} spacing={24}>
-          <Grid item={true} xs={12}>
+          <Grid item={true} xs={12} className={classes.centered}>
             <GraphGeneralStatisicsDisplay graph={this.props.graph} />
           </Grid>
           <Grid item={true} xs={6}>
