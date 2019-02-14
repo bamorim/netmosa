@@ -19,20 +19,18 @@ export interface ButtonProps {
   onClick: () => void
 }
 
-export interface Props {
+export interface Props<T> {
   onLoad: (contents: string) => void
   label?: string
-  button?: (p: ButtonProps) => ReactElement<any>
+  button?: (p: ButtonProps) => ReactElement<T>
 }
 
 /** Reads a file as a string and return it through onLoad callback */
-function FileLoader(p: Props) {
+function FileLoader<T>(p: Props<T>) {
   const input = useRef<HTMLInputElement>(null)
   const label = p.label || "Open File"
 
-  const open = () => {
-    input.current && input.current.click()
-  }
+  const open = () => input.current && input.current.click()
 
   const handleFileSelect = (evt: ChangeEvent<HTMLInputElement>) => {
     const file = evt.target.files && evt.target.files.item(0)
