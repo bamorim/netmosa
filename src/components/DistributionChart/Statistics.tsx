@@ -1,28 +1,11 @@
 import * as React from 'react'
 import { min, max } from 'ramda'
-import { Table, TableBody, TableRow, TableCell } from '@material-ui/core';
 import ScientificNotation from 'simulation/ScientificNotation';
+import KeyValueTable from 'components/KeyValueTable';
 
 interface Props {
   distribution: number[]
 }
-
-interface KeyValueTableProps {
-  entries: React.ReactNode[][]
-}
-const KeyValueTable = ({entries}: KeyValueTableProps) => (
-  <Table>
-    <TableBody>
-      {entries.map((cells, i) => (
-        <TableRow key={i}>
-          {cells.map((cell, j) => (
-            <TableCell key={j}>{cell}</TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-)
 
 // TODO: The problem here is the format of the distribution
 const Statistics = ({ distribution }: Props) => {
@@ -33,9 +16,9 @@ const Statistics = ({ distribution }: Props) => {
   const mean = nonZeroValues.map(({x, y}) => x*y).reduce((a, b) => a+b, 0) / count
 
   const entries = [
-    ["min", <ScientificNotation value={minVal} />],
-    ["max", <ScientificNotation value={maxVal} />],
-    ["mean", <ScientificNotation value={mean} />]
+    ["min", <ScientificNotation key="min" value={minVal} />],
+    ["max", <ScientificNotation key="max" value={maxVal} />],
+    ["mean", <ScientificNotation key="mean" value={mean} />]
   ]
 
   return <KeyValueTable entries={entries} />
