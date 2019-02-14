@@ -6,6 +6,7 @@ import distToData from './distToData'
 import { Observable, Subscription } from 'rxjs'
 import { sampleTime } from 'rxjs/operators'
 import Statistics from './Statistics'
+import FileSaver from 'components/FileSaver';
 
 export interface Props {
   distribution: Observable<number[]>
@@ -61,9 +62,19 @@ class DistributionChart extends React.Component<Props, State> {
           setXLog={(xLog: boolean) => this.setState({ xLog })}
           setYLog={(yLog: boolean) => this.setState({ yLog })}
         />
+        <FileSaver
+          contents={this.generateCSVBlob}
+          defaultFilename="distribution.csv"
+          label="Export to CSV"
+        />
         <Statistics distribution={distribution} />
       </div>
     )
+  }
+
+  private generateCSVBlob = () => {
+    const csv = this.state.distribution.map((v, i) => `${i},${v}`).join('\n')
+    return new Blob([csv], {type: "text/csv;charset=utf-8"})
   }
 }
 

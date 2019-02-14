@@ -12,13 +12,15 @@
     "d3-scale": "^2.1.2",
     "fengari": "^0.1.4",
     "fengari-web": "^0.1.4",
+    "file-saver": "^2.0.0",
     "monaco-editor-webpack-plugin": "^1.7.0",
     "ramda": "^0.26.1",
     "react": "^16.7.0-alpha.2",
     "react-dom": "^16.7.0-alpha.2",
     "react-monaco-editor": "^0.22.0",
     "recharts": "^1.4.1",
-    "rxjs": "^6.3.3"
+    "rxjs": "^6.3.3",
+    "xmlbuilder": "^10.1.1"
   },
   "scripts": {
     "start": "react-app-rewired start --scripts-version @jpavon/react-scripts-ts",
@@ -32,12 +34,14 @@
   "devDependencies": {
     "@types/d3": "^5.0.1",
     "@types/d3-scale": "^2.0.2",
+    "@types/file-saver": "^2.0.0",
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.12",
     "@types/ramda": "^0.25.47",
     "@types/react": "^16.7.13",
     "@types/react-dom": "^16.0.11",
     "@types/recharts": "^1.1.5",
+    "@types/xmlbuilder": "^0.0.34",
     "gh-pages": "^2.0.1",
     "prettier": "1.15.3",
     "raw-loader": "^0.5.1",

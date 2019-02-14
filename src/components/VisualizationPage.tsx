@@ -2,17 +2,21 @@ import * as React from 'react'
 import Layout from 'components/Layout'
 import { createStyles, withStyles, IconButton, Fab } from '@material-ui/core'
 import { useState } from 'react'
+import * as xmlbuilder from 'xmlbuilder'
 import Slider from '@material-ui/lab/Slider'
 import PlayIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import StopIcon from '@material-ui/icons/Stop'
 import ChartIcon from '@material-ui/icons/ShowChart'
+import SaveIcon from '@material-ui/icons/SaveAlt'
 
 import GraphView from 'components/GraphView'
 import MetricsView from 'components/MetricsView'
 import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
 import { TimedSimulation } from 'simulation'
+import FileSaver from './FileSaver'
+import { ReadGraph } from 'graph'
 
 const styles = createStyles({
   sliderWrapper: {
@@ -28,8 +32,13 @@ const styles = createStyles({
   },
   fab: {
     position: 'absolute',
-    right: 10,
+    right: 10
+  },
+  fab1: {
     top: 10
+  },
+  fab2: {
+    top: 60
   },
   container: {
     position: 'relative',
@@ -41,6 +50,36 @@ const styles = createStyles({
 interface Props {
   runningSimulation: TimedSimulation
   classes: Record<keyof typeof styles, string>
+}
+
+const generateGraphML = (graph: ReadGraph) => {
+  // TODO: Add attributes in GraphML export
+  const nodeXml = graph.vertices.map((v, i) => ({ '@id': `n${i}` }))
+  const edgeXml = graph.edges.map(([s, t], i) => ({
+    '@source': `n${s}`,
+    '@target': `n${t}`
+  }))
+
+  const graphXml = {
+    graphml: {
+      '@xmlns': 'http://graphml.graphdrawing.org/xmlns',
+      '@xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+      '@xsi:schemaLocation': [
+        'http://graphml.graphdrawing.org/xmlns',
+        'http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd'
+      ].join(' '),
+      graph: {
+        '@id': 'G',
+        '@edgedefault': 'undirected',
+        node: nodeXml,
+        edge: edgeXml
+      }
+    }
+  }
+  const xml = xmlbuilder
+    .create(graphXml, { encoding: 'utf-8' })
+    .end({ pretty: true })
+  return new Blob([xml], { type: 'application/graphml+xml;charset=utf-8' })
 }
 
 const VisualizationPage = ({ runningSimulation, classes }: Props) => {
@@ -86,12 +125,25 @@ const VisualizationPage = ({ runningSimulation, classes }: Props) => {
         <GraphView graph={runningSimulation.graph} show={!showChart} />
         <MetricsView graph={runningSimulation.graph} show={showChart} />
         <Fab
-          className={classes.fab}
+          className={classes.fab + ' ' + classes.fab1}
           size="small"
           onClick={() => setShowChart(!showChart)}
         >
           <ChartIcon />
         </Fab>
+        <FileSaver
+          button={({ onClick }) => (
+            <Fab
+              className={classes.fab + ' ' + classes.fab2}
+              size="small"
+              onClick={onClick}
+            >
+              <SaveIcon />
+            </Fab>
+          )}
+          defaultFilename="graph.graphml"
+          contents={() => generateGraphML(runningSimulation.graph)}
+        />
       </div>
     </Layout>
   )
