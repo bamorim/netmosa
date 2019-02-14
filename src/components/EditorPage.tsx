@@ -10,6 +10,7 @@ import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
 import { SimulationError } from 'simulation'
 import FileSaver from './FileSaver';
+import FileLoader from './FileLoader';
 
 interface Props {}
 
@@ -67,6 +68,9 @@ const EditorPage = (props: Props) => {
           <FileSaver
             contents={code}
             defaultFilename="script.lua"
+          />
+          <FileLoader
+            onLoad={appState.setCode}
           />
           <Button onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>
             Load Example

@@ -9,14 +9,14 @@ export interface ButtonProps {
   onClick: () => void
 }
 
-export interface Props<P> {
+export interface Props<T> {
   contents: string | Blob | BlobFunction
   defaultFilename: string
   label?: string
-  button?: (p: ButtonProps) => ReactElement<P>
+  button?: (p: ButtonProps) => ReactElement<T>
 }
 
-function FileSaver<P>(p: Props<P>) {
+function FileSaver<T>(p: Props<T>) {
   const [isOpen, setOpen] = useState(false)
   const [filename, setFilename] = useState(p.defaultFilename)
   const label = p.label || "Save File"
