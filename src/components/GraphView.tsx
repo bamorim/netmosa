@@ -62,7 +62,6 @@ class GraphViewD3 {
   private subscription: Subscription
 
   constructor(container: Element, graph: ReadGraph) {
-    window['container'] = container
     this.graph = graph
     const width = container.clientWidth
     const height = container.clientHeight
@@ -106,6 +105,8 @@ class GraphViewD3 {
 
   public cleanup() {
     this.subscription.unsubscribe()
+    this.force.stop()
+
   }
 
   private onChange = (change: Change) => {
