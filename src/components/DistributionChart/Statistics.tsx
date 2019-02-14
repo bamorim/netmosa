@@ -13,10 +13,10 @@ interface KeyValueTableProps {
 const KeyValueTable = ({entries}: KeyValueTableProps) => (
   <Table>
     <TableBody>
-      {entries.map((cells) => (
-        <TableRow>
-          {cells.map((cell) => (
-            <TableCell>{cell}</TableCell>
+      {entries.map((cells, i) => (
+        <TableRow key={i}>
+          {cells.map((cell, j) => (
+            <TableCell key={j}>{cell}</TableCell>
           ))}
         </TableRow>
       ))}
