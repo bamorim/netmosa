@@ -1,7 +1,7 @@
 import { SimulationError } from './SimulationError'
 import { ReadGraph, AdjacencyListGraph } from 'graph'
 import { Subject, ReplaySubject } from 'rxjs'
-import Timer from 'Timer'
+import Timer from './Timer'
 import luaSimulation from './luaSimulation'
 
 type ErrorCallback = (error: SimulationError) => void
