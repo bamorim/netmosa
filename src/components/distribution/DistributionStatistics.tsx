@@ -7,8 +7,7 @@ interface Props {
   distribution: number[]
 }
 
-// TODO: The problem here is the format of the distribution
-const Statistics = ({ distribution }: Props) => {
+const DistributionStatistics = ({ distribution }: Props) => {
   const nonZeroValues = distribution.map((y, x) => ({y, x})).filter(({y}) => y > 0)
   const count = nonZeroValues.reduce((curr, {y}) => curr + y, 0)
   const minVal = nonZeroValues.reduce((curr, {x}) => min(curr, x), +Infinity)
@@ -24,4 +23,4 @@ const Statistics = ({ distribution }: Props) => {
   return <KeyValueTable entries={entries} />
 }
 
-export default Statistics
+export default DistributionStatistics

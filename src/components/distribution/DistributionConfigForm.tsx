@@ -8,13 +8,16 @@ import {
   createStyles,
   withStyles
 } from '@material-ui/core'
-import { ChartConfig, Transformation } from './types'
+import { Transformation } from './distribution.types'
 
-interface Props extends ChartConfig {
+interface Props {
+  classes: Record<keyof typeof styles, string>
+  setTransformation: (transformation: Transformation) => void
   setXLog: (xLog: boolean) => void
   setYLog: (yLog: boolean) => void
-  setTransformation: (xLog: Transformation) => void
-  classes: Record<keyof typeof styles, string>
+  transformation: Transformation
+  xLog: boolean
+  yLog: boolean
 }
 
 const styles = createStyles({
@@ -23,7 +26,7 @@ const styles = createStyles({
   }
 })
 
-class ConfigControls extends React.PureComponent<Props> {
+class DistributionConfigForm extends React.PureComponent<Props> {
   public render() {
     return (
       <FormControl>
@@ -70,4 +73,4 @@ class ConfigControls extends React.PureComponent<Props> {
   }
 }
 
-export default withStyles(styles)(ConfigControls)
+export default withStyles(styles)(DistributionConfigForm)

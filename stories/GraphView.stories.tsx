@@ -25,5 +25,5 @@ storiesOf('GraphView', module).add('with a simple graph', () => {
     graph.connectVertices(0, i)
   }
 
-  return <GraphView graph={graph} show={true} />
+  return <GraphView graph={graph} />
 })

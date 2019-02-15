@@ -19,6 +19,9 @@ import FileSaver from './FileSaver'
 import { ReadGraph } from 'graph'
 
 const styles = createStyles({
+  hidden: {
+    display: 'none'
+  },
   sliderWrapper: {
     width: 150,
     padding: '0 10px',
@@ -103,6 +106,10 @@ const VisualizationPage = ({ runningSimulation, classes }: Props) => {
     )
   }
 
+  // Hide components instead of unmounting them to avoid re-rendering the graph
+  const graphViewClasses = showChart ? {container: classes.hidden} : {}
+  const metricsViewClasses = showChart ? {} : {container: classes.hidden}
+
   return (
     <Layout
       actions={
@@ -122,8 +129,8 @@ const VisualizationPage = ({ runningSimulation, classes }: Props) => {
       }
     >
       <div className={classes.container}>
-        <GraphView graph={runningSimulation.graph} show={!showChart} />
-        <MetricsView graph={runningSimulation.graph} show={showChart} />
+        <GraphView graph={runningSimulation.graph} classes={graphViewClasses} />
+        <MetricsView graph={runningSimulation.graph} classes={metricsViewClasses} />
         <Fab
           className={classes.fab + ' ' + classes.fab1}
           size="small"

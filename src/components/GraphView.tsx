@@ -8,24 +8,16 @@ import { Subscription } from 'rxjs'
 const styles = createStyles({
   container: {
     flex: '1'
-  },
-  hidden: {
-    display: 'none'
   }
 })
 
 interface Props {
   graph: ReadGraph
-  show: boolean
   classes: Record<keyof typeof styles, string>
 }
 
-const GraphView = ({ graph, show, classes }: Props) => {
+const GraphView = ({ graph, classes }: Props) => {
   const container = useRef(null)
-  const className = show
-    ? classes.container
-    : `${classes.container} ${classes.hidden}`
-
   useLayoutEffect(
     () => {
       const graphView = new GraphViewD3(container.current!, graph)
@@ -34,7 +26,7 @@ const GraphView = ({ graph, show, classes }: Props) => {
     [graph]
   )
 
-  return <div className={className} ref={container} />
+  return <div className={classes.container} ref={container} />
 }
 
 export default withStyles(styles)(GraphView)
@@ -235,8 +227,8 @@ class GraphViewD3 {
 
   private mouseover = (hovered: Node) => {
     const neighbors = new Set(this.graph.vertices[hovered.index].neighbors)
-    const highlightNode = (node: Node) => node == hovered || neighbors.has(node.index)
-    const highlightLink = (link: Link) => link.source == hovered || link.target == hovered
+    const highlightNode = (node: Node) => node === hovered || neighbors.has(node.index)
+    const highlightLink = (link: Link) => link.source === hovered || link.target === hovered
 
     const transition = d3.transition().duration(200)
 
