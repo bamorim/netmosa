@@ -4,7 +4,6 @@
   "homepage": "http://bamorim.github.io/rggvis",
   "private": true,
   "dependencies": {
-    "@jpavon/react-scripts-ts": "0.11.0",
     "@material-ui/core": "^3.6.1",
     "@material-ui/icons": "^3.0.1",
     "@material-ui/lab": "^3.0.0-alpha.25",
@@ -29,9 +28,12 @@
     "eject": "react-scripts-ts eject",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build",
-    "format": "prettier --write src/**/*.ts src/**/*.tsx"
+    "format": "prettier --write src/**/*.ts src/**/*.tsx",
+    "storybook": "start-storybook -p 6006"
   },
   "devDependencies": {
+    "@jpavon/react-scripts-ts": "0.11.0",
+    "@storybook/react": "^4.1.11",
     "@types/d3": "^5.0.1",
     "@types/d3-scale": "^2.0.2",
     "@types/file-saver": "^2.0.0",
@@ -41,6 +43,7 @@
     "@types/react": "^16.7.13",
     "@types/react-dom": "^16.0.11",
     "@types/recharts": "^1.1.5",
+    "@types/storybook__react": "^4.0.1",
     "@types/xmlbuilder": "^0.0.34",
     "gh-pages": "^2.0.1",
     "prettier": "1.15.3",

@@ -11,6 +11,13 @@ import {
 const styles = createStyles({
   grow: {
     flexGrow: 1
+  },
+  container: {
+    flexDirection: 'column',
+    overflow: 'hidden',
+    flex: 1,
+    display: 'flex',
+    maxWidth: '100%'
   }
 })
 
@@ -21,7 +28,7 @@ interface Props {
 }
 
 const Layout = (props: Props) => (
-  <div className="v-fill">
+  <div className={props.classes.container}>
     <div>
       <AppBar position="static">
         <Toolbar>

@@ -6,13 +6,8 @@ html, body {
   min-height: 100%;
 }
 
-#root, .v-fill {
+#root {
   flex: 1;
   display: flex;
   max-width: 100%;
-}
-
-.v-fill {
-  flex-direction: column;
-  overflow: hidden;
 }

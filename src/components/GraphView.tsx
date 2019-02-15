@@ -7,8 +7,6 @@ import { Subscription } from 'rxjs'
 
 const styles = createStyles({
   container: {
-    display: 'flex',
-    flexDirection: 'column',
     flex: '1'
   },
   hidden: {
@@ -67,7 +65,6 @@ class GraphViewD3 {
     const height = container.clientHeight
     const bodyStrength = -100
     const linkStrength = 0.5
-    this.subscription = this.graph.subject.subscribe(this.onChange)
 
     this.force = d3
       .forceSimulation<Node, Link>()
@@ -101,6 +98,8 @@ class GraphViewD3 {
       .selectAll('.node')
 
     this.update()
+
+    this.subscription = this.graph.subject.subscribe(this.onChange)
   }
 
   public cleanup() {
@@ -194,6 +193,8 @@ class GraphViewD3 {
           .on('drag', this.dragged)
           .on('end', this.dragended)
       )
+      .on('mouseover', this.mouseover)
+      .on('mouseout', this.mouseout)
       .merge(this.nodeCircles)
 
     // Update force nodes
@@ -230,6 +231,26 @@ class GraphViewD3 {
 
     d.fx = null
     d.fy = null
+  }
+
+  private mouseover = (hovered: Node) => {
+    const neighbors = new Set(this.graph.vertices[hovered.index].neighbors)
+    const highlightNode = (node: Node) => node == hovered || neighbors.has(node.index)
+    const highlightLink = (link: Link) => link.source == hovered || link.target == hovered
+
+    const transition = d3.transition().duration(200)
+
+    this.nodeCircles.transition(transition)
+      .style('opacity', (node: Node) => highlightNode(node) ? 1.0 : 0.2)
+
+    this.linkLines.transition(transition)
+      .style('opacity', (link: Link) => highlightLink(link) ? 1.0 : 0.2)
+  }
+
+  private mouseout = (node: Node) => {
+    const transition = d3.transition().duration(200)
+    this.nodeCircles.transition(transition).style('opacity', 1.0)
+    this.linkLines.transition(transition).style('opacity', 1.0)
   }
 
   /** Scale the zoom to fit everything */
