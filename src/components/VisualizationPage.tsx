@@ -33,15 +33,14 @@ const styles = createStyles({
   thumb: {
     background: '#999999'
   },
-  fab: {
+  floating: {
     position: 'absolute',
-    right: 10
+    right: 0,
+    top: 0
   },
-  fab1: {
-    top: 10
-  },
-  fab2: {
-    top: 60
+  fab: {
+    display: 'block',
+    margin: '10px 10px 20px'
   },
   container: {
     position: 'relative',
@@ -131,26 +130,28 @@ const VisualizationPage = ({ runningSimulation, classes }: Props) => {
       <div className={classes.container}>
         <GraphView graph={runningSimulation.graph} classes={graphViewClasses} />
         <MetricsView graph={runningSimulation.graph} classes={metricsViewClasses} />
-        <Fab
-          className={classes.fab + ' ' + classes.fab1}
-          size="small"
-          onClick={() => setShowChart(!showChart)}
-        >
-          <ChartIcon />
-        </Fab>
-        <FileSaver
-          button={({ onClick }) => (
-            <Fab
-              className={classes.fab + ' ' + classes.fab2}
-              size="small"
-              onClick={onClick}
-            >
-              <SaveIcon />
-            </Fab>
-          )}
-          defaultFilename="graph.graphml"
-          contents={() => generateGraphML(runningSimulation.graph)}
-        />
+        <div className={classes.floating}>
+          <Fab
+            className={classes.fab}
+            size="small"
+            onClick={() => setShowChart(!showChart)}
+          >
+            <ChartIcon />
+          </Fab>
+          <FileSaver
+            button={({ onClick }) => (
+              <Fab
+                className={classes.fab}
+                size="small"
+                onClick={onClick}
+              >
+                <SaveIcon />
+              </Fab>
+            )}
+            defaultFilename="graph.graphml"
+            contents={() => generateGraphML(runningSimulation.graph)}
+          />
+        </div>
       </div>
     </Layout>
   )
