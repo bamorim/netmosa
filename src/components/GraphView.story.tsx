@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { storiesOf } from '@storybook/react'
-import GraphView from '../src/components/GraphView'
-import { AdjacencyListGraph, VertexId } from '../src/graph'
+import GraphView from './GraphView'
+import { AdjacencyListGraph, VertexId } from '../graph'
 
 let graph = new AdjacencyListGraph()
 
