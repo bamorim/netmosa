@@ -22,7 +22,7 @@ const HighlightedVertexDetails = (props: Props) => {
   const vertex = props.graph.vertices[props.vertexId]
   const entries: string[][] = [
     ["index", props.vertexId.toString()],
-    ["neighbors", vertex.neighbors.length.toString()]
+    ["degree", vertex.neighbors.length.toString()]
   ]
 
   vertex.attributes.forEach((val, key) => {
