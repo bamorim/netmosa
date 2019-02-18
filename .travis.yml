@@ -8,9 +8,8 @@ jobs:
   include:
     - stage: test
       script: yarn test
-    - stage: build
-      script: yarn build
     - stage: deploy
+      script: yarn build
       deploy:
         provider: pages
         skip_cleanup: true
