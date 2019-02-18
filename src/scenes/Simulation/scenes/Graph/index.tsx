@@ -1,9 +1,11 @@
 import * as React from 'react'
+import { useState } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
 
-import { ReadGraph } from 'graph'
+import { ReadGraph, VertexId } from 'graph'
 
 import GraphView from './components/GraphView'
+import HighlightedVertexDetails from './components/HighlightedVertexDetails'
 
 export interface Props {
   graph: ReadGraph
@@ -17,10 +19,18 @@ const styles = createStyles({
   }
 })
 
-const GraphScene = (props: Props) => (
-  <div className={props.classes.container}>
-    <GraphView graph={props.graph} />
-  </div>
-)
+const GraphScene = (props: Props) => {
+  const [vertexId, setVertexId] = useState<VertexId | undefined>(undefined)
+
+  return (
+    <div className={props.classes.container}>
+
+      {vertexId !== undefined ? (
+        <HighlightedVertexDetails vertexId={vertexId} graph={props.graph} />
+      ) : null}
+      <GraphView graph={props.graph} onHighlightChange={setVertexId} />
+    </div>
+  )
+}
 
 export default withStyles(styles)(GraphScene)

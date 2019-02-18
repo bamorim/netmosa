@@ -1,15 +1,22 @@
 import * as React from 'react'
-import { Table, TableBody, TableRow, TableCell } from '@material-ui/core'
+import { Table, TableBody, TableRow, TableCell, createStyles, withStyles } from '@material-ui/core'
 
 interface Props {
   entries: React.ReactNode[][]
+  classes: Record<keyof typeof styles, string>
 }
 
-const KeyValueTable = ({ entries }: Props) => (
-  <Table>
+const styles = createStyles({
+  row: {
+    height: 'auto !important'
+  }
+})
+
+const KeyValueTable = ({ entries, classes }: Props) => (
+  <Table padding='dense'>
     <TableBody>
       {entries.map((cells, i) => (
-        <TableRow key={i}>
+        <TableRow key={i} classes={{root: classes.row}}>
           {cells.map((cell, j) => (
             <TableCell key={j}>{cell}</TableCell>
           ))}
@@ -19,4 +26,4 @@ const KeyValueTable = ({ entries }: Props) => (
   </Table>
 )
 
-export default KeyValueTable
+export default withStyles(styles)(KeyValueTable)
