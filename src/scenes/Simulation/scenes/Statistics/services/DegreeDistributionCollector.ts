@@ -16,7 +16,7 @@ class DegreeDistributionCollector {
   constructor(graph: ReadGraph) {
     this.graph = graph
     this.subject = new ReplaySubject(1)
-    this.subscription = this.graph.subject.subscribe(this.onGraphEvent)
+    this.subscription = this.graph.asObservable().subscribe(this.onGraphEvent)
     this.dist = []
   }
 

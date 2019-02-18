@@ -3,9 +3,9 @@ import { VertexId, Graph, Vertex, Edge, Change, EdgeId } from './types'
 import AdjacencyListVertex from './AdjacencyListVertex'
 
 export default class AdjacencyListGraph implements Graph {
+  private subject: ReplaySubject<Change> = new ReplaySubject()
   public edges: Edge[] = []
   public vertices: Vertex[] = []
-  public subject: ReplaySubject<Change> = new ReplaySubject()
 
   public asObservable = () => this.subject.asObservable()
   public vertexCount = () => this.vertices.length

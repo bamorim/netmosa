@@ -29,12 +29,12 @@ class MetricsView extends React.Component<Props> {
   private degreeDist?: DegreeDistributionCollector
   private rootDistanceDist?: DistanceToRootDistributionCollector
 
-  componentWillMount(){
+  public componentWillMount(){
     this.degreeDist = new DegreeDistributionCollector(this.props.graph)
     this.rootDistanceDist = new DistanceToRootDistributionCollector(this.props.graph)
   }
 
-  componentWillUnmount() {
+  public componentWillUnmount() {
     if(this.degreeDist) {
       this.degreeDist.destroy()
     }
