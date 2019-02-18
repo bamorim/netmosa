@@ -4,7 +4,7 @@ import union from 'ramda/es/union';
 
 export const generateGraphML = (graph: ReadGraph) => {
   // TODO: Add attributes in GraphML export
-  const dataXml = graph.vertices
+  const keyXml = graph.vertices
     .map((v) => Array.from(v.attributes.keys()))
     .reduce((agg, curr) => union(agg, curr), [])
     .map((key) => ({
@@ -12,7 +12,7 @@ export const generateGraphML = (graph: ReadGraph) => {
       '@for': 'node',
       '@attr.name': key,
       '@attr.type': 'string',
-      default: key === 'color' ? [{'#text': 'yellow'}] : []
+      default: key === 'color' ? [{'#text': 'white'}] : []
     }))
 
   const nodeXml = graph.vertices.map((v, i) => ({
@@ -35,7 +35,7 @@ export const generateGraphML = (graph: ReadGraph) => {
         'http://graphml.graphdrawing.org/xmlns',
         'http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd'
       ].join(' '),
-      data: dataXml,
+      key: keyXml,
       graph: {
         '@id': 'G',
         '@edgedefault': 'undirected',
