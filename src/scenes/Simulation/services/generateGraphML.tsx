@@ -1,12 +1,31 @@
 import * as xmlbuilder from 'xmlbuilder'
 import { ReadGraph } from 'graph'
+import union from 'ramda/es/union';
 
 export const generateGraphML = (graph: ReadGraph) => {
   // TODO: Add attributes in GraphML export
-  const nodeXml = graph.vertices.map((v, i) => ({ '@id': `n${i}` }))
+  const dataXml = graph.vertices
+    .map((v) => Array.from(v.attributes.keys()))
+    .reduce((agg, curr) => union(agg, curr), [])
+    .map((key) => ({
+      '@id': `d${key}`,
+      '@for': 'node',
+      '@attr.name': key,
+      '@attr.type': 'string',
+      default: key === 'color' ? [{'#text': 'yellow'}] : []
+    }))
+
+  const nodeXml = graph.vertices.map((v, i) => ({
+    '@id': `n${i}`,
+    data: Array.from(v.attributes.keys()).map((key) => ({
+      '@key': `d${key}`,
+      '#text': v.attributes.get(key)!
+    }))
+  }))
+
   const edgeXml = graph.edges.map(([s, t], i) => ({
     '@source': `n${s}`,
-    '@target': `n${t}`
+    '@target': `n${t}`,
   }))
   const graphXml = {
     graphml: {
@@ -16,6 +35,7 @@ export const generateGraphML = (graph: ReadGraph) => {
         'http://graphml.graphdrawing.org/xmlns',
         'http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd'
       ].join(' '),
+      data: dataXml,
       graph: {
         '@id': 'G',
         '@edgedefault': 'undirected',
