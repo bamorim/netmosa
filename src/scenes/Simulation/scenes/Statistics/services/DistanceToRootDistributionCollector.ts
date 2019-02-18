@@ -1,12 +1,13 @@
-import { ReadGraph, Change } from '../graph'
 import { ReplaySubject, Subject } from 'rxjs'
+
+import { ReadGraph, Change } from 'graph'
 
 const changeDist = (dist: number[], idx: number, amt: number) => {
   dist[idx] = dist[idx] || 0
   dist[idx] += amt
 }
 
-class DistanceToRootDistribution {
+class DistanceToRootDistributionCollector {
   private graph: ReadGraph
   private distribution: number[]
   private distance: number[]
@@ -57,4 +58,4 @@ class DistanceToRootDistribution {
   }
 }
 
-export default DistanceToRootDistribution
+export default DistanceToRootDistributionCollector

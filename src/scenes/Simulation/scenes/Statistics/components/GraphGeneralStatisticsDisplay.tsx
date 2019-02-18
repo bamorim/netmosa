@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { Subscription } from 'rxjs'
 import { sampleTime } from 'rxjs/operators'
-import { ReadGraph, Change } from '../graph'
+
+import { ReadGraph, Change } from 'graph/index'
 import { Chip, Avatar, withStyles } from '@material-ui/core'
 
 export interface Props {

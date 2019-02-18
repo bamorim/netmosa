@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core'
-import EditorPage from 'components/EditorPage'
-import VisualizationPage from 'components/VisualizationPage'
+import Editor from 'scenes/Editor'
+import Simulation from 'scenes/Simulation'
 import useObservable from 'hooks/useObservable'
 import { appState } from 'appState'
 
@@ -19,7 +19,7 @@ const theme = createMuiTheme({
   }
 })
 
-const App = () => {
+const Root = () => {
   const runningSimulation = useObservable(
     appState.runningSimulation$,
     undefined
@@ -28,11 +28,11 @@ const App = () => {
   return (
     <MuiThemeProvider theme={theme}>
       {runningSimulation ? (
-        <VisualizationPage runningSimulation={runningSimulation} />
+        <Simulation runningSimulation={runningSimulation} />
       ) : (
-        <EditorPage />
+        <Editor />
       )}
     </MuiThemeProvider>
   )
 }
-export default App
+export default Root

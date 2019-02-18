@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { Table, TableBody, TableRow, TableCell } from '@material-ui/core';
+import { Table, TableBody, TableRow, TableCell } from '@material-ui/core'
 
 interface Props {
   entries: React.ReactNode[][]
 }
 
-const KeyValueTable = ({entries}: Props) => (
+const KeyValueTable = ({ entries }: Props) => (
   <Table>
     <TableBody>
       {entries.map((cells, i) => (

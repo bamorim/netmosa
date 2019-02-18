@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { min, max } from 'ramda'
-import ScientificNotation from 'simulation/ScientificNotation';
+
+import ScientificNotation from 'components/ScientificNotation';
 import KeyValueTable from 'components/KeyValueTable';
 
 interface Props {

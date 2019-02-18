@@ -1,12 +1,13 @@
-import { ReadGraph, Change } from '../graph'
 import { ReplaySubject, Subject } from 'rxjs'
+
+import { ReadGraph, Change } from 'graph'
 
 const changeDist = (dist: number[], idx: number, amt: number) => {
   dist[idx] = dist[idx] || 0
   dist[idx] += amt
 }
 
-class DegreeDistribution {
+class DegreeDistributionCollector {
   private graph: ReadGraph
   private dist: number[]
   public subject: Subject<number[]>
@@ -43,4 +44,4 @@ class DegreeDistribution {
   }
 }
 
-export default DegreeDistribution
+export default DegreeDistributionCollector

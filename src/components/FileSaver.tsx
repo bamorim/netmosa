@@ -1,7 +1,15 @@
 import * as React from 'react'
 import { useState, ReactElement } from 'react'
 import { saveAs } from 'file-saver'
-import { Button, Dialog, DialogTitle, DialogActions, TextField, DialogContentText, DialogContent } from '@material-ui/core'
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  TextField,
+  DialogContentText,
+  DialogContent
+} from '@material-ui/core'
 
 type BlobFunction = () => Blob
 
@@ -19,7 +27,7 @@ export interface Props<T> {
 function FileSaver<T>(p: Props<T>) {
   const [isOpen, setOpen] = useState(false)
   const [filename, setFilename] = useState(p.defaultFilename)
-  const label = p.label || "Save File"
+  const label = p.label || 'Save File'
 
   const close = () => setOpen(false)
   const open = () => {
@@ -45,20 +53,16 @@ function FileSaver<T>(p: Props<T>) {
     close()
   }
 
-  const button = p.button ? p.button({onClick: open}) : (
-    <Button onClick={open}>
-        {label}
-    </Button>
+  const button = p.button ? (
+    p.button({ onClick: open })
+  ) : (
+    <Button onClick={open}>{label}</Button>
   )
 
   return (
     <>
       {button}
-      <Dialog
-        open={isOpen}
-        onClose={close}
-        aria-labelledby="form-dialog-title"
-      >
+      <Dialog open={isOpen} onClose={close} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Save File</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -71,16 +75,12 @@ function FileSaver<T>(p: Props<T>) {
             label="Filename"
             fullWidth={true}
             value={filename}
-            onChange={(e) => setFilename(e.target.value)}
+            onChange={e => setFilename(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={close}>
-            Cancel
-          </Button>
-          <Button onClick={saveAndClose}>
-            Save
-          </Button>
+          <Button onClick={close}>Cancel</Button>
+          <Button onClick={saveAndClose}>Save</Button>
         </DialogActions>
       </Dialog>
     </>

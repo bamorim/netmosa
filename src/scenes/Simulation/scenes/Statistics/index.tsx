@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { ReadGraph } from '../graph'
+import { ReadGraph } from 'graph'
 import { withStyles, createStyles, Grid } from '@material-ui/core'
 
-import DegreeDistribution from '../metrics/DegreeDistribution'
-import DistanceToRootDistribution from '../metrics/DistanceToRootDistribution'
+import DegreeDistributionCollector from './services/DegreeDistributionCollector'
+import DistanceToRootDistributionCollector from './services/DistanceToRootDistributionCollector'
 
-import DistributionContainer from './distribution/DistributionContainer'
-import GraphGeneralStatisicsDisplay from './GraphGeneralStatisticsDisplay'
+import DistributionView from './components/DistributionView'
+import GraphGeneralStatisicsDisplay from './components/GraphGeneralStatisticsDisplay'
 
 interface Props {
   graph: ReadGraph
@@ -26,13 +26,13 @@ const styles = createStyles({
 })
 
 class MetricsView extends React.Component<Props> {
-  private degreeDist: DegreeDistribution
-  private rootDistanceDist: DistanceToRootDistribution
+  private degreeDist: DegreeDistributionCollector
+  private rootDistanceDist: DistanceToRootDistributionCollector
 
   constructor(props: Props) {
     super(props)
-    this.degreeDist = new DegreeDistribution(props.graph)
-    this.rootDistanceDist = new DistanceToRootDistribution(props.graph)
+    this.degreeDist = new DegreeDistributionCollector(props.graph)
+    this.rootDistanceDist = new DistanceToRootDistributionCollector(props.graph)
   }
 
   public render() {
@@ -45,13 +45,13 @@ class MetricsView extends React.Component<Props> {
             <GraphGeneralStatisicsDisplay graph={this.props.graph} />
           </Grid>
           <Grid item={true} xs={6}>
-            <DistributionContainer
+            <DistributionView
               distribution={this.degreeDist.subject}
               name="Degree"
             />
           </Grid>
           <Grid item={true} xs={6}>
-            <DistributionContainer
+            <DistributionView
               distribution={this.rootDistanceDist.subject}
               name="Distance to Root"
             />

@@ -1,12 +1,14 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { storiesOf } from '@storybook/react'
+
+import { AdjacencyListGraph, VertexId } from 'graph'
+
 import GraphView from './GraphView'
-import { AdjacencyListGraph, VertexId } from '../graph'
 
-let graph = new AdjacencyListGraph()
+const graph = new AdjacencyListGraph()
 
-let attributes = [
+const attributes = [
   new Map([["color", "red"]]),
   new Map([["color", "green"], ["foo", "bar"]]),
   new Map([["color", "blue"], ["foo", "foo"], ["bar", "bar"]]),

@@ -9,8 +9,8 @@ import examples from 'examples'
 import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
 import { SimulationError } from 'simulation'
-import FileSaver from './FileSaver';
-import FileLoader from './FileLoader';
+import FileSaver from 'components/FileSaver';
+import FileLoader from 'components/FileLoader';
 
 interface Props {}
 
@@ -23,7 +23,7 @@ const messageFor = (error: SimulationError) => {
   }
 }
 
-const EditorPage = (props: Props) => {
+const Editor = (props: Props) => {
   const [
     editor,
     setEditor
@@ -110,4 +110,4 @@ const EditorPage = (props: Props) => {
   )
 }
 
-export default EditorPage
+export default Editor

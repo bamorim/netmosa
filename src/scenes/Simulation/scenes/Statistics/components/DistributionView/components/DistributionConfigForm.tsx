@@ -8,7 +8,7 @@ import {
   createStyles,
   withStyles
 } from '@material-ui/core'
-import { Transformation } from './distribution.types'
+import { Transformation } from './DistributionChart'
 
 interface Props {
   classes: Record<keyof typeof styles, string>

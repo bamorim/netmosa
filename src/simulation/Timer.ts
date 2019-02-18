@@ -48,7 +48,7 @@ export default class Timer {
   }
 
   private handler = () => {
-    if(this.destroyed) {
+    if (this.destroyed) {
       return
     }
 

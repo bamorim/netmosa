@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as d3 from 'd3'
-import { ReadGraph, Change, VertexId } from '../graph'
+import { ReadGraph, Change, VertexId } from 'graph/index'
 import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
 import { Subscription } from 'rxjs'
@@ -24,9 +24,16 @@ const GraphView = ({ graph, classes, onHighlightChange }: Props) => {
   const container = useRef(null)
   useLayoutEffect(
     () => {
-      const onHighlightChangeWithFallback = onHighlightChange || (() => {})
-      const graphView = new GraphViewD3(container.current!, graph, onHighlightChangeWithFallback)
-      return () => graphView.cleanup()
+      const noop = () => null
+      const onHighlightChangeWithFallback = onHighlightChange
+        ? onHighlightChange
+        : noop
+      const graphView = new GraphViewD3(
+        container.current!,
+        graph,
+        onHighlightChangeWithFallback
+      )
+      return () => graphView.destroy()
     },
     [graph]
   )
@@ -66,7 +73,11 @@ class GraphViewD3 {
   private autozoomDisabled: boolean = false
   private reenableAutozoomTimer?: NodeJS.Timeout
 
-  constructor(container: Element, graph: ReadGraph, onHighlightChange: HighlightChangeCallback) {
+  constructor(
+    container: Element,
+    graph: ReadGraph,
+    onHighlightChange: HighlightChangeCallback
+  ) {
     this.graph = graph
     this.onHighlightChange = onHighlightChange
     const width = container.clientWidth
@@ -74,9 +85,7 @@ class GraphViewD3 {
     const bodyStrength = -100
     const linkStrength = 0.5
 
-    this.zoom = d3
-      .zoom()
-      .on("zoom", this.zoomed);
+    this.zoom = d3.zoom().on('zoom', this.zoomed)
 
     this.force = d3
       .forceSimulation<Node, Link>()
@@ -116,10 +125,10 @@ class GraphViewD3 {
     this.subscription = this.graph.subject.subscribe(this.onChange)
   }
 
-  public cleanup() {
+  public destroy() {
     this.subscription.unsubscribe()
     this.force.stop()
-    this.reenableAutozoomTimer && clearTimeout(this.reenableAutozoomTimer)
+    this.clearReenableAutozoomTimer()
   }
 
   private onChange = (change: Change) => {
@@ -175,10 +184,12 @@ class GraphViewD3 {
       )
 
     // Fit zoom
-    if(!this.autozoomDisabled) this.autozoom()
+    if (!this.autozoomDisabled) {
+      this.autozoom()
+    }
   }
 
-  private update = () => {
+  private update() {
     const linkJoin = this.linkLines.data(this.links)
 
     // Just remove old link lines
@@ -251,16 +262,20 @@ class GraphViewD3 {
   private mouseover = (hovered: Node) => {
     this.onHighlightChange(hovered.index)
     const neighbors = new Set(this.graph.vertices[hovered.index].neighbors)
-    const highlightNode = (node: Node) => node === hovered || neighbors.has(node.index)
-    const highlightLink = (link: Link) => link.source === hovered || link.target === hovered
+    const highlightNode = (node: Node) =>
+      node === hovered || neighbors.has(node.index)
+    const highlightLink = (link: Link) =>
+      link.source === hovered || link.target === hovered
 
     const transition = d3.transition().duration(200)
 
-    this.nodeCircles.transition(transition)
-      .style('opacity', (node: Node) => highlightNode(node) ? 1.0 : 0.2)
+    this.nodeCircles
+      .transition(transition)
+      .style('opacity', (node: Node) => (highlightNode(node) ? 1.0 : 0.2))
 
-    this.linkLines.transition(transition)
-      .style('opacity', (link: Link) => highlightLink(link) ? 1.0 : 0.2)
+    this.linkLines
+      .transition(transition)
+      .style('opacity', (link: Link) => (highlightLink(link) ? 1.0 : 0.2))
   }
 
   private mouseout = (node: Node) => {
@@ -271,15 +286,15 @@ class GraphViewD3 {
   }
 
   private zoomed = () => {
-    if(!this.isAutozooming) {
+    if (!this.isAutozooming) {
       this.disableAutozoom()
     }
-    this.transformationGroup.attr("transform", d3.event.transform);
+    this.transformationGroup.attr('transform', d3.event.transform)
   }
 
-  private disableAutozoom = () => {
+  private disableAutozoom() {
+    this.clearReenableAutozoomTimer()
     this.autozoomDisabled = true
-    this.reenableAutozoomTimer && clearTimeout(this.reenableAutozoomTimer)
     this.reenableAutozoomTimer = setTimeout(this.reenableAutozoom, 5000)
   }
 
@@ -288,16 +303,28 @@ class GraphViewD3 {
     this.autozoomDisabled = false
   }
 
+  private clearReenableAutozoomTimer() {
+    if (this.reenableAutozoomTimer) {
+      clearTimeout(this.reenableAutozoomTimer)
+    }
+  }
+
   /** Scale the zoom to fit everything */
   private autozoom() {
     const rootNode = this.transformationGroup.node() as SVGGraphicsElement
     const bounds = rootNode.getBBox()
     const parent = rootNode.parentElement
-    const fullWidth = (parent && (parent.clientWidth || (parent.parentElement && parent.parentElement.clientWidth)))
-    const fullHeight = (parent && (parent.clientHeight || (parent.parentElement && parent.parentElement.clientHeight)))
+    const fullWidth =
+      parent &&
+      (parent.clientWidth ||
+        (parent.parentElement && parent.parentElement.clientWidth))
+    const fullHeight =
+      parent &&
+      (parent.clientHeight ||
+        (parent.parentElement && parent.parentElement.clientHeight))
 
-    if(!fullWidth || !fullHeight){
-      console.debug("Could not get parent dimensions")
+    if (!fullWidth || !fullHeight) {
+      console.debug('Could not get parent dimensions')
       return
     }
 
@@ -317,7 +344,7 @@ class GraphViewD3 {
     this.svg.call(
       this.zoom.transform,
       d3.zoomIdentity
-        .translate(fullWidth/2, fullHeight/2)
+        .translate(fullWidth / 2, fullHeight / 2)
         .scale(scale)
         .translate(-midX, -midY)
     )

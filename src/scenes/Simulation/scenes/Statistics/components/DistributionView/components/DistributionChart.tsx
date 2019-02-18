@@ -9,12 +9,12 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
-import { Transformation } from './distribution.types'
 import { maxBy, minBy, reduce, range } from 'ramda'
 import ScientificNotation, {
   trimmedExponential
-} from 'simulation/ScientificNotation'
-import { pdf, cdf, ccdf } from './distribution.transformations'
+} from 'components/ScientificNotation'
+
+export type Transformation = 'pdf' | 'cdf' | 'ccdf'
 
 interface Props {
   distribution: number[]
@@ -113,3 +113,18 @@ const transform = (distribution: number[], transformation: Transformation) => {
       return ccdf(distribution)
   }
 }
+
+const pdf = (distribution: number[]): number[] => {
+  const total = distribution.reduce((a, b) => a + b, 0)
+  return distribution.map(x => x / total)
+}
+const cdf = (distribution: number[]): number[] => {
+  const result: number[] = []
+  pdf(distribution).forEach(x =>
+    result.push((result[result.length - 1] || 0) + x)
+  )
+  return result
+}
+
+const ccdf = (distribution: number[]): number[] =>
+  cdf(distribution).map(x => 1 - x)

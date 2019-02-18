@@ -1,11 +1,12 @@
 import * as React from 'react'
-import { Transformation } from './distribution.types'
-import DistributionConfigForm from './DistributionConfigForm'
-import DistributionChart from './DistributionChart'
 import { Observable, Subscription } from 'rxjs'
 import { sampleTime } from 'rxjs/operators'
-import DistributionStatistics from './DistributionStatistics'
-import FileSaver from 'components/FileSaver';
+
+import FileSaver from 'components/FileSaver'
+
+import DistributionConfigForm from './components/DistributionConfigForm'
+import DistributionChart, { Transformation } from './components/DistributionChart'
+import DistributionStatistics from './components/DistributionStatistics'
 
 export interface Props {
   distribution: Observable<number[]>
@@ -19,7 +20,7 @@ interface State {
   yLog: boolean
 }
 
-class DistributionContainer extends React.Component<Props, State> {
+class DistributionView extends React.Component<Props, State> {
   private subscription: Subscription
 
   public state: State = {
@@ -73,4 +74,4 @@ class DistributionContainer extends React.Component<Props, State> {
   }
 }
 
-export default DistributionContainer
+export default DistributionView
