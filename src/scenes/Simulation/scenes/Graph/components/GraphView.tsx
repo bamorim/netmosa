@@ -3,8 +3,9 @@ import * as d3 from 'd3'
 import { ReadGraph, Change, VertexId } from 'graph/index'
 import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
-import { Subscription } from 'rxjs'
+import { Subscription, Observable } from 'rxjs'
 import { clearTimeout, setTimeout } from 'timers'
+import { buffer, flatMap } from 'rxjs/operators';
 
 const styles = createStyles({
   container: {
@@ -16,11 +17,12 @@ type HighlightChangeCallback = (vertex?: VertexId) => void
 
 interface Props {
   graph: ReadGraph
+  bufferBy?: Observable<void | {}>
   classes: Record<keyof typeof styles, string>
   onHighlightChange?: HighlightChangeCallback
 }
 
-const GraphView = ({ graph, classes, onHighlightChange }: Props) => {
+const GraphView = ({ graph, classes, onHighlightChange, bufferBy }: Props) => {
   const container = useRef(null)
   useLayoutEffect(
     () => {
@@ -31,7 +33,8 @@ const GraphView = ({ graph, classes, onHighlightChange }: Props) => {
       const graphView = new GraphViewD3(
         container.current!,
         graph,
-        onHighlightChangeWithFallback
+        onHighlightChangeWithFallback,
+        bufferBy
       )
       return () => graphView.destroy()
     },
@@ -76,7 +79,8 @@ class GraphViewD3 {
   constructor(
     container: Element,
     graph: ReadGraph,
-    onHighlightChange: HighlightChangeCallback
+    onHighlightChange: HighlightChangeCallback,
+    bufferBy?: Observable<void | {}>
   ) {
     this.graph = graph
     this.onHighlightChange = onHighlightChange
@@ -122,7 +126,13 @@ class GraphViewD3 {
 
     this.update()
 
-    this.subscription = this.graph.subject.subscribe(this.onChange)
+    let changeObservable = this.graph.asObservable()
+
+    if(bufferBy) {
+      changeObservable = changeObservable.pipe(buffer(bufferBy), flatMap((evts) => evts))
+    }
+
+    this.subscription = changeObservable.subscribe(this.onChange)
   }
 
   public destroy() {
@@ -135,11 +145,17 @@ class GraphViewD3 {
     switch (change.type) {
       case 'AddedVertex':
         const vertex = this.graph.vertices[change.id]
-        const neighborId = vertex.neighbors[0]
-        const neighbor = this.nodes[neighborId || 0]
-        const copiedProps = neighbor
-          ? { x: neighbor.x || 0, y: neighbor.y || 0 }
+        const vertexToCopyPos =
+          vertex.neighbors.length > 0
+            ? this.nodes[vertex.neighbors[0]]
+            : this.nodes.length > 0
+            ? this.nodes[0]
+            : undefined
+
+        const copiedProps = vertexToCopyPos
+          ? { x: vertexToCopyPos.x || 0, y: vertexToCopyPos.y || 0 }
           : { x: 0, y: 0 }
+
         this.nodes[change.id] = {
           ...copiedProps,
           index: change.id

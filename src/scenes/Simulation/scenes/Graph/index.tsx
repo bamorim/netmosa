@@ -2,13 +2,14 @@ import * as React from 'react'
 import { useState } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
 
-import { ReadGraph, VertexId } from 'graph'
+import { VertexId } from 'graph'
 
 import GraphView from './components/GraphView'
 import HighlightedVertexDetails from './components/HighlightedVertexDetails'
+import { TimedSimulation } from 'simulation'
 
 export interface Props {
-  graph: ReadGraph
+  simulation: TimedSimulation
   classes: Record<keyof typeof styles, string>
 }
 
@@ -32,11 +33,15 @@ const GraphScene = (props: Props) => {
       {vertexId !== undefined ? (
         <HighlightedVertexDetails
           vertexId={vertexId}
-          graph={props.graph}
+          graph={props.simulation.graph}
           classes={{ container: props.classes.details }}
         />
       ) : null}
-      <GraphView graph={props.graph} onHighlightChange={setVertexId} />
+      <GraphView
+        graph={props.simulation.graph}
+        bufferBy={props.simulation.asObservable()}
+        onHighlightChange={setVertexId}
+      />
     </div>
   )
 }

@@ -56,7 +56,7 @@ const SimulationScene = ({ runningSimulation, classes }: Props) => {
   return (
     <Layout actions={<TopbarActions {...topbarActionsProps} />}>
       <div className={classes.container}>
-        <Graph graph={runningSimulation.graph} classes={graphViewClasses} />
+        <Graph simulation={runningSimulation} classes={graphViewClasses} />
         <Statistics
           graph={runningSimulation.graph}
           classes={statisticsClasses}

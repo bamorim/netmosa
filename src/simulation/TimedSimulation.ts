@@ -10,6 +10,7 @@ export default class TimedSimulation {
   public graph: ReadGraph
   public paused$: Subject<boolean> = new ReplaySubject(1)
   public speed$: Subject<number> = new ReplaySubject(1)
+  private tickSubject: Subject<void | SimulationError> = new Subject()
 
   private timer: Timer
   private iterator: IterableIterator<void | SimulationError>
@@ -27,6 +28,10 @@ export default class TimedSimulation {
 
     this.paused$.next(this.timer.isPaused())
     this.speed$.next(initialSpeed)
+  }
+
+  public asObservable() {
+    return this.tickSubject.asObservable()
   }
 
   public pause = () => {
@@ -50,6 +55,9 @@ export default class TimedSimulation {
 
   private tick = () => {
     const result = this.iterator.next()
+
+    // Publish tick event, so other's can sync with tick event
+    this.tickSubject.next(result.value)
 
     if (result.done) {
       this.pause()
