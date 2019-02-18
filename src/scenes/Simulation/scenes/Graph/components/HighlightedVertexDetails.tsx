@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createStyles, withStyles } from '@material-ui/core'
+import { createStyles, withStyles, Paper } from '@material-ui/core'
 
 import { VertexId, ReadGraph } from 'graph'
 import KeyValueTable from 'components/KeyValueTable'
@@ -12,9 +12,7 @@ export interface Props {
 
 const styles = createStyles({
   container: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0
+    margin: "10px"
   }
 })
 
@@ -30,9 +28,9 @@ const HighlightedVertexDetails = (props: Props) => {
   })
 
   return (
-    <div className={props.classes.container}>
+    <Paper className={props.classes.container}>
       <KeyValueTable entries={entries} />
-    </div>
+    </Paper>
   )
 }
 

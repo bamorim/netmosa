@@ -16,6 +16,11 @@ const styles = createStyles({
   container: {
     flex: '1',
     display: 'flex'
+  },
+  details: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0
   }
 })
 
@@ -24,9 +29,12 @@ const GraphScene = (props: Props) => {
 
   return (
     <div className={props.classes.container}>
-
       {vertexId !== undefined ? (
-        <HighlightedVertexDetails vertexId={vertexId} graph={props.graph} />
+        <HighlightedVertexDetails
+          vertexId={vertexId}
+          graph={props.graph}
+          classes={{ container: props.classes.details }}
+        />
       ) : null}
       <GraphView graph={props.graph} onHighlightChange={setVertexId} />
     </div>
