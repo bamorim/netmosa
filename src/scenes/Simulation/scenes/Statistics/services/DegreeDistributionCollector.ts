@@ -1,4 +1,4 @@
-import { ReplaySubject, Subject } from 'rxjs'
+import { ReplaySubject, Subject, Subscription } from 'rxjs'
 
 import { ReadGraph, Change } from 'graph'
 
@@ -10,13 +10,18 @@ const changeDist = (dist: number[], idx: number, amt: number) => {
 class DegreeDistributionCollector {
   private graph: ReadGraph
   private dist: number[]
+  private subscription: Subscription
   public subject: Subject<number[]>
 
   constructor(graph: ReadGraph) {
     this.graph = graph
     this.subject = new ReplaySubject(1)
-    this.graph.subject.subscribe(this.onGraphEvent)
+    this.subscription = this.graph.subject.subscribe(this.onGraphEvent)
     this.dist = []
+  }
+
+  public destroy() {
+    this.subscription.unsubscribe()
   }
 
   private onGraphEvent = (change: Change) => {

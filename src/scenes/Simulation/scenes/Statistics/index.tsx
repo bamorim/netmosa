@@ -26,17 +26,29 @@ const styles = createStyles({
 })
 
 class MetricsView extends React.Component<Props> {
-  private degreeDist: DegreeDistributionCollector
-  private rootDistanceDist: DistanceToRootDistributionCollector
+  private degreeDist?: DegreeDistributionCollector
+  private rootDistanceDist?: DistanceToRootDistributionCollector
 
-  constructor(props: Props) {
-    super(props)
-    this.degreeDist = new DegreeDistributionCollector(props.graph)
-    this.rootDistanceDist = new DistanceToRootDistributionCollector(props.graph)
+  componentWillMount(){
+    this.degreeDist = new DegreeDistributionCollector(this.props.graph)
+    this.rootDistanceDist = new DistanceToRootDistributionCollector(this.props.graph)
+  }
+
+  componentWillUnmount() {
+    if(this.degreeDist) {
+      this.degreeDist.destroy()
+    }
+    if(this.rootDistanceDist) {
+      this.rootDistanceDist.destroy()
+    }
   }
 
   public render() {
     const { classes } = this.props
+
+    if(!this.degreeDist || !this.rootDistanceDist) {
+      return null
+    }
 
     return (
       <div className={classes.container}>
