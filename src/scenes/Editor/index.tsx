@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState, useEffect } from 'react'
 import MonacoEditor from 'react-monaco-editor'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import * as monaco from 'monaco-editor'
 import Layout from 'components/Layout'
 import { Button, Menu, MenuItem } from '@material-ui/core'
 
@@ -9,8 +9,8 @@ import examples from 'examples'
 import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
 import { SimulationError } from 'simulation'
-import FileSaver from 'components/FileSaver';
-import FileLoader from 'components/FileLoader';
+import FileSaver from 'components/FileSaver'
+import FileLoader from 'components/FileLoader'
 
 interface Props {}
 
@@ -65,13 +65,8 @@ const Editor = (props: Props) => {
     <Layout
       actions={
         <>
-          <FileSaver
-            contents={code}
-            defaultFilename="script.lua"
-          />
-          <FileLoader
-            onLoad={appState.setCode}
-          />
+          <FileSaver contents={code} defaultFilename="script.lua" />
+          <FileLoader onLoad={appState.setCode} />
           <Button onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>
             Load Example
           </Button>
