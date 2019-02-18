@@ -7,10 +7,14 @@ import luaSimulation from './luaSimulation'
 type ErrorCallback = (error: SimulationError) => void
 
 export default class TimedSimulation {
-  public graph: ReadGraph
-  public paused$: Subject<boolean> = new ReplaySubject(1)
-  public speed$: Subject<number> = new ReplaySubject(1)
+  private pausedSubject: Subject<boolean> = new ReplaySubject(1)
+  private speedSubject: Subject<number> = new ReplaySubject(1)
   private tickSubject: Subject<void | SimulationError> = new Subject()
+
+  public graph: ReadGraph
+  public paused$ = this.pausedSubject.asObservable()
+  public speed$ = this.speedSubject.asObservable()
+  public tick$ = this.tickSubject.asObservable()
 
   private timer: Timer
   private iterator: IterableIterator<void | SimulationError>
@@ -26,22 +30,18 @@ export default class TimedSimulation {
 
     this.timer = new Timer(initialSpeed, this.tick)
 
-    this.paused$.next(this.timer.isPaused())
-    this.speed$.next(initialSpeed)
-  }
-
-  public asObservable() {
-    return this.tickSubject.asObservable()
+    this.pausedSubject.next(this.timer.isPaused())
+    this.speedSubject.next(initialSpeed)
   }
 
   public pause = () => {
     this.timer.pause()
-    this.paused$.next(this.timer.isPaused())
+    this.pausedSubject.next(this.timer.isPaused())
   }
 
   public play = () => {
     this.timer.play()
-    this.paused$.next(this.timer.isPaused())
+    this.pausedSubject.next(this.timer.isPaused())
   }
 
   public destroy() {
@@ -50,7 +50,7 @@ export default class TimedSimulation {
 
   public setSpeed = (speed: number) => {
     this.timer.setSpeed(speed)
-    this.speed$.next(speed)
+    this.speedSubject.next(speed)
   }
 
   private tick = () => {

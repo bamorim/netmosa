@@ -58,13 +58,13 @@ class MetricsView extends React.Component<Props> {
           </Grid>
           <Grid item={true} xs={6}>
             <DistributionView
-              distribution={this.degreeDist.subject}
+              distribution={this.degreeDist.distribution$}
               name="Degree"
             />
           </Grid>
           <Grid item={true} xs={6}>
             <DistributionView
-              distribution={this.rootDistanceDist.subject}
+              distribution={this.rootDistanceDist.distribution$}
               name="Distance to Root"
             />
           </Grid>

@@ -3,11 +3,11 @@ import { VertexId, Graph, Vertex, Edge, Change, EdgeId } from './types'
 import AdjacencyListVertex from './AdjacencyListVertex'
 
 export default class AdjacencyListGraph implements Graph {
-  private subject: ReplaySubject<Change> = new ReplaySubject()
+  private changeSubject: ReplaySubject<Change> = new ReplaySubject()
   public edges: Edge[] = []
   public vertices: Vertex[] = []
+  public change$ = this.changeSubject.asObservable()
 
-  public asObservable = () => this.subject.asObservable()
   public vertexCount = () => this.vertices.length
   public edgeCount = () => this.edges.length
   public vertex = (id: VertexId) => this.vertices[id]
@@ -15,7 +15,7 @@ export default class AdjacencyListGraph implements Graph {
   public addVertex = () => {
     const vertex = new AdjacencyListVertex(this.vertices.length)
     this.vertices.push(vertex)
-    this.subject.next({ type: 'AddedVertex', id: vertex.id })
+    this.changeSubject.next({ type: 'AddedVertex', id: vertex.id })
 
     return vertex.id
   }
@@ -40,11 +40,11 @@ export default class AdjacencyListGraph implements Graph {
     if (v1 !== v2) {
       this.vertices[v2].neighbors.push(v1)
     }
-    this.subject.next({ type: 'AddedEdge', id: edgeId })
+    this.changeSubject.next({ type: 'AddedEdge', id: edgeId })
   }
 
   public setAttribute = (id: VertexId, key: string, value: string) => {
     this.vertices[id].attributes.set(key, value)
-    this.subject.next({ type: 'SetAttribute', id, key, value })
+    this.changeSubject.next({ type: 'SetAttribute', id, key, value })
   }
 }

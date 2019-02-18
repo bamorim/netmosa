@@ -12,12 +12,13 @@ class DistanceToRootDistributionCollector {
   private distribution: number[]
   private distance: number[]
   private subscription: Subscription
-  public subject: Subject<number[]>
+  private distributionSubject: Subject<number[]> = new ReplaySubject(1)
+
+  public distribution$ = this.distributionSubject.asObservable()
 
   constructor(graph: ReadGraph) {
     this.graph = graph
-    this.subject = new ReplaySubject(1)
-    this.subscription = this.graph.asObservable().subscribe(this.onGraphEvent)
+    this.subscription = this.graph.change$.subscribe(this.onGraphEvent)
     this.distribution = []
     this.distance = []
   }
@@ -59,7 +60,7 @@ class DistanceToRootDistributionCollector {
       default:
     }
 
-    this.subject.next(this.distribution)
+    this.distributionSubject.next(this.distribution)
   }
 }
 

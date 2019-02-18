@@ -126,7 +126,7 @@ class GraphViewD3 {
 
     this.update()
 
-    let changeObservable = this.graph.asObservable()
+    let changeObservable = this.graph.change$
 
     if(bufferBy) {
       changeObservable = changeObservable.pipe(buffer(bufferBy), flatMap((evts) => evts))

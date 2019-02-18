@@ -37,7 +37,7 @@ export type Change = AddedVertex | AddedEdge | SetAttribute
 export interface ReadGraph {
   readonly vertices: ReadonlyArray<ReadVertex>
   readonly edges: ReadonlyArray<Edge>
-  asObservable: () => Observable<Change>
+  readonly change$: Observable<Change>
 }
 
 export interface Graph extends ReadGraph {

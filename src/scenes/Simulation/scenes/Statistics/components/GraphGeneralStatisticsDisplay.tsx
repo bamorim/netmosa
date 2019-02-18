@@ -30,8 +30,7 @@ class GraphGeneralStatistics extends React.Component<Props, State> {
   }
 
   public componentDidMount() {
-    this.subscription = this.props.graph
-      .asObservable()
+    this.subscription = this.props.graph.change$
       .pipe(sampleTime(200)) // Performance tweaking
       .subscribe((change: Change) => {
         this.setState({
@@ -39,6 +38,7 @@ class GraphGeneralStatistics extends React.Component<Props, State> {
           edgeCount: this.props.graph.edges.length
         })
       })
+
   }
 
   public componentWillUnmount() {

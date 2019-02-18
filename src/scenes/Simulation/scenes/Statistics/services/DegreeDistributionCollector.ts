@@ -11,12 +11,13 @@ class DegreeDistributionCollector {
   private graph: ReadGraph
   private dist: number[]
   private subscription: Subscription
-  public subject: Subject<number[]>
+  private distributionSubject: Subject<number[]> = new ReplaySubject(1)
+
+  public distribution$ = this.distributionSubject.asObservable()
 
   constructor(graph: ReadGraph) {
     this.graph = graph
-    this.subject = new ReplaySubject(1)
-    this.subscription = this.graph.asObservable().subscribe(this.onGraphEvent)
+    this.subscription = this.graph.change$.subscribe(this.onGraphEvent)
     this.dist = []
   }
 
@@ -45,7 +46,7 @@ class DegreeDistributionCollector {
       default:
     }
 
-    this.subject.next(this.dist)
+    this.distributionSubject.next(this.dist)
   }
 }
 

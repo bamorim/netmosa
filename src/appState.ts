@@ -12,9 +12,15 @@ export interface IAppState {
 }
 
 class AppState implements IAppState {
-  public code$ = new ReplaySubject<string>(1)
-  public runningSimulation$ = new ReplaySubject<TimedSimulation | undefined>(1)
-  public lastError$ = new ReplaySubject<SimulationError | undefined>(1)
+  private codeSubject = new ReplaySubject<string>(1)
+  private runningSimulationSubject = new ReplaySubject<
+    TimedSimulation | undefined
+  >(1)
+  private lastErrorSubject = new ReplaySubject<SimulationError | undefined>(1)
+
+  public code$ = this.codeSubject.asObservable()
+  public runningSimulation$ = this.runningSimulationSubject.asObservable()
+  public lastError$ = this.lastErrorSubject.asObservable()
 
   private code: string
   private simulation?: TimedSimulation
@@ -26,28 +32,28 @@ class AppState implements IAppState {
   }
 
   public setCode = (code: string) => {
-    this.lastError$.next(undefined)
+    this.lastErrorSubject.next(undefined)
     this.code = code
-    this.code$.next(code)
+    this.codeSubject.next(code)
   }
 
   public stop = () => {
     if (this.simulation) {
       this.simulation.destroy()
     }
-    this.runningSimulation$.next(undefined)
+    this.runningSimulationSubject.next(undefined)
   }
 
   public run = () => {
     this.stop()
     this.simulation = new TimedSimulation(this.code, this.onError)
     this.simulation.play()
-    this.runningSimulation$.next(this.simulation)
+    this.runningSimulationSubject.next(this.simulation)
   }
 
   private onError = (error: SimulationError) => {
-    this.runningSimulation$.next(undefined)
-    this.lastError$.next(error)
+    this.runningSimulationSubject.next(undefined)
+    this.lastErrorSubject.next(error)
   }
 }
 

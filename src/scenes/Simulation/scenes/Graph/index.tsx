@@ -39,7 +39,7 @@ const GraphScene = (props: Props) => {
       ) : null}
       <GraphView
         graph={props.simulation.graph}
-        bufferBy={props.simulation.asObservable()}
+        bufferBy={props.simulation.tick$}
         onHighlightChange={setVertexId}
       />
     </div>
