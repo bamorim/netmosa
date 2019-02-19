@@ -13,6 +13,7 @@ import { maxBy, minBy, reduce, range } from 'ramda'
 import ScientificNotation, {
   trimmedExponential
 } from 'components/ScientificNotation'
+import min from 'ramda/es/min';
 
 export type Transformation = 'pdf' | 'cdf' | 'ccdf'
 
@@ -87,13 +88,21 @@ const DistributionChart = (props: Props) => {
 
 export default DistributionChart
 
+const linearTicks = (minVal: number, maxVal: number) => {
+  const desiredTickCount = 6
+  const naturalCount = Math.floor(maxVal - minVal)
+  const tickCount = min(desiredTickCount, naturalCount)
+  const tickPeriod = Math.ceil((maxVal - minVal) / tickCount)
+  return range(1, tickCount+1).map((i) => i * tickPeriod).filter((v) => v <= maxVal)
+}
+
+const logTicks = (minVal: number, maxVal: number) => range(Math.ceil(minVal), Math.floor(maxVal) + 1)
+
 const config = (log: boolean, values: number[]) => {
   const normalize = log ? (v: number) => Math.pow(10, v) : (v: number) => v
-
   const maxVal = reduce(maxBy((x: number) => x), -Infinity, values)
   const minVal = reduce(minBy((x: number) => x), +Infinity, values)
-  const baseTicks = range(Math.ceil(minVal), Math.floor(maxVal) + 1)
-  const ticks = log ? baseTicks : baseTicks.filter(x => x % 5 === 0)
+  const ticks = log ? logTicks(minVal, maxVal) : linearTicks(minVal, maxVal)
 
   return { ticks, normalize }
 }
