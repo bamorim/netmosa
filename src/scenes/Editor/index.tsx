@@ -3,14 +3,11 @@ import { useState, useEffect } from 'react'
 import MonacoEditor from 'react-monaco-editor'
 import * as monaco from 'monaco-editor'
 import Layout from 'components/Layout'
-import { Button, Menu, MenuItem } from '@material-ui/core'
 
-import examples from 'examples'
 import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
 import { SimulationError } from 'simulation'
-import FileSaver from 'components/FileSaver'
-import FileLoader from 'components/FileLoader'
+import TopbarActions from './components/TopbarActions';
 
 interface Props {}
 
@@ -28,7 +25,6 @@ const Editor = (props: Props) => {
     editor,
     setEditor
   ] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
-  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
   const error = useObservable(appState.lastError$, undefined)
   const code = useObservable(appState.code$, '')
 
@@ -56,40 +52,8 @@ const Editor = (props: Props) => {
     updateError()
   }
 
-  const setCodeAndClose = (newCode: string) => {
-    appState.setCode(newCode)
-    setMenuAnchor(null)
-  }
-
   return (
-    <Layout
-      actions={
-        <>
-          <FileSaver contents={code} defaultFilename="script.lua" />
-          <FileLoader onLoad={appState.setCode} />
-          <Button onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>
-            Load Example
-          </Button>
-          <Menu
-            anchorEl={menuAnchor}
-            open={menuAnchor !== null}
-            onClose={() => setMenuAnchor(null)}
-          >
-            {examples.map((example, i) => (
-              <MenuItem
-                key={i}
-                onClick={() => example.load().then(setCodeAndClose)}
-              >
-                {example.name}
-              </MenuItem>
-            ))}
-          </Menu>
-          <Button onClick={() => appState.run()} color="inherit">
-            Start
-          </Button>
-        </>
-      }
-    >
+    <Layout actions={<TopbarActions code={code} setCode={appState.setCode} run={appState.run}/>}>
       <MonacoEditor
         language="lua"
         theme="vs-light"

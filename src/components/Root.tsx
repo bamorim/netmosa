@@ -28,7 +28,7 @@ const Root = () => {
   return (
     <MuiThemeProvider theme={theme}>
       {runningSimulation ? (
-        <Simulation runningSimulation={runningSimulation} />
+        <Simulation simulation={runningSimulation} />
       ) : (
         <Editor />
       )}

@@ -24,15 +24,15 @@ const styles = createStyles({
 })
 
 interface Props {
-  runningSimulation: TimedSimulation
+  simulation: TimedSimulation
   classes: Record<keyof typeof styles, string>
 }
 
-const SimulationScene = ({ runningSimulation, classes }: Props) => {
+const SimulationScene = ({ simulation: simulation, classes }: Props) => {
   const [showStatistics, setShowStatistics] = useState(false)
-  const paused = useObservable(runningSimulation.paused$, true)
-  const speed = useObservable(runningSimulation.speed$, 0)
-  const { setSpeed, play, pause } = runningSimulation
+  const paused = useObservable(simulation.paused$, true)
+  const speed = useObservable(simulation.speed$, 0)
+  const { setSpeed, play, pause } = simulation
   const { stop } = appState
 
   // Hide components instead of unmounting them to avoid re-rendering the graph
@@ -50,15 +50,15 @@ const SimulationScene = ({ runningSimulation, classes }: Props) => {
 
   const floatingActionsProps = {
     toggleStatistics: () => setShowStatistics(!showStatistics),
-    graph: runningSimulation.graph
+    graph: simulation.graph
   }
 
   return (
     <Layout actions={<TopbarActions {...topbarActionsProps} />}>
       <div className={classes.container}>
-        <Graph simulation={runningSimulation} classes={graphViewClasses} />
+        <Graph simulation={simulation} classes={graphViewClasses} />
         <Statistics
-          graph={runningSimulation.graph}
+          graph={simulation.graph}
           classes={statisticsClasses}
         />
         <FloatingActions {...floatingActionsProps} />
