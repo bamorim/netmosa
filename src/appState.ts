@@ -1,6 +1,11 @@
 import { Observable, ReplaySubject } from 'rxjs'
 import { SimulationError, TimedSimulation } from 'simulation'
 import tutorial from 'examples/tutorial.lua'
+import LocalStorageFileSystem from 'browserfs/dist/node/backend/LocalStorage'
+
+LocalStorageFileSystem.Create({}, (e, lfs) => {
+  window['fs'] = lfs
+})
 
 export interface IAppState {
   readonly code$: Observable<string>

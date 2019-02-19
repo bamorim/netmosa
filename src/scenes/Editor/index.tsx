@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import MonacoEditor from 'react-monaco-editor'
 import * as monaco from 'monaco-editor'
 import Layout from 'components/Layout'
-import { Button, Menu, MenuItem } from '@material-ui/core'
+import { withStyles, createStyles, Button, Menu, MenuItem, Grid } from '@material-ui/core'
 
 import examples from 'examples'
 import { appState } from 'appState'
@@ -12,7 +12,15 @@ import { SimulationError } from 'simulation'
 import FileSaver from 'components/FileSaver'
 import FileLoader from 'components/FileLoader'
 
-interface Props {}
+interface Props {
+  classes: Record<keyof typeof styles, string>
+}
+
+const styles = createStyles({
+  grid: {
+    flex: '1'
+  }
+})
 
 const messageFor = (error: SimulationError) => {
   switch (error.type) {
@@ -90,19 +98,26 @@ const Editor = (props: Props) => {
         </>
       }
     >
-      <MonacoEditor
-        language="lua"
-        theme="vs-light"
-        value={code}
-        onChange={(newCode: string) => appState.setCode(newCode)}
-        editorDidMount={editorDidMount}
-        options={{
-          minimap: { enabled: false },
-          automaticLayout: true
-        }}
-      />
+      <Grid container={true} className={props.classes.grid}>
+        <Grid item={true} xs={3}>
+          Files
+        </Grid>
+        <Grid item={true} xs={9}>
+          <MonacoEditor
+            language="lua"
+            theme="vs-light"
+            value={code}
+            onChange={(newCode: string) => appState.setCode(newCode)}
+            editorDidMount={editorDidMount}
+            options={{
+              minimap: { enabled: false },
+              automaticLayout: true
+            }}
+          />
+        </Grid>
+      </Grid>
     </Layout>
   )
 }
 
-export default Editor
+export default withStyles(styles)(Editor)
