@@ -37,7 +37,7 @@ const Layout = (props: Props) => (
             color="inherit"
             className={props.classes.grow}
           >
-            GraphSim
+            Netmosa
           </Typography>
           {props.actions}
         </Toolbar>
