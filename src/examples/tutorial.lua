@@ -1,4 +1,4 @@
--- Welcome to rggvis, a visualization tool for network models
+-- Welcome to Netmosa, a visualization tool for network models
 -- Here you can write your Lua code to program your model
 -- After you code it, you can run and see it happening
 -- This code here is just an example to show a little bit of how to program your model

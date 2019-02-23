@@ -1,7 +1,7 @@
 {
-  "name": "rggvis",
+  "name": "netmosa",
   "version": "0.1.0",
-  "homepage": "http://bamorim.github.io/rggvis",
+  "homepage": "http://bamorim.github.io/netmosa",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^3.6.1",

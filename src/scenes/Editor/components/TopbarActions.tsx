@@ -13,7 +13,7 @@ interface Props {
 
 const TopbarActions = (props: Props) => (
   <>
-    <Button href="https://github.com/bamorim/rggvis/tree/master/docs/index.md" target="_blank">
+    <Button href="https://github.com/bamorim/netmosa/tree/master/docs/index.md" target="_blank">
       Docs
     </Button>
     <FileSaver
