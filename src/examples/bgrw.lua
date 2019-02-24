@@ -1,4 +1,4 @@
--- Number of steps
+-- Probability of adding a vertex to the current position at every step
 p = 0.5
 
 -- Add the first vertex with self loop
