@@ -69,6 +69,7 @@ export default function* luaSimulation(
         break
       }
     } catch (e) {
+      console.log(e)
       const debug = new lua.lua_Debug()
       if (lua.lua_getstack(L2, 0, debug) > 0) {
         lua.lua_getinfo(L2, fengari.to_luastring('Slnt', true), debug)

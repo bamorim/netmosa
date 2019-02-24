@@ -1,7 +1,112 @@
-# GraphSim Docs
+# Netmosa Docs
 
-This is just a stub for now, but here we'll write about:
+## About
 
-- How to code in Lua to develop your model
-- What are the available standard lib functions (addVertex, connectVertices, etc)
-- How the simulator works internally
+Netmosa is a network analysis tools focused on network models. It allows you to program (in Lua) a
+model and see it unroll in real time.
+
+### Our Graph Model
+
+In our graph, as usual, we have vertices and edges.
+
+Vertices are referenced by their Vertex ID (which is the index in the adjacency vector, so the first
+Vertex has Vertex ID 0).
+
+Edges are just a list with two elements, which are the two Vertex IDs of the two connected vertices.
+Edges may also be referenced by an Edge ID
+
+One special thing about vertices is that they can hold attributes, which are keyed by a string and
+contains a string value. One special attribute is color, that is used to define the fill color of
+the vertex when rendering it.
+
+## Writing your models
+
+We provide some examples you can check but ultimately you can write your own from scratch.
+
+In order to be able to write your own models, you need to know th basics of Lua and get used to our
+standard library.
+
+### Learning Lua
+
+There are plenty of lua resources out there, I'll list a few here:
+
+- Official free online book: [Programming in Lua](http://www.lua.org/pil/contents.html)
+- [Official Reference Manual](http://www.lua.org/manual/5.3/)
+
+#### Caveats
+
+We use a special implementation of Lua made in Javascript: [Fengari](https://fengari.io/), they
+claim it is 99% compatible with the PUC-Rio implementation, but there is a chance that something
+does not work properly. However, I haven't had any problems.
+
+Also, you probably won't be using these standard libraries: *io*, *os*, and *debug*, so I'd focus on
+learning the **math** and **string** libraries, specially the former.
+
+### Standard Library
+
+EdgeId and VertexId are just lua numbers, we are annotating them here to make it easy to understand
+what a function returns or receives.
+
+#### addVertex(): VertexId
+
+Adds a new vertex and returns its ID
+
+#### connectVertices(id1: VertexId, id2: VertexId): EdgeId | Nil
+
+Connect two vertices by their ids.
+If successfull, returns the edge id, otherwise returns nil.
+
+#### setAttributes(id: VertexId, key: String, value: String): Boolean
+
+Set attributes for a vertex, receiving the vertex index, the attribute name and value.
+One useful attribute is "color", which is used in the rendering.
+Returns wheter or not the attribute was set (it won't be set if the vertex doesn't exist).
+
+#### getAttributes(id: VertexId, key: String): String | Nil
+
+Gets the value of a previously set attribute.
+Returns nil if not set.
+
+#### getNeighbor(id: VertexId, neighborIndex: Number): VertexId | Nil
+
+Get the Id of a neighbor vertex, receiving the vertex Id and the neighbor index.
+If the vertex doesnt exist or the index is out of range, returns nil.
+
+#### getNeighborCount(id: VertexId): Number | Nil
+
+Get the number of neighbors a given vertex (by index) has.
+Useful for iterating through neighbors or getting a neighbor at random.
+If the vertex for the given id doesn't exist, returns nil
+
+#### getVertexCount(): Number
+
+Get the number of vertices the graph has.
+Useful for iterating through all vertices or getting one at random.
+
+#### getEdgeCount(): Number
+
+Get the number of edges the graph has.
+Useful for iterating through all edges or getting one at random.
+
+#### getEdge(id: EdgeId): (VertexId, VertexId) | Nil
+
+Get an edge by it's index.
+It is useful if you want to get the edge ends.
+It either returns two values (each VertexId associated with the edge) or it returns nil, if the edge
+doesn't exist.
+
+#### getRandomVertex(): VertexId | Nil
+
+Get a random vertex.
+Returns nil if there are no vertices.
+
+#### getRandomEdge(): (VertexId, VertexId) | Nil
+
+Get a random edge.
+It either returns two values (each VertexId associated with the edge) or it returns nil, if there
+are no edges.
+
+#### getRandomNeighbor(id: VertexId): VertexId | Nil
+
+Get a random neighbor given a vertex.
+It may return nil if there aren't any neighbors.

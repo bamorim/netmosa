@@ -1,20 +1,19 @@
 import * as fengari from 'fengari-web'
 const lua = fengari.lua
 
-import { Graph } from '../graph'
+import { Graph, VertexId, Edge, EdgeId } from '../graph'
 
 type StdLibFunction = (graph: Graph) => (L: {}) => number
 
 export interface StdLibEntry {
   fn: StdLibFunction
   name: string
-  docs: string
 }
 
 const stdlib: StdLibEntry[] = []
 
-const define = (name: string, docs: string, fn: StdLibFunction) => {
-  stdlib.push({ name, fn, docs })
+const define = (name: string, fn: StdLibFunction) => {
+  stdlib.push({ name, fn })
 }
 
 export const openStdLib = (L: {}, graph: Graph) => {
@@ -24,103 +23,134 @@ export const openStdLib = (L: {}, graph: Graph) => {
   }
 }
 
-// TODO: Study viability of: Remove vertices / edges
-// TODO: Some auxiliary functions such as: getRandomNeighbor, getRandomNode, getRandomEdge
+define('addVertex', (graph: Graph) => (L: {}) => {
+  const vertexId = graph.addVertex()
 
-define('addVertex', 'Adds a new vertex and returns its index.', (
-  graph: Graph
-) => (L: {}) => {
-  lua.lua_pushnumber(L, graph.addVertex() + 1)
-  return 1
+  return returnIndex(L, vertexId)
 })
 
-define('connectVertices', 'Connect two vertices by their indexes.', (
-  graph: Graph
-) => (L: {}) => {
-  const pos1 = lua.lua_tonumber(L, 1) - 1
-  const pos2 = lua.lua_tonumber(L, 2) - 1
-  graph.connectVertices(pos1, pos2)
+define('connectVertices', (graph: Graph) => (L: {}) => {
+  const id1 = lua.lua_tonumber(L, 1) - 1
+  const id2 = lua.lua_tonumber(L, 2) - 1
 
-  // Maybe return edge idx?
-  return 0
+  const edgeId = graph.connectVertices(id1, id2)
+
+  return returnIndex(L, edgeId)
 })
 
-// Maybe add more attributes on render such as size
-define('setAttributes', `
-  Set attributes for a vertex, receiving the vertex index, the attribute name and value.
-  One useful attribute is "color", which is used in the rendering.
-  `, (graph: Graph) => (L: {}) => {
-  const pos = lua.lua_tonumber(L, 1) - 1
+define('setAttributes', (graph: Graph) => (L: {}) => {
+  const id = lua.lua_tonumber(L, 1) - 1
   const key = fengari.to_jsstring(lua.lua_tostring(L, 2))
   const val = fengari.to_jsstring(lua.lua_tostring(L, 3))
-  graph.setAttribute(pos, key, val)
-  return 0
+
+  const resp = graph.setAttribute(id, key, val)
+
+  lua.lua_pushboolean(L, resp)
+  return 1
 })
 
-define('getAttributes', `Gets the value of a previously set attribute.`, (
-  graph: Graph
-) => (L: {}) => {
-  const pos = lua.lua_tonumber(L, 1) - 1
+define('getAttributes', (graph: Graph) => (L: {}) => {
+  const id = lua.lua_tonumber(L, 1) - 1
   const key = fengari.to_jsstring(lua.lua_tostring(L, 2))
-  const attr = graph.vertices[pos].attributes.get(key) || ''
-  lua.lua_pushstring(L, fengari.to_luastring(attr))
-  return 1
+
+  const attr = graph.getAttribute(id, key)
+
+  return returnString(L, attr)
 })
 
-define('getNeighbor', 'Get the index of a neighbor vertex, receiving the vertex index and the neighbor index.', (
-  graph: Graph
-) => (L: {}) => {
-  const pos = lua.lua_tonumber(L, 1) - 1
+define('getNeighbor', (graph: Graph) => (L: {}) => {
+  const id = lua.lua_tonumber(L, 1) - 1
   const neighborIndex = lua.lua_tonumber(L, 2) - 1
-  const neighborPos = graph.vertices[pos].neighbors[neighborIndex]
-  lua.lua_pushnumber(L, neighborPos + 1)
+
+  const neighborId = graph.getNeighbor(id, neighborIndex)
+
+  return returnIndex(L, neighborId)
+})
+
+define('getNeighborCount', (graph: Graph) => (L: {}) => {
+  const id = lua.lua_tonumber(L, 1) - 1
+
+  const neighborCount = graph.getNeighborCount(id)
+
+  return returnNumber(L, neighborCount)
+})
+
+define('getVertexCount', (graph: Graph) => (L: {}) => {
+  const count = graph.vertices.length
+
+  return returnNumber(L, count)
+})
+
+define('getEdgeCount', (graph: Graph) => (L: {}) => {
+  const count = graph.edges.length
+
+  return returnNumber(L, count)
+})
+
+define('getEdge', (graph: Graph) => (L: {}) => {
+  const id = lua.lua_tonumber(L, 1) - 1
+
+  const edge = graph.getEdge(id)
+
+  return returnEdge(L, edge)
+})
+
+define('getRandomVertex', (graph: Graph) => (L: {}) => {
+  const id = graph.getRandomVertex()
+
+  return returnIndex(L, id)
+})
+
+define('getRandomEdge', (graph: Graph) => (L: {}) => {
+  const edge = graph.getRandomEdge()
+
+  return returnEdge(L, edge)
+})
+
+define('getRandomNeighbor', (graph: Graph) => (L: {}) => {
+  const id = lua.lua_tonumber(L, 1) - 1
+
+  const neighborId = graph.getRandomNeighbor(id)
+
+  return returnIndex(L, neighborId)
+})
+
+const returnEdge = (L: {}, edge?: Edge) => {
+  if (edge !== undefined) {
+    const [a, b] = edge
+    lua.lua_pushnumber(L, a + 1)
+    lua.lua_pushnumber(L, b + 1)
+    return 2
+  } else {
+    lua.lua_pushnil(L)
+    return 1
+  }
+}
+
+const returnIndex = (L: {}, id?: VertexId | EdgeId) => {
+  // All indexes in lua are 1-based, so this translates to that and sends.
+  if (id !== undefined) {
+    lua.lua_pushnumber(L, id + 1)
+  } else {
+    lua.lua_pushnil(L)
+  }
   return 1
-})
+}
 
-define('getNeighborCount', `
-  Get the number of neighbors a given vertex (by index) has.
-  Useful for iterating through neighbors or getting a neighbor at random.
-  `, (graph: Graph) => (L: {}) => {
-  const pos = lua.lua_tonumber(L, 1) - 1
-  lua.lua_pushnumber(L, graph.vertices[pos].neighbors.length)
+const returnNumber = (L: {}, num?: number) => {
+  if (num !== undefined) {
+    lua.lua_pushnumber(L, num)
+  } else {
+    lua.lua_pushnil(L)
+  }
   return 1
-})
+}
 
-define('getVertexCount', `
-  Get the number of vertices the graph has.
-  Useful for iterating through all vertices or getting one at random.
-  `, (graph: Graph) => (L: {}) => {
-  lua.lua_pushnumber(L, graph.vertices.length)
+const returnString = (L: {}, str?: string) => {
+  if (str !== undefined) {
+    lua.lua_pushstring(L, str)
+  } else {
+    lua.lua_pushnil(L)
+  }
   return 1
-})
-
-define('getEdgeCount', `
-  Get the number of edges the graph has.
-  Useful for iterating through all edges or getting one at random.
-  `, (graph: Graph) => (L: {}) => {
-  lua.lua_pushnumber(L, graph.edges.length)
-  return 1
-})
-
-define('getEdge', `Get an edge by it's index. It is useful if you want to get the edge ends.`, (
-  graph: Graph
-) => (L: {}) => {
-  const idx = lua.lua_tonumber(L, 1) - 1
-  const [a, b] = graph.edges[idx]
-  lua.lua_pushnumber(L, a + 1)
-  lua.lua_pushnumber(L, b + 1)
-  return 2
-})
-
-define('getRandomVertex', 'Get a random vertex', (graph: Graph) => (L: {}) => {
-  lua.lua_pushnumber(L, Math.ceil(Math.random() * graph.vertices.length))
-  return 1
-})
-
-define('getRandomEdge', 'Get a random edge', (graph: Graph) => (L: {}) => {
-  const idx = Math.floor(Math.random() * graph.edges.length)
-  const [a, b] = graph.edges[idx]
-  lua.lua_pushnumber(L, a + 1)
-  lua.lua_pushnumber(L, b + 1)
-  return 2
-})
+}

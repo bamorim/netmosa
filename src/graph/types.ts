@@ -38,10 +38,17 @@ export interface ReadGraph {
   readonly vertices: ReadonlyArray<ReadVertex>
   readonly edges: ReadonlyArray<Edge>
   readonly change$: Observable<Change>
+  getAttribute(id: VertexId, key: string): string | undefined
+  getNeighbor(id: VertexId, idx: number): VertexId | undefined
+  getNeighborCount(id: VertexId): number | undefined
+  getEdge(id: EdgeId): Edge | undefined
+  getRandomVertex(): VertexId | undefined
+  getRandomEdge(): Edge | undefined
+  getRandomNeighbor(id: VertexId): VertexId | undefined
 }
 
 export interface Graph extends ReadGraph {
   addVertex(): number
-  connectVertices(v1: VertexId, v2: VertexId): void
-  setAttribute(id: VertexId, key: string, value: string): void
+  connectVertices(v1: VertexId, v2: VertexId): EdgeId | undefined
+  setAttribute(id: VertexId, key: string, value: string): boolean
 }

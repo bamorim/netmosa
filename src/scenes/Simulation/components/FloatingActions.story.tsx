@@ -26,7 +26,7 @@ for (let i = 1; i < 10; i++) {
   graph.connectVertices(0, i)
 }
 
-const noop = () => {}
+const noop = () => {} // tslint:disable-line
 
 storiesOf('scenes.Simulation.components.FloatingActions', module)
   .add('with a simple graph', () => <FloatingActions graph={graph} toggleStatistics={noop} />)

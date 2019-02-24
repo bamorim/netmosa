@@ -14,7 +14,7 @@ while true do
   for i=1,k do
     -- Take a random walk step
     setAttributes(pos, "color", "white")
-    pos = getNeighbor(pos, math.random(1,getNeighborCount(pos)))
+    pos = getRandomNeighbor(pos)
     setAttributes(pos, "color", "red")
 
     -- Give a chance to render

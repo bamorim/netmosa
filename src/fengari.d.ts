@@ -11,20 +11,22 @@ declare module 'fengari-web' {
   }
 
   interface lua {
-    lua_pcall: (L: lua_State, nargs: int, nresults: int, msgh: int) => int
+    lua_Debug: typeof Debug
     lua_getglobal: (L: lua_State, name: string) => int
-    lua_setglobal: (L: lua_State, name: string) => int
-    lua_resume: (L: lua_State, from: lua_State | null, nargs: int) => int
-    lua_tonumber: (L: lua_State, index: int) => number
-    lua_tostring: (L: lua_State, index: int) => string
+    lua_getinfo: (L: lua_State, flags: lua_String, d: Debug) => int
+    lua_getstack: (L: lua_State, index: int, d: Debug) => int
     lua_gettop: (L: lua_State) => int
     lua_newthread: (L: lua_State) => lua_State
+    lua_pcall: (L: lua_State, nargs: int, nresults: int, msgh: int) => int
+    lua_pushboolean: (L: lua_State, b: boolean) => void
     lua_pushcfunction: (L: lua_State, f: lua_CFunction) => void
+    lua_pushnil: (L: lua_State) => void
     lua_pushnumber: (L: lua_State, n: number) => void
-    lua_pushstring: (L: lua_State, n: lua_String) => void
-    lua_Debug: typeof Debug
-    lua_getstack: (L: lua_State, index: int, d: Debug) => int
-    lua_getinfo: (L: lua_State, flags: lua_String, d: Debug) => int
+    lua_pushstring: (L: lua_State, s: lua_String) => void
+    lua_resume: (L: lua_State, from: lua_State | null, nargs: int) => int
+    lua_setglobal: (L: lua_State, name: string) => int
+    lua_tonumber: (L: lua_State, index: int) => number
+    lua_tostring: (L: lua_State, index: int) => string
   }
 
   interface lualib {
