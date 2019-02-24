@@ -1,16 +1,33 @@
 # Netmosa Docs
 
-## About
-
 Netmosa is a network analysis tools focused on network models. It allows you to program (in Lua) a
 model and see it unroll in real time.
 
-### Our Graph Model
+## Running a Model
 
-In our graph, as usual, we have vertices and edges.
+To run a model in Netmosa, you first need to code in the code editor (or load an example and tweak
+the variables as described) and then you press **Run**.
+
+Within the visualization screen (while the simulation is running) you can toggle the visualization
+mode (between Graph and Statistics) by clicking on the Chart Icon (![Chart Icon]).
+
+You can also export your file in [GraphML] format by clicking the Save Icon (![Save Icon])
+
+You can adjust the speed of the simulation by dragging the slider on the top bar.
+
+## Programming in Netmosa
+
+We provide some examples you can check but ultimately you can write your own from scratch.
+
+In order to be able to write your own models in Netmosa, you need to know th basics of Lua and get
+used to our standard library.
+
+### Our Graph Structure
+
+In our graph, as usual, we have vertices and edges, but it also have vertex attributes.
 
 Vertices are referenced by their Vertex ID (which is the index in the adjacency vector, so the first
-Vertex has Vertex ID 0).
+Vertex has Vertex ID 1, because Lua is 1-indexed).
 
 Edges are just a list with two elements, which are the two Vertex IDs of the two connected vertices.
 Edges may also be referenced by an Edge ID
@@ -18,13 +35,6 @@ Edges may also be referenced by an Edge ID
 One special thing about vertices is that they can hold attributes, which are keyed by a string and
 contains a string value. One special attribute is color, that is used to define the fill color of
 the vertex when rendering it.
-
-## Writing your models
-
-We provide some examples you can check but ultimately you can write your own from scratch.
-
-In order to be able to write your own models, you need to know th basics of Lua and get used to our
-standard library.
 
 ### Learning Lua
 
@@ -110,3 +120,7 @@ are no edges.
 
 Get a random neighbor given a vertex.
 It may return nil if there aren't any neighbors.
+
+[GraphML]: http://graphml.graphdrawing.org/
+[Chart Icon]: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAABGdBTUEAALGPC/xhBQAAAAJiS0dEAP+Hj8y/AAAAB3RJTUUH4wIYDjcu9SZvbQAAARtJREFUKM/N0b9OU3EUAODv9LamiQwlOMFiXDBpQmK7Ed6AjQcwsWqZHZh4AQxlxo2BxJgQdgZGgsTEGhYfoDJ00ZgYF9t7fwxtsTLUEc56vpy/3FnE7HQTDJSU/sfSI08fSrNgA2ku3vrw50lZeToREuhO2IPY9sJ7P6ZmbAikqjwGJORRfmPHaWpFn2wCF2E+duNZuoicTDzXcel19Egj2Bixmo62tUjpPPK0bl9fy9eSQlc2aaqm46Uzv2xEIfMOr3zMFb4g/mEn2hYcqPsp047jYrwa2eI02/RN3yerlmxVDoc3jGhSs6flxKYehRJNK+nQMHz++8Imjx35rq03PouyUExVg6irsuy3K9LNqd1iREPFEBN2D+MaqSJX0SZA8X8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTktMDItMjRUMTc6NTU6NTktMDM6MDDOPUDSAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE5LTAyLTI0VDE3OjU1OjQ2LTAzOjAwhYKIGQAAAABJRU5ErkJggg==
+[Save Icon]: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAABGdBTUEAALGPC/xhBQAAAAJiS0dEAP+Hj8y/AAAAB3RJTUUH4wIYDjsF9S/ZIQAAAR1JREFUKM+Nkr9KA0EQxn97d5gqMU1ARAikFELg7LT0AXyEQCoRfRBbY0haK9FrUqRNaRmt4htEBLnCNELI7VjsHnfZC9xNsezufPPn+2agoqnd51nuvtjxBIXQA/rAExtKgdfAczkQkn09elXJ5DKGjisE3osZQ8RIINhTIbngIJPkhNUFwgcAmnNU6y223oUtfUiD71WDe465QwOXPPAVX7HmiDW/aekBc7oqZkidCR06jKkzVDFd5gwyMk3a1AT1IpoRLeCHGxUJ1GjTzICCNo35kVY8ArdelBhy2tBzBE/wX/UGvKmrepDDoAANU9DptiQu0KcH+IVh9tI/A1yyZbR3xj5blhYoMFN9Tt3dtDQ/ZZZl/COquhyl9g/YAU02SLEkGAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxOS0wMi0yNFQxNzo1OTowOC0wMzowMDqWpYwAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTktMDItMjRUMTc6NTk6MDUtMDM6MDAqHHzwAAAAAElFTkSuQmCC
