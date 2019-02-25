@@ -17,31 +17,35 @@ type HighlightChangeCallback = (vertex?: VertexId) => void
 
 interface Props {
   graph: ReadGraph
+  autozoomEnabled$?: Observable<boolean>
   bufferBy?: Observable<void | {}>
   classes: Record<keyof typeof styles, string>
   onHighlightChange?: HighlightChangeCallback
 }
 
-const GraphView = ({ graph, classes, onHighlightChange, bufferBy }: Props) => {
+const GraphView = (props: Props) => {
   const container = useRef(null)
   useLayoutEffect(
     () => {
       const noop = () => null
-      const onHighlightChangeWithFallback = onHighlightChange
-        ? onHighlightChange
+
+      const onHighlightChangeWithFallback = props.onHighlightChange
+        ? props.onHighlightChange
         : noop
+
       const graphView = new GraphViewD3(
         container.current!,
-        graph,
+        props.graph,
         onHighlightChangeWithFallback,
-        bufferBy
+        props.bufferBy,
+        props.autozoomEnabled$
       )
       return () => graphView.destroy()
     },
-    [graph]
+    [props.graph]
   )
 
-  return <div className={classes.container} ref={container} />
+  return <div className={props.classes.container} ref={container} />
 }
 
 export default withStyles(styles)(GraphView)
@@ -73,14 +77,18 @@ class GraphViewD3 {
   private isAutozooming: boolean = false
 
   // This is to avoid autozoom if manual zoom occurs
-  private autozoomDisabled: boolean = false
+  private autozoomEnabled: boolean = true
+  private autozoomTemporarilyDisabled: boolean = false
   private reenableAutozoomTimer?: NodeJS.Timeout
+  // Subscription to react to autozoom config changes
+  private autozoomSubscription?: Subscription
 
   constructor(
     container: Element,
     graph: ReadGraph,
     onHighlightChange: HighlightChangeCallback,
-    bufferBy?: Observable<void | {}>
+    bufferBy?: Observable<void | {}>,
+    autozoomEnabled$?: Observable<boolean>
   ) {
     this.graph = graph
     this.onHighlightChange = onHighlightChange
@@ -133,10 +141,20 @@ class GraphViewD3 {
     }
 
     this.subscription = changeObservable.subscribe(this.onChange)
+
+    this.autozoomEnabled = true
+    if(autozoomEnabled$) {
+      this.autozoomSubscription = autozoomEnabled$.subscribe((enabled: boolean) => {
+        this.autozoomEnabled = enabled
+      })
+    }
   }
 
   public destroy() {
     this.subscription.unsubscribe()
+    if(this.autozoomSubscription){
+      this.autozoomSubscription.unsubscribe()
+    }
     this.force.stop()
     this.clearReenableAutozoomTimer()
   }
@@ -200,9 +218,11 @@ class GraphViewD3 {
       )
 
     // Fit zoom
-    if (!this.autozoomDisabled) {
-      this.autozoom()
-    }
+    this.autozoom()
+  }
+
+  private shouldAutozoom() {
+    return this.autozoomEnabled && !this.autozoomTemporarilyDisabled
   }
 
   private update() {
@@ -310,13 +330,13 @@ class GraphViewD3 {
 
   private disableAutozoom() {
     this.clearReenableAutozoomTimer()
-    this.autozoomDisabled = true
+    this.autozoomTemporarilyDisabled = true
     this.reenableAutozoomTimer = setTimeout(this.reenableAutozoom, 5000)
   }
 
   private reenableAutozoom = () => {
+    this.autozoomTemporarilyDisabled = false
     this.autozoom()
-    this.autozoomDisabled = false
   }
 
   private clearReenableAutozoomTimer() {
@@ -327,6 +347,9 @@ class GraphViewD3 {
 
   /** Scale the zoom to fit everything */
   private autozoom() {
+    if(!this.shouldAutozoom()){
+      return
+    }
     const rootNode = this.transformationGroup.node() as SVGGraphicsElement
     const bounds = rootNode.getBBox()
     const parent = rootNode.parentElement

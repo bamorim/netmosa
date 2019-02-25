@@ -4,6 +4,7 @@ import { ReadGraph } from 'graph'
 import FileSaver from 'components/FileSaver'
 import ChartIcon from '@material-ui/icons/ShowChart'
 import SaveIcon from '@material-ui/icons/SaveAlt'
+import ZoomIcon from '@material-ui/icons/ZoomIn'
 import { generateGraphML } from '../services/generateGraphML';
 
 const styles = createStyles({
@@ -18,8 +19,11 @@ const styles = createStyles({
   }
 })
 
+
+
 interface Props {
   toggleStatistics: () => void
+  toggleAutozoom: () => void
   classes: Record<keyof typeof styles, string>
   graph: ReadGraph
 }
@@ -31,7 +35,7 @@ const FloatingActions = (props: Props) => (
       size="small"
       onClick={() => props.toggleStatistics()}
     >
-      <ChartIcon />
+      <ChartIcon/>
     </Fab>
     <FileSaver
       button={({ onClick }) => (
@@ -42,6 +46,13 @@ const FloatingActions = (props: Props) => (
       defaultFilename="graph.graphml"
       contents={() => generateGraphML(props.graph)}
     />
+    <Fab
+      className={props.classes.fab}
+      size="small"
+      onClick={() => props.toggleAutozoom()}
+    >
+      <ZoomIcon/>
+    </Fab>
   </div>
 )
 
