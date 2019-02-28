@@ -3,18 +3,25 @@ import { VertexId, Graph, Vertex, Edge, Change, EdgeId } from './types'
 import AdjacencyListVertex from './AdjacencyListVertex'
 
 export default class AdjacencyListGraph implements Graph {
-  private changeSubject: ReplaySubject<Change> = new ReplaySubject()
+  private changeSubject = new ReplaySubject<Change>()
+  private edgeCountSubject = new ReplaySubject<number>(1)
+  private vertexCountSubject = new ReplaySubject<number>(1)
+
   public edges: Edge[] = []
   public vertices: Vertex[] = []
   public change$ = this.changeSubject.asObservable()
+  public edgeCount$ = this.edgeCountSubject.asObservable()
+  public vertexCount$ = this.vertexCountSubject.asObservable()
 
-  public vertexCount = () => this.vertices.length
-  public edgeCount = () => this.edges.length
-  public vertex = (id: VertexId) => this.vertices[id]
-  public edge = (id: EdgeId) => this.edges[id]
+  constructor() {
+    this.edgeCountSubject.next(0)
+    this.vertexCountSubject.next(0)
+  }
+
   public addVertex = () => {
     const vertex = new AdjacencyListVertex(this.vertices.length)
     this.vertices.push(vertex)
+    this.vertexCountSubject.next(this.vertices.length)
     this.changeSubject.next({ type: 'AddedVertex', id: vertex.id })
 
     return vertex.id
@@ -36,6 +43,7 @@ export default class AdjacencyListGraph implements Graph {
 
     const edgeId = this.edges.length
     this.edges.push([v1, v2])
+    this.edgeCountSubject.next(this.edges.length)
     this.vertices[v1].neighbors.push(v2)
     if (v1 !== v2) {
       this.vertices[v2].neighbors.push(v1)
@@ -61,6 +69,7 @@ export default class AdjacencyListGraph implements Graph {
       return undefined
     }
   }
+
   public getNeighbor(id: VertexId, idx: number): VertexId | undefined {
     if (this.vertices.length > id && this.vertices[id].neighbors.length > idx) {
       return this.vertices[id].neighbors[idx]
@@ -68,6 +77,7 @@ export default class AdjacencyListGraph implements Graph {
       return undefined
     }
   }
+
   public getNeighborCount(id: VertexId): number | undefined {
     if (this.vertices.length > id) {
       return this.vertices[id].neighbors.length
@@ -75,6 +85,7 @@ export default class AdjacencyListGraph implements Graph {
       return undefined
     }
   }
+
   public getEdge(id: EdgeId): Edge | undefined {
     if (this.edges.length > id) {
       return this.edges[id]
@@ -82,6 +93,7 @@ export default class AdjacencyListGraph implements Graph {
       return undefined
     }
   }
+
   public getRandomVertex(): VertexId | undefined {
     if (this.vertices.length > 0) {
       return Math.floor(Math.random() * this.vertices.length)
@@ -89,6 +101,7 @@ export default class AdjacencyListGraph implements Graph {
       return undefined
     }
   }
+
   public getRandomEdge(): Edge | undefined {
     if (this.edges.length > 0) {
       const edgeId = Math.floor(Math.random() * this.edges.length)
@@ -97,6 +110,7 @@ export default class AdjacencyListGraph implements Graph {
       return undefined
     }
   }
+
   public getRandomNeighbor(id: VertexId): VertexId | undefined {
     if (this.vertices.length > id && this.vertices[id].neighbors.length > 0) {
       const neighborIndex = Math.floor(

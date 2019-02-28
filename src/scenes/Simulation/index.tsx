@@ -14,7 +14,7 @@ import DegreeDistributionCollector from './services/DegreeDistributionCollector'
 import DistanceToRootDistributionCollector from './services/DistanceToRootDistributionCollector'
 import useStatefulObject from 'hooks/useStatefulObject'
 import DistributionView from './components/DistributionView'
-import { generateGraphML } from './services/generateGraphML';
+import { generateGraphML } from './services/generateGraphML'
 
 const styles = createStyles({
   hidden: {
@@ -55,6 +55,8 @@ const SimulationScene = ({ simulation: simulation, classes }: Props) => {
 
   const paused = useObservable(simulation.paused$, true)
   const speed = useObservable(simulation.speed$, 0)
+  const edgeCount = useObservable(simulation.graph.edgeCount$, 0)
+  const vertexCount = useObservable(simulation.graph.vertexCount$, 0)
   const { setSpeed, play, pause } = simulation
   const { stop } = appState
 
@@ -67,15 +69,17 @@ const SimulationScene = ({ simulation: simulation, classes }: Props) => {
     currentTab === 'distance_dist' ? {} : { container: classes.hidden }
 
   const topbarActionsProps = {
-    setSpeed,
-    play,
-    pause,
-    stop,
-    speed,
-    paused,
     autozoomEnabled,
+    edgeCount,
+    generateGraphML: () => generateGraphML(simulation.graph),
+    pause,
+    paused,
+    play,
     setAutozoomEnabled: (enabled: boolean) => autozoomEnabled$.next(enabled),
-    generateGraphML: () => generateGraphML(simulation.graph)
+    setSpeed,
+    speed,
+    stop,
+    vertexCount
   }
 
   return (

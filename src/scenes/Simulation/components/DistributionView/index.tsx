@@ -80,9 +80,11 @@ class DistributionView extends React.Component<Props, State> {
             <FileSaver
               contents={this.generateCSVBlob}
               defaultFilename="distribution.csv"
-              button={
-                (props) => <Button variant="outlined" {...props}>Export Distribution to CSV</Button>
-              }
+              button={props => (
+                <Button variant="outlined" {...props}>
+                  Export Distribution to CSV
+                </Button>
+              )}
             />
             <DistributionStatistics distribution={distribution} />
           </Grid>

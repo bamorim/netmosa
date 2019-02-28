@@ -12,15 +12,15 @@ export interface Props {
 
 const styles = createStyles({
   container: {
-    margin: "10px"
+    margin: '10px'
   }
 })
 
 const HighlightedVertexDetails = (props: Props) => {
   const vertex = props.graph.vertices[props.vertexId]
   const entries: string[][] = [
-    ["index", props.vertexId.toString()],
-    ["degree", vertex.neighbors.length.toString()]
+    ['index', props.vertexId.toString()],
+    ['degree', vertex.neighbors.length.toString()]
   ]
 
   vertex.attributes.forEach((val, key) => {

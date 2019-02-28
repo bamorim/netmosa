@@ -1,22 +1,22 @@
 import * as xmlbuilder from 'xmlbuilder'
 import { ReadGraph } from 'graph'
-import union from 'ramda/es/union';
+import union from 'ramda/es/union'
 
 export const generateGraphML = (graph: ReadGraph) => {
   const keyXml = graph.vertices
-    .map((v) => Array.from(v.attributes.keys()))
+    .map(v => Array.from(v.attributes.keys()))
     .reduce((agg, curr) => union(agg, curr), [])
-    .map((key) => ({
+    .map(key => ({
       '@id': `d${key}`,
       '@for': 'node',
       '@attr.name': key,
       '@attr.type': 'string',
-      default: key === 'color' ? [{'#text': 'white'}] : []
+      default: key === 'color' ? [{ '#text': 'white' }] : []
     }))
 
   const nodeXml = graph.vertices.map((v, i) => ({
     '@id': `n${i}`,
-    data: Array.from(v.attributes.keys()).map((key) => ({
+    data: Array.from(v.attributes.keys()).map(key => ({
       '@key': `d${key}`,
       '#text': v.attributes.get(key)!
     }))
@@ -24,7 +24,7 @@ export const generateGraphML = (graph: ReadGraph) => {
 
   const edgeXml = graph.edges.map(([s, t], i) => ({
     '@source': `n${s}`,
-    '@target': `n${t}`,
+    '@target': `n${t}`
   }))
   const graphXml = {
     graphml: {

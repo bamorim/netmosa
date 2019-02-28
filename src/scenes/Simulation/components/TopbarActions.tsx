@@ -8,7 +8,9 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Select
+  Select,
+  Chip,
+  Avatar
 } from '@material-ui/core'
 import PlayIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
@@ -18,6 +20,9 @@ import MoreIcon from '@material-ui/icons/MoreVert'
 import FileSaveDialog from 'components/FileSaveDialog'
 
 const styles = createStyles({
+  chip: {
+    margin: '5px'
+  },
   sliderWrapper: {
     width: 150,
     padding: '0 10px',
@@ -33,16 +38,18 @@ const styles = createStyles({
 })
 
 interface Props {
-  speed: number
-  setSpeed: (speed: number) => void
+  autozoomEnabled: boolean
+  classes: Record<keyof typeof styles, string>
+  edgeCount: number
+  generateGraphML: () => Blob
+  pause: () => void
   paused: boolean
   play: () => void
-  pause: () => void
-  stop: () => void
-  autozoomEnabled: boolean
   setAutozoomEnabled: (enabled: boolean) => void
-  generateGraphML: () => Blob
-  classes: Record<keyof typeof styles, string>
+  setSpeed: (speed: number) => void
+  speed: number
+  stop: () => void
+  vertexCount: number
 }
 
 const TopbarActions = (props: Props) => {
@@ -63,6 +70,19 @@ const TopbarActions = (props: Props) => {
 
   return (
     <>
+      <Chip
+        variant="outlined"
+        className={props.classes.chip}
+        avatar={<Avatar>{props.vertexCount}</Avatar>}
+        label="Vertices"
+      />
+      <Chip
+        variant="outlined"
+        className={props.classes.chip}
+        avatar={<Avatar>{props.edgeCount}</Avatar>}
+        label="Edges"
+      />
+
       <FormControl className={props.classes.formControl}>
         <InputLabel htmlFor="age-native-simple">Speed</InputLabel>
         <Select

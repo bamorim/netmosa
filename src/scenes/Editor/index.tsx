@@ -7,7 +7,7 @@ import Layout from 'components/Layout'
 import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
 import { SimulationError } from 'simulation'
-import TopbarActions from './components/TopbarActions';
+import TopbarActions from './components/TopbarActions'
 
 interface Props {}
 
@@ -53,7 +53,15 @@ const Editor = (props: Props) => {
   }
 
   return (
-    <Layout actions={<TopbarActions code={code} setCode={appState.setCode} run={appState.run}/>}>
+    <Layout
+      actions={
+        <TopbarActions
+          code={code}
+          setCode={appState.setCode}
+          run={appState.run}
+        />
+      }
+    >
       <MonacoEditor
         language="lua"
         theme="vs-light"

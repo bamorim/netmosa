@@ -38,6 +38,8 @@ export interface ReadGraph {
   readonly vertices: ReadonlyArray<ReadVertex>
   readonly edges: ReadonlyArray<Edge>
   readonly change$: Observable<Change>
+  readonly edgeCount$: Observable<number>
+  readonly vertexCount$: Observable<number>
   getAttribute(id: VertexId, key: string): string | undefined
   getNeighbor(id: VertexId, idx: number): VertexId | undefined
   getNeighborCount(id: VertexId): number | undefined

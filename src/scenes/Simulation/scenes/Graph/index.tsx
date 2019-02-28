@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs'
 
 import { VertexId } from 'graph'
 

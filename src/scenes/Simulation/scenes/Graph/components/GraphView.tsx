@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
 import { Subscription, Observable } from 'rxjs'
 import { clearTimeout, setTimeout } from 'timers'
-import { buffer, flatMap } from 'rxjs/operators';
+import { buffer, flatMap } from 'rxjs/operators'
 
 const styles = createStyles({
   container: {
@@ -136,23 +136,28 @@ class GraphViewD3 {
 
     let changeObservable = this.graph.change$
 
-    if(bufferBy) {
-      changeObservable = changeObservable.pipe(buffer(bufferBy), flatMap((evts) => evts))
+    if (bufferBy) {
+      changeObservable = changeObservable.pipe(
+        buffer(bufferBy),
+        flatMap(evts => evts)
+      )
     }
 
     this.subscription = changeObservable.subscribe(this.onChange)
 
     this.autozoomEnabled = true
-    if(autozoomEnabled$) {
-      this.autozoomSubscription = autozoomEnabled$.subscribe((enabled: boolean) => {
-        this.autozoomEnabled = enabled
-      })
+    if (autozoomEnabled$) {
+      this.autozoomSubscription = autozoomEnabled$.subscribe(
+        (enabled: boolean) => {
+          this.autozoomEnabled = enabled
+        }
+      )
     }
   }
 
   public destroy() {
     this.subscription.unsubscribe()
-    if(this.autozoomSubscription){
+    if (this.autozoomSubscription) {
       this.autozoomSubscription.unsubscribe()
     }
     this.force.stop()
@@ -347,7 +352,7 @@ class GraphViewD3 {
 
   /** Scale the zoom to fit everything */
   private autozoom() {
-    if(!this.shouldAutozoom()){
+    if (!this.shouldAutozoom()) {
       return
     }
     const rootNode = this.transformationGroup.node() as SVGGraphicsElement

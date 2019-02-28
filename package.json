@@ -28,7 +28,7 @@
     "eject": "react-scripts-ts eject",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build",
-    "format": "prettier --write src/**/*.ts src/**/*.tsx",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\"",
     "storybook": "start-storybook -p 6006",
     "dependencyReport": "madge --tsConfig tsconfig.json -i dependencyReport.png src/index.tsx"
   },
