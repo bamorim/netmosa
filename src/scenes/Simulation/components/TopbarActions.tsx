@@ -69,12 +69,12 @@ const TopbarActions = (props: Props) => {
           value={props.speed}
           onChange={e => props.setSpeed(parseInt(e.target.value, 10))}
         >
-          <option value={1}>1X</option>
-          <option value={2}>2X</option>
-          <option value={4}>4X</option>
-          <option value={8}>8X</option>
-          <option value={16}>16X</option>
-          <option value={32}>32X</option>
+          <MenuItem value={1}>1X</MenuItem>
+          <MenuItem value={2}>2X</MenuItem>
+          <MenuItem value={4}>4X</MenuItem>
+          <MenuItem value={8}>8X</MenuItem>
+          <MenuItem value={16}>16X</MenuItem>
+          <MenuItem value={32}>32X</MenuItem>
         </Select>
       </FormControl>
       {props.paused ? (
