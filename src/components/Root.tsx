@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core'
+import { createMuiTheme, MuiThemeProvider, colors } from '@material-ui/core'
 import Editor from 'scenes/Editor'
 import Simulation from 'scenes/Simulation'
 import useObservable from 'hooks/useObservable'
@@ -10,12 +10,9 @@ const theme = createMuiTheme({
     useNextVariants: true
   },
   palette: {
-    primary: {
-      main: '#e0e0e0'
-    },
-    secondary: {
-      main: '#616161'
-    }
+    type: 'light',
+    primary: colors.grey,
+    secondary: colors.blueGrey
   }
 })
 

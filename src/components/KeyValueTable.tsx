@@ -1,5 +1,12 @@
 import * as React from 'react'
-import { Table, TableBody, TableRow, TableCell, createStyles, withStyles } from '@material-ui/core'
+import {
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+  createStyles,
+  withStyles
+} from '@material-ui/core'
 
 interface Props {
   entries: React.ReactNode[][]
@@ -13,10 +20,10 @@ const styles = createStyles({
 })
 
 const KeyValueTable = ({ entries, classes }: Props) => (
-  <Table padding='dense'>
+  <Table padding="dense">
     <TableBody>
       {entries.map((cells, i) => (
-        <TableRow key={i} classes={{root: classes.row}}>
+        <TableRow key={i} classes={{ root: classes.row }}>
           {cells.map((cell, j) => (
             <TableCell key={j}>{cell}</TableCell>
           ))}

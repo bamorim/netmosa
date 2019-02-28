@@ -43,7 +43,9 @@ function FileLoader<T>(p: Props<T>) {
   const button = p.button ? (
     p.button({ onClick: open })
   ) : (
-    <Button onClick={open}>{label}</Button>
+    <Button onClick={open} color="inherit">
+      {label}
+    </Button>
   )
 
   return (

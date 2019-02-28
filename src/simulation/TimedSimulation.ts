@@ -21,7 +21,7 @@ export default class TimedSimulation {
   private onError: ErrorCallback
 
   constructor(code: string, onError: ErrorCallback) {
-    const initialSpeed = 0
+    const initialSpeed = 1
     this.onError = onError
 
     const graph = new AdjacencyListGraph()

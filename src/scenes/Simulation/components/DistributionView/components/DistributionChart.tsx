@@ -50,7 +50,7 @@ const DistributionChart = (props: Props) => {
   const yConfig = config(props.yLog, data.map(({ y }) => y))
 
   return (
-    <ResponsiveContainer height={250} width="100%">
+    <ResponsiveContainer height="100%" width="100%">
       <LineChart
         data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

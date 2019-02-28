@@ -3,7 +3,6 @@ import { ReadGraph } from 'graph'
 import union from 'ramda/es/union';
 
 export const generateGraphML = (graph: ReadGraph) => {
-  // TODO: Add attributes in GraphML export
   const keyXml = graph.vertices
     .map((v) => Array.from(v.attributes.keys()))
     .reduce((agg, curr) => union(agg, curr), [])

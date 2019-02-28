@@ -5,7 +5,8 @@ import {
   Typography,
   AppBar,
   createStyles,
-  withStyles
+  withStyles,
+  colors
 } from '@material-ui/core'
 
 const styles = createStyles({
@@ -18,6 +19,9 @@ const styles = createStyles({
     flex: 1,
     display: 'flex',
     maxWidth: '100%'
+  },
+  appbar: {
+    backgroundColor: colors.grey[300]
   }
 })
 
@@ -30,7 +34,7 @@ interface Props {
 const Layout = (props: Props) => (
   <div className={props.classes.container}>
     <div>
-      <AppBar position="static">
+      <AppBar position="static" className={props.classes.appbar}>
         <Toolbar>
           <Typography
             variant="h6"

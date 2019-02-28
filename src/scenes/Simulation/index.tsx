@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createStyles, withStyles } from '@material-ui/core'
+import { createStyles, withStyles, Tabs, Tab } from '@material-ui/core'
 import { useState, useEffect } from 'react'
 
 import { appState } from 'appState'
@@ -7,11 +7,14 @@ import useObservable from 'hooks/useObservable'
 import Layout from 'components/Layout'
 import { TimedSimulation } from 'simulation'
 
-import Statistics from './scenes/Statistics'
 import Graph from './scenes/Graph'
 import TopbarActions from './components/TopbarActions'
-import FloatingActions from './components/FloatingActions'
-import { Subject, ReplaySubject } from 'rxjs'
+import { Subject } from 'rxjs'
+import DegreeDistributionCollector from './services/DegreeDistributionCollector'
+import DistanceToRootDistributionCollector from './services/DistanceToRootDistributionCollector'
+import useStatefulObject from 'hooks/useStatefulObject'
+import DistributionView from './components/DistributionView'
+import { generateGraphML } from './services/generateGraphML';
 
 const styles = createStyles({
   hidden: {
@@ -29,8 +32,22 @@ interface Props {
   classes: Record<keyof typeof styles, string>
 }
 
+type TabValue = 'graph' | 'degree_dist' | 'distance_dist'
+
 const SimulationScene = ({ simulation: simulation, classes }: Props) => {
-  const [showStatistics, setShowStatistics] = useState(false)
+  const [currentTab, setCurrentTab] = useState<TabValue>('graph')
+
+  const degreeDist = useStatefulObject(
+    () => new DegreeDistributionCollector(simulation.graph),
+    collector => collector.destroy(),
+    [simulation.graph]
+  )
+
+  const rootDistanceDist = useStatefulObject(
+    () => new DistanceToRootDistributionCollector(simulation.graph),
+    collector => collector.destroy(),
+    [simulation.graph]
+  )
 
   const [autozoomEnabled$] = useState<Subject<boolean>>(new Subject())
   useEffect(() => autozoomEnabled$.next(true), [autozoomEnabled$])
@@ -42,8 +59,12 @@ const SimulationScene = ({ simulation: simulation, classes }: Props) => {
   const { stop } = appState
 
   // Hide components instead of unmounting them to avoid re-rendering the graph
-  const graphViewClasses = showStatistics ? { container: classes.hidden } : {}
-  const statisticsClasses = showStatistics ? {} : { container: classes.hidden }
+  const graphViewClasses =
+    currentTab === 'graph' ? {} : { container: classes.hidden }
+  const degreeDistClasses =
+    currentTab === 'degree_dist' ? {} : { container: classes.hidden }
+  const distanceDistClasses =
+    currentTab === 'distance_dist' ? {} : { container: classes.hidden }
 
   const topbarActionsProps = {
     setSpeed,
@@ -51,25 +72,45 @@ const SimulationScene = ({ simulation: simulation, classes }: Props) => {
     pause,
     stop,
     speed,
-    paused
-  }
-
-  const floatingActionsProps = {
-    toggleStatistics: () => setShowStatistics(!showStatistics),
-    toggleAutozoom: () => autozoomEnabled$.next(!autozoomEnabled),
-    graph: simulation.graph
+    paused,
+    autozoomEnabled,
+    setAutozoomEnabled: (enabled: boolean) => autozoomEnabled$.next(enabled),
+    generateGraphML: () => generateGraphML(simulation.graph)
   }
 
   return (
     <Layout actions={<TopbarActions {...topbarActionsProps} />}>
+      <Tabs
+        value={currentTab}
+        onChange={(change, value) => setCurrentTab(value)}
+        indicatorColor="primary"
+        textColor="primary"
+        centered={true}
+      >
+        <Tab value="graph" label="Graph" />
+        <Tab value="degree_dist" label="Degree" />
+        <Tab value="distance_dist" label="Distance to Root" />
+      </Tabs>
       <div className={classes.container}>
         <Graph
           simulation={simulation}
           classes={graphViewClasses}
           autozoomEnabled$={autozoomEnabled$}
         />
-        <Statistics graph={simulation.graph} classes={statisticsClasses} />
-        <FloatingActions {...floatingActionsProps} />
+        {degreeDist ? (
+          <DistributionView
+            distribution={degreeDist.distribution$}
+            classes={degreeDistClasses}
+            name="Degree"
+          />
+        ) : null}
+        {rootDistanceDist ? (
+          <DistributionView
+            distribution={rootDistanceDist.distribution$}
+            classes={distanceDistClasses}
+            name="Distance to Root"
+          />
+        ) : null}
       </div>
     </Layout>
   )

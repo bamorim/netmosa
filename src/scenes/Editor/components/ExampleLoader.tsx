@@ -17,7 +17,7 @@ export default (props: Props) => {
 
   return (
     <>
-      <Button onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>
+      <Button color="inherit" onClick={({ currentTarget }) => setMenuAnchor(currentTarget)}>
         Examples
       </Button>
       <Menu
