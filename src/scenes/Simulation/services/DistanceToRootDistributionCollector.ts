@@ -1,6 +1,7 @@
-import { ReplaySubject, Subject, Subscription } from 'rxjs'
+import { ReplaySubject, Subject, Subscription, interval } from 'rxjs'
 
 import { ReadGraph, Change, VertexId } from 'graph'
+import { buffer } from 'rxjs/operators'
 
 const changeDist = (dist: number[], idx: number, amt: number) => {
   dist[idx] = dist[idx] || 0
@@ -9,25 +10,30 @@ const changeDist = (dist: number[], idx: number, amt: number) => {
 
 class DistanceToRootDistributionCollector {
   private graph: ReadGraph
-  private distribution: number[]
-  private distances: Map<VertexId, number>
   private subscription: Subscription
+  private distribution: number[] = []
   private distributionSubject: Subject<number[]> = new ReplaySubject(1)
+  private distances: Map<VertexId, number> = new Map()
 
   public distribution$ = this.distributionSubject.asObservable()
 
   constructor(graph: ReadGraph) {
     this.graph = graph
-    this.subscription = this.graph.change$.subscribe(this.onGraphEvent)
-    this.distribution = []
-    this.distances = new Map()
+    this.subscription = this.graph.change$
+      .pipe(buffer(interval(500)))
+      .subscribe(this.onGraphEvents)
   }
 
   public destroy() {
     this.subscription.unsubscribe()
   }
 
-  private onGraphEvent = (change: Change) => {
+  private onGraphEvents = (changes: Change[]) => {
+    changes.forEach(this.processEvent)
+    this.distributionSubject.next(this.distribution)
+  }
+
+  private processEvent = (change: Change) => {
     switch (change.type) {
       case 'AddedVertex':
         if (change.id === 0) {
@@ -63,8 +69,6 @@ class DistanceToRootDistributionCollector {
         break
       default:
     }
-
-    this.distributionSubject.next(this.distribution)
   }
 }
 

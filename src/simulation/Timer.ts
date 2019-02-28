@@ -30,7 +30,7 @@ export default class Timer {
   }
 
   public setSpeed(speed: number) {
-    this.period = 640 / speed
+    this.period = 320 / speed
     this.shouldReschedule = true
   }
 

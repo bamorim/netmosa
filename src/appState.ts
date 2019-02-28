@@ -48,6 +48,7 @@ export class AppState {
 
   public run = () => {
     this.stop()
+    this.setAutozoomEnabled(true)
     this.simulation = new TimedSimulation(this.code, this.onError)
     this.simulation.play()
     this.runningSimulationSubject.next(this.simulation)

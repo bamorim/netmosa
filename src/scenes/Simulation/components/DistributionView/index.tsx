@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Observable, Subscription } from 'rxjs'
-import { sampleTime } from 'rxjs/operators'
 
 import FileSaver from 'components/FileSaver'
 
@@ -48,9 +47,9 @@ class DistributionView extends React.Component<Props, State> {
   }
 
   public componentDidMount() {
-    this.subscription = this.props.distribution
-      .pipe(sampleTime(500)) // Performance tweaking
-      .subscribe((distribution: number[]) => this.setState({ distribution }))
+    this.subscription = this.props.distribution.subscribe(
+      (distribution: number[]) => this.setState({ distribution })
+    )
   }
 
   public componentWillUnmount() {

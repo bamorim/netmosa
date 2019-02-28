@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
 import { Subscription, Observable } from 'rxjs'
 import { clearTimeout, setTimeout } from 'timers'
-import { buffer, flatMap } from 'rxjs/operators'
+import { buffer, map } from 'rxjs/operators'
 
 const styles = createStyles({
   container: {
@@ -134,16 +134,15 @@ class GraphViewD3 {
 
     this.update()
 
-    let changeObservable = this.graph.change$
+    let changeObservable: Observable<Change[]>
 
     if (bufferBy) {
-      changeObservable = changeObservable.pipe(
-        buffer(bufferBy),
-        flatMap(evts => evts)
-      )
+      changeObservable = this.graph.change$.pipe(buffer(bufferBy))
+    } else {
+      changeObservable = this.graph.change$.pipe(map(c => [c]))
     }
 
-    this.subscription = changeObservable.subscribe(this.onChange)
+    this.subscription = changeObservable.subscribe(this.onChanges)
 
     this.autozoomEnabled = true
     if (autozoomEnabled$) {
@@ -164,7 +163,12 @@ class GraphViewD3 {
     this.clearReenableAutozoomTimer()
   }
 
-  private onChange = (change: Change) => {
+  private onChanges = (changes: Change[]) => {
+    changes.forEach(this.processChange)
+    this.update()
+  }
+
+  private processChange = (change: Change) => {
     switch (change.type) {
       case 'AddedVertex':
         const vertex = this.graph.vertices[change.id]
@@ -194,8 +198,6 @@ class GraphViewD3 {
         break
       default:
     }
-
-    this.update()
   }
 
   private ticked = () => {

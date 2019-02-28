@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { createStyles, withStyles, Tabs, Tab } from '@material-ui/core'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import { appState } from 'appState'
 import useObservable from 'hooks/useObservable'
@@ -9,13 +9,12 @@ import { TimedSimulation } from 'simulation'
 
 import Graph from './scenes/Graph'
 import TopbarActions from './components/TopbarActions'
-import { Subject, interval, generate } from 'rxjs'
 import DegreeDistributionCollector from './services/DegreeDistributionCollector'
 import DistanceToRootDistributionCollector from './services/DistanceToRootDistributionCollector'
 import useStatefulObject from 'hooks/useStatefulObject'
 import DistributionView from './components/DistributionView'
 import { generateGraphML } from './services/generateGraphML'
-import { throttle } from 'rxjs/operators'
+import { sampleTime } from 'rxjs/operators'
 
 const styles = createStyles({
   hidden: {
@@ -44,11 +43,11 @@ const SimulationScene = ({ simulation, classes }: Props) => {
   const paused = useObservable(simulation.paused$, true)
   const speed = useObservable(simulation.speed$, 0)
   const edgeCount = useObservable(
-    simulation.graph.edgeCount$.pipe(throttle(val => interval(100))),
+    simulation.graph.edgeCount$.pipe(sampleTime(250)),
     0
   )
   const vertexCount = useObservable(
-    simulation.graph.vertexCount$.pipe(throttle(val => interval(100))),
+    simulation.graph.vertexCount$.pipe(sampleTime(250)),
     0
   )
 
