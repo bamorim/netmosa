@@ -1,18 +1,17 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { createStyles, withStyles } from '@material-ui/core'
-import { Observable } from 'rxjs'
 
 import { VertexId } from 'graph'
 
 import GraphView from './components/GraphView'
 import HighlightedVertexDetails from './components/HighlightedVertexDetails'
 import { TimedSimulation } from 'simulation'
+import { appState } from 'appState'
 
 export interface Props {
   simulation: TimedSimulation
   classes: Record<keyof typeof styles, string>
-  autozoomEnabled$?: Observable<boolean>
 }
 
 const styles = createStyles({
@@ -43,7 +42,7 @@ const GraphScene = (props: Props) => {
         graph={props.simulation.graph}
         bufferBy={props.simulation.tick$}
         onHighlightChange={setVertexId}
-        autozoomEnabled$={props.autozoomEnabled$}
+        autozoomEnabled$={appState.autozoomEnabled$}
       />
     </div>
   )

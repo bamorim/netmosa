@@ -1,34 +1,36 @@
-import { Observable, ReplaySubject } from 'rxjs'
+import { ReplaySubject } from 'rxjs'
 import { SimulationError, TimedSimulation } from 'simulation'
 import tutorial from 'examples/tutorial.lua'
 
-export interface IAppState {
-  readonly code$: Observable<string>
-  readonly runningSimulation$: Observable<TimedSimulation | undefined>
-  readonly lastError$: Observable<SimulationError | undefined>
-  readonly setCode: (code: string) => void
-  readonly run: () => void
-  readonly stop: () => void
-}
-
-class AppState implements IAppState {
+export class AppState {
   private codeSubject = new ReplaySubject<string>(1)
   private runningSimulationSubject = new ReplaySubject<
     TimedSimulation | undefined
   >(1)
   private lastErrorSubject = new ReplaySubject<SimulationError | undefined>(1)
-
-  public code$ = this.codeSubject.asObservable()
-  public runningSimulation$ = this.runningSimulationSubject.asObservable()
-  public lastError$ = this.lastErrorSubject.asObservable()
+  private autozoomEnabledSubject = new ReplaySubject<boolean>(1)
 
   private code: string
   private simulation?: TimedSimulation
+  private autozoomEnabled: boolean
+
+  public readonly code$ = this.codeSubject.asObservable()
+  public readonly runningSimulation$ = this.runningSimulationSubject.asObservable()
+  public readonly lastError$ = this.lastErrorSubject.asObservable()
+  public readonly autozoomEnabled$ = this.autozoomEnabledSubject.asObservable()
 
   constructor() {
+    this.setAutozoomEnabled(true)
     fetch(tutorial)
       .then(r => r.text())
       .then((code: string) => this.setCode(code))
+  }
+
+  public setAutozoomEnabled = (autozoomEnabled: boolean) => {
+    if (this.autozoomEnabled !== autozoomEnabled) {
+      this.autozoomEnabled = autozoomEnabled
+      this.autozoomEnabledSubject.next(autozoomEnabled)
+    }
   }
 
   public setCode = (code: string) => {
@@ -57,4 +59,4 @@ class AppState implements IAppState {
   }
 }
 
-export const appState: IAppState = new AppState()
+export const appState = new AppState()

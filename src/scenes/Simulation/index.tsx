@@ -9,13 +9,13 @@ import { TimedSimulation } from 'simulation'
 
 import Graph from './scenes/Graph'
 import TopbarActions from './components/TopbarActions'
-import { Subject, interval } from 'rxjs'
+import { Subject, interval, generate } from 'rxjs'
 import DegreeDistributionCollector from './services/DegreeDistributionCollector'
 import DistanceToRootDistributionCollector from './services/DistanceToRootDistributionCollector'
 import useStatefulObject from 'hooks/useStatefulObject'
 import DistributionView from './components/DistributionView'
 import { generateGraphML } from './services/generateGraphML'
-import { throttle } from 'rxjs/operators';
+import { throttle } from 'rxjs/operators'
 
 const styles = createStyles({
   hidden: {
@@ -35,8 +35,22 @@ interface Props {
 
 type TabValue = 'graph' | 'degree_dist' | 'distance_dist'
 
-const SimulationScene = ({ simulation: simulation, classes }: Props) => {
+const SimulationScene = ({ simulation, classes }: Props) => {
+  const { setSpeed, play, pause } = simulation
+  const { stop, setAutozoomEnabled } = appState
+
   const [currentTab, setCurrentTab] = useState<TabValue>('graph')
+  const autozoomEnabled = useObservable(appState.autozoomEnabled$, true)
+  const paused = useObservable(simulation.paused$, true)
+  const speed = useObservable(simulation.speed$, 0)
+  const edgeCount = useObservable(
+    simulation.graph.edgeCount$.pipe(throttle(val => interval(100))),
+    0
+  )
+  const vertexCount = useObservable(
+    simulation.graph.vertexCount$.pipe(throttle(val => interval(100))),
+    0
+  )
 
   const degreeDist = useStatefulObject(
     () => new DegreeDistributionCollector(simulation.graph),
@@ -50,17 +64,6 @@ const SimulationScene = ({ simulation: simulation, classes }: Props) => {
     [simulation.graph]
   )
 
-  const [autozoomEnabled$] = useState<Subject<boolean>>(new Subject())
-  useEffect(() => autozoomEnabled$.next(true), [autozoomEnabled$])
-  const autozoomEnabled = useObservable(autozoomEnabled$, true)
-
-  const paused = useObservable(simulation.paused$, true)
-  const speed = useObservable(simulation.speed$, 0)
-  const edgeCount = useObservable(simulation.graph.edgeCount$.pipe(throttle(val => interval(100))), 0)
-  const vertexCount = useObservable(simulation.graph.vertexCount$.pipe(throttle(val => interval(100))), 0)
-  const { setSpeed, play, pause } = simulation
-  const { stop } = appState
-
   // Hide components instead of unmounting them to avoid re-rendering the graph
   const graphViewClasses =
     currentTab === 'graph' ? {} : { container: classes.hidden }
@@ -72,11 +75,11 @@ const SimulationScene = ({ simulation: simulation, classes }: Props) => {
   const topbarActionsProps = {
     autozoomEnabled,
     edgeCount,
-    generateGraphML: () => generateGraphML(simulation.graph),
+    generateGraphML: generateGraphML.bind(null, simulation.graph),
     pause,
     paused,
     play,
-    setAutozoomEnabled: (enabled: boolean) => autozoomEnabled$.next(enabled),
+    setAutozoomEnabled,
     setSpeed,
     speed,
     stop,
@@ -97,11 +100,7 @@ const SimulationScene = ({ simulation: simulation, classes }: Props) => {
         <Tab value="distance_dist" label="Distance to Root" />
       </Tabs>
       <div className={classes.container}>
-        <Graph
-          simulation={simulation}
-          classes={graphViewClasses}
-          autozoomEnabled$={autozoomEnabled$}
-        />
+        <Graph simulation={simulation} classes={graphViewClasses} />
         {degreeDist ? (
           <DistributionView
             distribution={degreeDist.distribution$}
