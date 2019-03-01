@@ -9,7 +9,14 @@ import { buffer, map } from 'rxjs/operators'
 
 const styles = createStyles({
   container: {
-    flex: '1'
+    flex: '1',
+    position: 'relative'
+  },
+  svg: {
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    height: '100%'
   }
 })
 
@@ -34,7 +41,7 @@ const GraphView = (props: Props) => {
         : noop
 
       const graphView = new GraphViewD3(
-        container.current!,
+        container.current! as SVGSVGElement,
         props.graph,
         onHighlightChangeWithFallback,
         props.bufferBy,
@@ -45,7 +52,9 @@ const GraphView = (props: Props) => {
     [props.graph]
   )
 
-  return <div className={props.classes.container} ref={container} />
+  return <div className={props.classes.container}>
+   <svg ref={container} className={props.classes.svg} width="100%" height="100%"/>
+  </div>
 }
 
 export default withStyles(styles)(GraphView)
@@ -84,7 +93,7 @@ class GraphViewD3 {
   private autozoomSubscription?: Subscription
 
   constructor(
-    container: Element,
+    container: SVGSVGElement,
     graph: ReadGraph,
     onHighlightChange: HighlightChangeCallback,
     bufferBy?: Observable<void | {}>,
@@ -112,9 +121,6 @@ class GraphViewD3 {
 
     this.svg = d3
       .select(container)
-      .append('svg')
-      .attr('width', '100%')
-      .attr('height', '100%')
       .call(this.zoom)
 
     this.transformationGroup = this.svg.append('g')
