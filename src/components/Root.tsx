@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { createMuiTheme, MuiThemeProvider, colors } from '@material-ui/core'
-import Editor from 'scenes/Editor'
-import Simulation from 'scenes/Simulation'
+import EditorPage from './EditorPage'
+import SimulationPage from './SimulationPage'
 import useObservable from 'hooks/useObservable'
-import { appState } from 'appState'
+import AppState from 'model/AppState'
 
 const theme = createMuiTheme({
   typography: {
@@ -16,18 +16,22 @@ const theme = createMuiTheme({
   }
 })
 
-const Root = () => {
-  const runningSimulation = useObservable(
-    appState.runningSimulation$,
-    undefined
-  )
+interface Props {
+  appState: AppState
+}
+
+const Root = ({ appState }: Props) => {
+  const simulationState = useObservable(appState.simulationState$, undefined)
 
   return (
     <MuiThemeProvider theme={theme}>
-      {runningSimulation ? (
-        <Simulation simulation={runningSimulation} />
+      {simulationState ? (
+        <SimulationPage
+          stop={appState.stop}
+          simulationState={simulationState}
+        />
       ) : (
-        <Editor />
+        <EditorPage appState={appState} />
       )}
     </MuiThemeProvider>
   )
