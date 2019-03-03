@@ -15,6 +15,13 @@ export default class SimulationState {
   constructor(code: string, onError: ErrorCallback) {
     this.setAutozoomEnabled(true)
     this.simulation = new TimedSimulation(code, onError)
+    this.simulation.play()
+    this.degreeDistributionCollector = new DegreeDistributionCollector(
+      this.simulation.graph
+    )
+    this.distanceToRootDistributionCollector = new DistanceToRootDistributionCollector(
+      this.simulation.graph
+    )
   }
 
   public setAutozoomEnabled = (autozoomEnabled: boolean) => {

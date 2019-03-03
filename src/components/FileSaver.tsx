@@ -17,7 +17,7 @@ export interface Props<T> {
   button?: (p: ButtonProps) => ReactElement<T>
 }
 
-function FileSaver<T>(p: Props<T>) {
+export default function FileSaver<T>(p: Props<T>) {
   const [isOpen, setOpen] = useState(false)
   const label = p.label || 'Save File'
 
@@ -44,5 +44,3 @@ function FileSaver<T>(p: Props<T>) {
     </>
   )
 }
-
-export default FileSaver
